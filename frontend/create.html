@@ -280,7 +280,34 @@
             title: title,
             text: message,
             confirmButtonColor: '#00B875',
-            confirmButtonText: 'OK'
+            confirmButtonText: 'OK',
+            timer: 1500,
+            showConfirmButton: true,
+            width: '280px',
+            padding: '0.8rem',
+            font: '12px'
+        });
+    }
+    
+    async function showToast(icon, title, message) {
+        vibratePhone(50);
+        
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+        
+        Toast.fire({
+            icon: icon,
+            title: title,
+            text: message
         });
     }
     
@@ -335,7 +362,7 @@
         }
     }
     
-    // Create user - NO activation code returned to frontend
+    // Create user
     async function createUser(accountNumber, accountName, email, passwordCode) {
         try {
             const response = await fetch(`${API_URL}/api/create-user`, {
@@ -374,9 +401,9 @@
         
         if (val.length === 10 && !isVerifying) {
             isVerifying = true;
-            accountNameSpan.textContent = 'Verifying with OPay...';
+            accountNameSpan.textContent = 'Verifying...';
             accountNameSpan.style.color = '#e67e22';
-            vibratePhone(50);
+            vibratePhone(30);
             
             const result = await getRealAccountName(val);
             
@@ -384,16 +411,17 @@
                 currentAccountName = result.name;
                 accountNameSpan.textContent = result.name;
                 accountNameSpan.style.color = '#00B875';
-                vibratePhone(0, [50, 50, 50]);
+                vibratePhone(0, [30, 30, 30]);
             } else {
                 currentAccountName = '';
-                accountNameSpan.textContent = 'Account not found';
+                accountNameSpan.textContent = 'Not found';
                 accountNameSpan.style.color = '#e74c3c';
-                vibratePhone(0, [200, 100, 200]);
+                vibratePhone(0, [150, 80, 150]);
+                await showToast('error', 'Error', result.message || 'Account not found');
             }
             isVerifying = false;
         } else if (val.length > 0 && val.length < 10) {
-            accountNameSpan.textContent = 'Enter 10 digits';
+            accountNameSpan.textContent = '10 digits needed';
             accountNameSpan.style.color = '#e67e22';
             currentAccountName = '';
         } else {
@@ -418,75 +446,67 @@
         
         // Validations
         if (accountNumber.length !== 10) {
-            await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit OPay account number', [200, 100]);
+            await showToast('error', 'Error', 'Enter valid 10-digit account');
             accountNumberInput.focus();
             return;
         }
         
         if (!currentAccountName) {
-            await showAlert('error', 'Account Not Verified', 'Please wait for account verification to complete', [200, 100]);
+            await showToast('error', 'Error', 'Wait for verification');
             return;
         }
         
         if (!email || !email.includes('@') || !email.includes('.')) {
-            await showAlert('error', 'Invalid Email', 'Please enter a valid email address', [200, 100]);
+            await showToast('error', 'Error', 'Enter valid email');
             emailInput.focus();
             return;
         }
         
-        // Check if email already registered
         const emailExists = await checkEmailExists(email);
         if (emailExists) {
-            await showAlert('error', 'Email Already Registered', 'This email is already associated with an account. Each email can only be used once.', [200, 100, 200]);
+            await showToast('error', 'Error', 'Email already registered');
             emailInput.focus();
             return;
         }
         
-        // Check if account already registered
         const accountExists = await checkAccountExists(accountNumber);
         if (accountExists) {
-            await showAlert('error', 'Account Already Registered', 'This account number is already registered. Please use a different account number.', [200, 100, 200]);
+            await showToast('error', 'Error', 'Account already registered');
             accountNumberInput.focus();
             return;
         }
         
         if (code.length !== 6) {
-            await showAlert('error', 'Invalid Password', 'Please create a 6-digit password', [200, 100]);
+            await showToast('error', 'Error', 'Create 6-digit password');
             codeInput.focus();
             return;
         }
         
         if (!terms) {
-            await showAlert('warning', 'Terms Required', 'Please accept the Terms and Conditions', [200, 100]);
+            await showToast('warning', 'Warning', 'Accept terms & conditions');
             return;
         }
         
         // Create account
-        this.innerHTML = '<div class="spinner-sm"></div> Creating Account...';
+        this.innerHTML = '<div class="spinner-sm"></div> Creating...';
         this.disabled = true;
-        vibratePhone(0, [100, 50, 100]);
+        vibratePhone(0, [80, 40, 80]);
         
         const result = await createUser(accountNumber, currentAccountName, email, code);
         
         if (result.success) {
-            // Save to localStorage for login1.html (NO activation code stored here)
             localStorage.setItem('pendingLogin', JSON.stringify({
                 accountNumber: accountNumber,
                 accountName: currentAccountName,
                 email: email
-                // NO activationCode here!
             }));
             
-            // IMPORTANT: Do NOT show activation code to user!
-            await showAlert('success', 'Account Created!', 
-                `Welcome ${currentAccountName}!\n\n✅ Your account has been created but is NOT yet activated.\n\n🔐 You will receive your activation code AFTER payment confirmation.\n\n📞 Please contact support or make payment to activate your account.\n\nYou will now be redirected to login.`, 
-                [100, 50, 100, 150]);
-            
+            // NO ALERT - Direct redirect
             setTimeout(() => {
                 window.location.href = 'login1.html';
-            }, 3000);
+            }, 500);
         } else {
-            await showAlert('error', 'Registration Failed', result.message, [200, 100, 200]);
+            await showToast('error', 'Failed', result.message);
             this.innerHTML = 'SIGN UP';
             this.disabled = false;
         }
@@ -499,18 +519,13 @@
     
     termsLink.addEventListener('click', async (e) => {
         e.preventDefault();
-        await showAlert('info', 'Terms & Conditions', 
-            '📜 OPay Funder Terms:\n\n' +
-            '• You must be 18+ years old\n' +
-            '• One account per user\n' +
-            '• One email per account only\n' +
-            '• No password recovery available\n' +
-            '• Activation code provided after payment\n' +
-            '• CBN licensed & NDIC insured'
+        await showAlert('info', 'Terms', 
+            '• 18+ years old\n• One email per account\n• No password recovery\n• CBN licensed', 
+            [30, 30]
         );
     });
     
-    console.log('✓ Create.html loaded - Activation code NOT shown to users');
+    console.log('✓ Create.html - Small alerts, no success popup');
 </script>
 </body>
 </html>
