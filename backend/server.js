@@ -6,14 +6,7 @@ const { createClient } = require('@supabase/supabase-js');
 dotenv.config();
 
 const app = express();
-
-// ============ CORS CONFIGURATION - Allow all origins ============
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
+app.use(cors());
 app.use(express.json());
 
 // ============ INITIALIZE SUPABASE ============
@@ -25,21 +18,20 @@ const supabase = createClient(
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
 console.log('✅ Server starting...');
-console.log(`Supabase URL: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
-console.log(`Paystack Key: ${PAYSTACK_SECRET_KEY ? '✅' : '❌'}`);
+console.log(`Supabase: ${process.env.SUPABASE_URL ? '✅' : '❌'}`);
+console.log(`Paystack: ${PAYSTACK_SECRET_KEY ? '✅' : '❌'}`);
 
 // ============ HEALTH CHECK ============
 app.get('/', (req, res) => {
     res.json({ 
         message: 'OPay Backend API is running!',
-        status: 'ok',
-        endpoints: ['/api/resolve-account', '/api/check-email', '/api/send-activation', '/api/verify-and-create', '/api/login']
+        status: 'ok'
     });
 });
 
-// ============ RESOLVE ACCOUNT NAME ============
+// ============ RESOLVE ACCOUNT NAME (Paystack) ============
 app.post('/api/resolve-account', async (req, res) => {
-    console.log('📞 Resolve account request:', req.body);
+    console.log('📞 Resolve account:', req.body.account_number);
     const { account_number } = req.body;
     
     try {
@@ -52,7 +44,6 @@ app.post('/api/resolve-account', async (req, res) => {
         });
         
         const data = await response.json();
-        console.log('Paystack response:', data.status ? 'Success' : 'Failed');
         
         if (data.status) {
             res.json({
@@ -67,12 +58,11 @@ app.post('/api/resolve-account', async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Error:', error.message);
         res.json({ success: false, message: 'Network error' });
     }
 });
 
-// ============ CHECK EMAIL ============
+// ============ CHECK EMAIL EXISTS ============
 app.post('/api/check-email', async (req, res) => {
     console.log('📧 Check email:', req.body.email);
     const { email } = req.body;
@@ -84,35 +74,37 @@ app.post('/api/check-email', async (req, res) => {
             .eq('email', email)
             .maybeSingle();
         
-        res.json({ available: !data });
+        res.json({ exists: !!data });
     } catch (error) {
-        res.json({ available: true });
+        res.json({ exists: false });
     }
 });
 
-// ============ SEND ACTIVATION CODE ============
-app.post('/api/send-activation', async (req, res) => {
-    console.log('📨 Send activation:', req.body.email);
-    const { email, accountNumber, accountName } = req.body;
+// ============ CHECK ACCOUNT EXISTS ============
+app.post('/api/check-account', async (req, res) => {
+    console.log('🔢 Check account:', req.body.account_number);
+    const { account_number } = req.body;
+    
+    try {
+        const { data } = await supabase
+            .from('users')
+            .select('account_number')
+            .eq('account_number', account_number)
+            .maybeSingle();
+        
+        res.json({ exists: !!data });
+    } catch (error) {
+        res.json({ exists: false });
+    }
+});
+
+// ============ CREATE USER ============
+app.post('/api/create-user', async (req, res) => {
+    console.log('👤 Create user:', req.body.email);
+    const { account_number, account_name, email, password_code } = req.body;
+    
+    // Generate activation code
     const activationCode = Math.floor(10000 + Math.random() * 90000).toString();
-    
-    console.log(`📧 ACTIVATION CODE for ${email}: ${activationCode}`);
-    
-    res.json({ 
-        success: true, 
-        message: 'Activation code sent',
-        code: activationCode
-    });
-});
-
-// ============ VERIFY & CREATE USER ============
-app.post('/api/verify-and-create', async (req, res) => {
-    console.log('🔐 Verify and create:', req.body.email);
-    const { account_number, account_name, email, password_code, activation_code } = req.body;
-    
-    if (!activation_code || activation_code.length !== 5) {
-        return res.json({ success: false, message: 'Invalid activation code' });
-    }
     
     try {
         // Check if account exists
@@ -147,18 +139,22 @@ app.post('/api/verify-and-create', async (req, res) => {
                 password_code,
                 platform: 'opay',
                 is_active: true,
-                email_verified: true
+                email_verified: false,
+                activation_code: activationCode,
+                activation_expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
             });
         
         if (error) throw error;
         
-        console.log('✅ User created:', account_number);
+        console.log(`✅ User created: ${account_name} (${email})`);
+        console.log(`📧 Activation code: ${activationCode}`);
         
         res.json({ 
             success: true, 
-            message: 'Account created!',
-            user: { account_number, account_name, email }
+            message: 'Account created successfully!',
+            activation_code: activationCode
         });
+        
     } catch (error) {
         console.error('Error:', error.message);
         res.json({ success: false, message: error.message });
@@ -167,24 +163,58 @@ app.post('/api/verify-and-create', async (req, res) => {
 
 // ============ LOGIN ============
 app.post('/api/login', async (req, res) => {
-    console.log('🔑 Login request:', req.body.account_number);
+    console.log('🔑 Login:', req.body.account_number);
     const { account_number, password_code } = req.body;
     
     try {
         const { data } = await supabase
             .from('users')
-            .select('account_number, account_name, email')
+            .select('account_number, account_name, email, activation_code, email_verified')
             .eq('account_number', account_number)
             .eq('password_code', password_code)
             .maybeSingle();
         
         if (data) {
-            res.json({ success: true, user: data });
+            res.json({ 
+                success: true, 
+                user: {
+                    account_number: data.account_number,
+                    account_name: data.account_name,
+                    email: data.email
+                },
+                needs_activation: !data.email_verified,
+                activation_code: data.activation_code
+            });
         } else {
-            res.json({ success: false, message: 'Invalid credentials' });
+            res.json({ success: false, message: 'Invalid account number or password' });
         }
     } catch (error) {
         res.json({ success: false, message: 'Database error' });
+    }
+});
+
+// ============ ACTIVATE ACCOUNT ============
+app.post('/api/activate', async (req, res) => {
+    console.log('🔐 Activate account:', req.body.email);
+    const { email, activation_code } = req.body;
+    
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .update({ email_verified: true, activation_code: null })
+            .eq('email', email)
+            .eq('activation_code', activation_code)
+            .select();
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            res.json({ success: true, message: 'Account activated successfully!' });
+        } else {
+            res.json({ success: false, message: 'Invalid activation code' });
+        }
+    } catch (error) {
+        res.json({ success: false, message: error.message });
     }
 });
 
@@ -192,7 +222,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/admin/users', async (req, res) => {
     const { data } = await supabase
         .from('users')
-        .select('id, account_number, account_name, email, created_at');
+        .select('id, account_number, account_name, email, created_at, email_verified');
     
     res.json({ users: data || [] });
 });
@@ -200,5 +230,4 @@ app.get('/api/admin/users', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ CORS enabled for all origins`);
 });
