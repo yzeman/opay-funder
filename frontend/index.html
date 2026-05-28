@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Beyond Banking - Welcome</title>
+    <title>OPay - Beyond Banking</title>
     <style>
         * {
             margin: 0;
@@ -19,98 +19,138 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
         }
 
         /* Main Container */
         .app-container {
-            max-width: 400px;
+            max-width: 420px;
             width: 100%;
             margin: 0 auto;
         }
 
-        /* Card Style */
+        /* Card Style - Glassmorphism */
         .intro-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 40px;
+            border-radius: 48px;
             padding: 50px 30px 60px;
             box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
         }
 
-        /* Logo/Brand Icon */
-        .brand-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 24px;
+        /* OPay Logo Area */
+        .opay-logo {
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #0052D4 0%, #4364F7 50%, #6FB1FC 100%);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 30px;
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 25px rgba(0, 82, 212, 0.3);
         }
 
-        .brand-icon span {
-            font-size: 40px;
+        .logo-icon span {
+            font-size: 36px;
+            font-weight: bold;
         }
 
-        /* Main Heading */
-        .main-heading {
-            font-size: 32px;
+        .opay-logo h2 {
+            color: white;
+            font-size: 28px;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 15px;
             letter-spacing: -0.5px;
         }
 
-        /* Tagline */
-        .tagline {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 40px;
-            font-weight: 400;
+        .opay-logo p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-top: 5px;
         }
 
-        /* "We are Beyond Banking" - Featured Text */
-        .feature-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* "We are Beyond Banking" Text - Main Feature */
+        .beyond-text {
+            margin: 30px 0 25px;
+        }
+
+        .we-are {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .beyond-title {
+            background: linear-gradient(135deg, #fff 0%, #6FB1FC 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
-            margin: 30px 0 20px;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
-        /* CBN & NDIC Badge */
+        .banking-text {
+            color: white;
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+
+        /* CBN & NDIC License Badge - Exact Match to Image */
         .license-badge {
             background: rgba(255, 255, 255, 0.08);
-            border-radius: 30px;
-            padding: 12px 20px;
-            margin: 30px 0;
-            display: inline-block;
+            border-radius: 40px;
+            padding: 16px 20px;
+            margin: 35px 0;
             border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
         }
 
-        .license-badge p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
+        .license-title {
+            color: #FFD700;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .license-badge .small-note {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 5px;
+        .license-title span {
+            font-size: 16px;
+        }
+
+        .license-body {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .license-body strong {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Divider Line */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            margin: 20px 0;
         }
 
         /* Get Started Button */
         .get-started-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0052D4 0%, #4364F7 100%);
             color: white;
             border: none;
             padding: 16px 32px;
@@ -119,14 +159,14 @@
             border-radius: 50px;
             width: 100%;
             cursor: pointer;
-            margin: 20px 0;
+            margin: 20px 0 15px;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 82, 212, 0.3);
         }
 
         .get-started-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 12px 25px rgba(0, 82, 212, 0.4);
         }
 
         .get-started-btn:active {
@@ -138,25 +178,24 @@
             margin-top: 30px;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
         }
 
         .footer-links a {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.4);
             text-decoration: none;
             font-size: 12px;
             transition: color 0.3s;
         }
 
         .footer-links a:hover {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Decorative Elements */
-        .decor-circle {
+        /* Decorative Background Circles */
+        .bg-circle {
             position: fixed;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0) 70%);
             pointer-events: none;
             z-index: -1;
         }
@@ -166,63 +205,96 @@
             height: 300px;
             top: -150px;
             right: -100px;
+            background: radial-gradient(circle, rgba(0, 82, 212, 0.2) 0%, rgba(0, 82, 212, 0) 70%);
         }
 
         .circle-2 {
             width: 250px;
             height: 250px;
-            bottom: -100px;
+            bottom: -80px;
             left: -80px;
-            background: radial-gradient(circle, rgba(118, 75, 162, 0.2) 0%, rgba(118, 75, 162, 0) 70%);
+            background: radial-gradient(circle, rgba(111, 177, 252, 0.15) 0%, rgba(111, 177, 252, 0) 70%);
         }
 
-        /* Loading Animation */
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .intro-card {
+            animation: fadeInUp 0.8s ease;
+        }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
         }
 
-        /* Responsive */
+        /* Mobile Responsive */
         @media (max-width: 480px) {
             .intro-card {
-                padding: 40px 20px 50px;
+                padding: 40px 25px 50px;
             }
             
-            .main-heading {
+            .beyond-title, .banking-text {
                 font-size: 28px;
             }
             
-            .feature-text {
-                font-size: 24px;
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .logo-icon span {
+                font-size: 30px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="decor-circle circle-1"></div>
-    <div class="decor-circle circle-2"></div>
+    <!-- Decorative Background Elements -->
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
     
     <div class="app-container">
         <div class="intro-card">
-            <!-- Brand Icon -->
-            <div class="brand-icon">
-                <span>🏦</span>
+            <!-- OPay Logo Section -->
+            <div class="opay-logo">
+                <div class="logo-icon">
+                    <span>O</span>
+                </div>
+                <h2>OPay</h2>
+                <p>Beyond Banking</p>
             </div>
             
-            <!-- Main Heading -->
-            <h1 class="main-heading">Beyond Banking</h1>
-            <p class="tagline">Redefining Financial Freedom</p>
-            
-            <!-- "We are Beyond Banking" - Matching the image -->
-            <div class="feature-text">
-                We are<br>Beyond Banking
+            <!-- "We are Beyond Banking" Text -->
+            <div class="beyond-text">
+                <div class="we-are">WE ARE</div>
+                <div class="beyond-title">Beyond Banking</div>
             </div>
             
-            <!-- License Badge - CBN & NDIC -->
+            <!-- CBN & NDIC License Badge (Matches Image) -->
             <div class="license-badge">
-                <p>🏛️ LICENSED BY CBN AND INSURED BY NDIC</p>
-                <p class="small-note">Central Bank of Nigeria | Nigeria Deposit Insurance Corporation</p>
+                <div class="license-title">
+                    <span>🏛️</span> LICENSED BY CBN AND INSURED BY NDIC
+                </div>
+                <div class="license-body">
+                    <strong>Central Bank of Nigeria</strong> | <strong>Nigeria Deposit Insurance Corporation</strong>
+                </div>
             </div>
+            
+            <div class="divider"></div>
             
             <!-- Get Started Button -->
             <button class="get-started-btn" id="getStartedBtn">
@@ -239,77 +311,59 @@
     </div>
 
     <script>
-        // JavaScript for interactions
+        // Get Started Button Functionality
         const getStartedBtn = document.getElementById('getStartedBtn');
         
-        // Add click event for Get Started button
-        getStartedBtn.addEventListener('click', function() {
-            // Add ripple effect
-            this.style.transform = 'scale(0.98)';
+        // Click handler
+        getStartedBtn.addEventListener('click', function(e) {
+            // Button press animation
+            this.style.transform = 'scale(0.97)';
             setTimeout(() => {
                 this.style.transform = '';
             }, 150);
             
             // Show loading state
             const originalText = this.innerHTML;
-            this.innerHTML = 'Loading...';
+            this.innerHTML = '⏳ Loading...';
             this.disabled = true;
             
-            // Simulate loading (in next step, this will navigate to account lookup page)
+            // Simulate navigation to account lookup page
             setTimeout(() => {
                 this.innerHTML = originalText;
                 this.disabled = false;
                 
-                // For now, show an alert (in Step 2, we'll navigate to next page)
-                alert('Welcome to Beyond Banking!\n\nIn the next step, we will create the Account Lookup page where you can verify account names.');
+                // Alert for now - next page coming soon
+                alert('Welcome to OPay!\n\nAccount verification page coming soon.\n\nYou will be able to:\n• Enter account number\n• Select bank\n• Verify account name instantly');
                 
-                // Optional: Add console log for development
-                console.log('Get Started clicked - Ready for Step 2: Account Lookup Page');
-            }, 1000);
+                console.log('✓ Get Started clicked - Ready for Account Lookup Page');
+            }, 800);
         });
         
-        // Add hover sound effect (optional - just for fun)
+        // Hover effects
         getStartedBtn.addEventListener('mouseenter', function() {
-            // Just visual feedback
-            this.style.opacity = '0.9';
+            this.style.opacity = '0.95';
         });
         
         getStartedBtn.addEventListener('mouseleave', function() {
             this.style.opacity = '1';
         });
         
-        // Animate elements on load
-        window.addEventListener('load', function() {
-            // Fade in animation
-            const card = document.querySelector('.intro-card');
-            card.style.animation = 'fadeInUp 0.8s ease';
-            
-            // Add keyframe animation dynamically
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            console.log('Beyond Banking Intro Page Loaded ✓');
-            console.log('Next: Create Account Lookup Page with Bank API Integration');
-        });
-        
-        // Add smooth scroll behavior
-        document.querySelectorAll('a').forEach(link => {
+        // Footer link handlers
+        document.querySelectorAll('.footer-links a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log(`Link clicked: ${this.textContent} - Will implement in future update`);
+                console.log(`Footer link clicked: ${this.textContent}`);
+                alert(`📌 ${this.textContent}\n\nThis feature will be available in the next update.`);
             });
+        });
+        
+        // Log successful load
+        window.addEventListener('load', function() {
+            console.log('✓ OPay Intro Page Loaded Successfully');
+            console.log('✓ Background: Dark gradient (#0a0e27 to #1a1f3e)');
+            console.log('✓ Logo: OPay with blue gradient');
+            console.log('✓ License: CBN & NDIC badge displayed');
+            console.log('✓ Next: Account Lookup Page with bank API');
         });
     </script>
 </body>
