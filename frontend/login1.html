@@ -86,8 +86,6 @@
             <img src="images/ppay.png" alt="OPay Logo">
         </div>
         
-        <!-- Welcome Card REMOVED - No display -->
-        
         <div class="form-label"><i class="fas fa-mobile-alt"></i> Account Number</div>
         <input type="tel" class="form-input" id="accountNumber" placeholder="8012345678" maxlength="10" inputmode="numeric">
         
@@ -111,25 +109,6 @@
             }
         }
         
-        // Small alert function
-        async function showSmallAlert(icon, title, message, vibratePattern = null) {
-            if (vibratePattern) vibratePhone(0, vibratePattern);
-            else vibratePhone(100);
-            
-            return Swal.fire({
-                icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: '#00B875',
-                confirmButtonText: 'OK',
-                timer: 2000,
-                width: '280px',
-                padding: '0.8rem',
-                font: '12px'
-            });
-        }
-        
-        // Toast for small notifications
         function showToast(icon, title, message) {
             vibratePhone(50);
             
@@ -137,7 +116,7 @@
                 toast: true,
                 position: 'top',
                 showConfirmButton: false,
-                timer: 2000,
+                timer: 1500,
                 timerProgressBar: true,
                 width: '280px'
             });
@@ -149,12 +128,11 @@
             });
         }
         
-        // Check for pending login data and pre-fill account number (NO ALERT)
+        // Auto-fill account number from create.html (NO ALERT)
         const pendingData = localStorage.getItem('pendingLogin');
         if (pendingData) {
             const data = JSON.parse(pendingData);
             document.getElementById('accountNumber').value = data.accountNumber;
-            // REMOVED the welcome card and alert completely
             localStorage.removeItem('pendingLogin');
         }
         
@@ -163,12 +141,12 @@
             const password = document.getElementById('password').value;
             
             if (accountNumber.length !== 10) {
-                await showToast('error', 'Error', 'Enter 10-digit account');
+                showToast('error', 'Error', 'Enter 10-digit account');
                 return;
             }
             
             if (password.length !== 6) {
-                await showToast('error', 'Error', 'Enter 6-digit password');
+                showToast('error', 'Error', 'Enter 6-digit password');
                 return;
             }
             
@@ -185,19 +163,17 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    vibratePhone(0, [50, 50, 100]);
+                    vibratePhone(0, [50, 50]);
                     localStorage.setItem('loggedInUser', JSON.stringify(data.user));
-                    await showToast('success', 'Welcome!', `Logged in as ${data.user.account_name}`);
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1000);
+                    // DIRECT TO DASHBOARD - NO ACTIVATION CHECK
+                    window.location.href = 'dashboard.html';
                 } else {
-                    await showToast('error', 'Failed', data.message);
+                    showToast('error', 'Failed', data.message);
                     this.innerHTML = 'LOGIN';
                     this.disabled = false;
                 }
             } catch (error) {
-                await showToast('error', 'Error', 'Network error');
+                showToast('error', 'Error', 'Network error');
                 this.innerHTML = 'LOGIN';
                 this.disabled = false;
             }
