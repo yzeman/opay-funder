@@ -33,23 +33,6 @@
         .back-btn i { font-size: 16px; color: #00B875; }
         .logo-center { text-align: center; margin-bottom: 30px; }
         .logo-center img { width: 120px; height: 120px; object-fit: contain; }
-        .welcome-card {
-            background: #f0fdf4;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        .welcome-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #00B875;
-        }
-        .welcome-details {
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-        }
         .form-label {
             font-size: 12px;
             font-weight: 500;
@@ -103,11 +86,7 @@
             <img src="images/ppay.png" alt="OPay Logo">
         </div>
         
-        <div class="welcome-card" id="welcomeCard" style="display: none;">
-            <i class="fas fa-check-circle" style="color: #00B875; font-size: 40px; margin-bottom: 10px;"></i>
-            <div class="welcome-name" id="welcomeName"></div>
-            <div class="welcome-details" id="welcomeDetails"></div>
-        </div>
+        <!-- Welcome Card REMOVED - No display -->
         
         <div class="form-label"><i class="fas fa-mobile-alt"></i> Account Number</div>
         <input type="tel" class="form-input" id="accountNumber" placeholder="8012345678" maxlength="10" inputmode="numeric">
@@ -132,27 +111,51 @@
             }
         }
         
-        async function showAlert(icon, title, message) {
-            vibratePhone(200);
-            return Swal.fire({ icon, title, text: message, confirmButtonColor: '#00B875' });
+        // Small alert function
+        async function showSmallAlert(icon, title, message, vibratePattern = null) {
+            if (vibratePattern) vibratePhone(0, vibratePattern);
+            else vibratePhone(100);
+            
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'OK',
+                timer: 2000,
+                width: '280px',
+                padding: '0.8rem',
+                font: '12px'
+            });
         }
         
-        // Check for pending login data from create.html
+        // Toast for small notifications
+        function showToast(icon, title, message) {
+            vibratePhone(50);
+            
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                width: '280px'
+            });
+            
+            Toast.fire({
+                icon: icon,
+                title: title,
+                text: message
+            });
+        }
+        
+        // Check for pending login data and pre-fill account number (NO ALERT)
         const pendingData = localStorage.getItem('pendingLogin');
         if (pendingData) {
             const data = JSON.parse(pendingData);
             document.getElementById('accountNumber').value = data.accountNumber;
-            document.getElementById('welcomeName').innerHTML = `Welcome back, ${data.accountName}!`;
-            document.getElementById('welcomeDetails').innerHTML = `${data.accountNumber}<br>${data.email}`;
-            document.getElementById('welcomeCard').style.display = 'block';
+            // REMOVED the welcome card and alert completely
             localStorage.removeItem('pendingLogin');
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Account Created!',
-                text: `Your account ${data.accountName} has been created. Please login with your 6-digit password.`,
-                confirmButtonColor: '#00B875'
-            });
         }
         
         document.getElementById('loginBtn').addEventListener('click', async function() {
@@ -160,12 +163,12 @@
             const password = document.getElementById('password').value;
             
             if (accountNumber.length !== 10) {
-                await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit account number');
+                await showToast('error', 'Error', 'Enter 10-digit account');
                 return;
             }
             
             if (password.length !== 6) {
-                await showAlert('error', 'Invalid Password', 'Please enter your 6-digit password');
+                await showToast('error', 'Error', 'Enter 6-digit password');
                 return;
             }
             
@@ -182,17 +185,19 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    vibratePhone(0, [100, 50, 100]);
+                    vibratePhone(0, [50, 50, 100]);
                     localStorage.setItem('loggedInUser', JSON.stringify(data.user));
-                    await showAlert('success', 'Welcome!', `Logged in as ${data.user.account_name}`);
-                    window.location.href = 'dashboard.html';
+                    await showToast('success', 'Welcome!', `Logged in as ${data.user.account_name}`);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 } else {
-                    await showAlert('error', 'Login Failed', data.message);
+                    await showToast('error', 'Failed', data.message);
                     this.innerHTML = 'LOGIN';
                     this.disabled = false;
                 }
             } catch (error) {
-                await showAlert('error', 'Error', 'Network error. Please try again.');
+                await showToast('error', 'Error', 'Network error');
                 this.innerHTML = 'LOGIN';
                 this.disabled = false;
             }
