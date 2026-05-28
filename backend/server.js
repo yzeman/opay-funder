@@ -349,7 +349,7 @@ app.post('/api/create-user', async (req, res) => {
     }
 });
 
-// ============ LOGIN ============
+// ============ LOGIN (NO ACTIVATION CHECK) ============
 app.post('/api/login', async (req, res) => {
     console.log('🔑 Login:', req.body.account_number);
     const { account_number, password_code } = req.body;
@@ -357,20 +357,13 @@ app.post('/api/login', async (req, res) => {
     try {
         const { data } = await supabase
             .from('users')
-            .select('account_number, account_name, email, is_active, email_verified')
+            .select('account_number, account_name, email, is_active')
             .eq('account_number', account_number)
             .eq('password_code', password_code)
             .maybeSingle();
         
         if (data) {
-            if (!data.is_active) {
-                return res.json({ 
-                    success: false, 
-                    message: 'Account not activated. Please complete payment to activate your account.',
-                    needs_activation: true
-                });
-            }
-            
+            // NO activation check - just login
             res.json({ 
                 success: true, 
                 user: {
