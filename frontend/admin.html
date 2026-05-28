@@ -10,40 +10,59 @@
         .container { max-width: 800px; margin: 0 auto; }
         .code-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; }
         .code { font-family: monospace; font-size: 24px; font-weight: bold; color: #00B875; }
+        .admin-key-input { margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center mb-4">🔐 Activation Codes</h2>
-        <div id="codesList"></div>
+        <h2 class="text-center mb-4">🔐 Admin - Activation Codes</h2>
+        
+        <div class="admin-key-input">
+            <label>Admin Key:</label>
+            <input type="password" id="adminKey" class="form-control" placeholder="Enter admin key">
+            <button class="btn btn-success mt-2" onclick="loadPendingUsers()">Load Pending Activations</button>
+        </div>
+        
+        <div id="pendingList"></div>
     </div>
     
     <script>
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
         
-        async function loadCodes() {
-            const response = await fetch(`${BACKEND_URL}/api/admin/codes`);
-            const data = await response.json();
+        async function loadPendingUsers() {
+            const adminKey = document.getElementById('adminKey').value;
             
-            const container = document.getElementById('codesList');
-            if (data.codes.length === 0) {
-                container.innerHTML = '<div class="alert alert-info">No pending activation codes</div>';
+            if (!adminKey) {
+                alert('Please enter admin key');
                 return;
             }
             
-            container.innerHTML = data.codes.map(code => `
+            const response = await fetch(`${BACKEND_URL}/api/admin/pending`);
+            const data = await response.json();
+            
+            const container = document.getElementById('pendingList');
+            
+            if (data.pending.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No pending activations</div>';
+                return;
+            }
+            
+            container.innerHTML = data.pending.map(user => `
                 <div class="code-card">
-                    <div><strong>Email:</strong> ${code.email}</div>
-                    <div><strong>Account:</strong> ${code.accountNumber}</div>
-                    <div><strong>Name:</strong> ${code.accountName}</div>
-                    <div class="code">Code: ${code.code}</div>
-                    <div><small>Expires: ${new Date(code.expiresAt).toLocaleString()}</small></div>
+                    <div><strong>Name:</strong> ${user.account_name}</div>
+                    <div><strong>Account:</strong> ${user.account_number}</div>
+                    <div><strong>Email:</strong> ${user.email}</div>
+                    <div class="code">Activation Code: ${user.activation_code}</div>
+                    <div><small>Created: ${new Date(user.created_at).toLocaleString()}</small></div>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="copyCode('${user.activation_code}')">Copy Code</button>
                 </div>
             `).join('');
         }
         
-        loadCodes();
-        setInterval(loadCodes, 5000);
+        function copyCode(code) {
+            navigator.clipboard.writeText(code);
+            alert('Activation code copied: ' + code);
+        }
     </script>
 </body>
 </html>
