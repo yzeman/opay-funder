@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Login</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 16px 20px 40px;
+        }
+        .login-container { max-width: 420px; width: 100%; margin: 0 auto; }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn i { font-size: 16px; color: #00B875; }
+        .logo-center { text-align: center; margin-bottom: 30px; }
+        .logo-center img { width: 120px; height: 120px; object-fit: contain; }
+        .welcome-card {
+            background: #f0fdf4;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .welcome-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00B875;
+        }
+        .welcome-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .form-input:focus { outline: none; border-color: #00B875; }
+        .login-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 30px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .login-btn:active { transform: scale(0.98); }
+        .create-link { text-align: center; margin-top: 20px; }
+        .create-link a { color: #00B875; text-decoration: none; font-weight: 600; }
+        .spinner-sm {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+        
+        <div class="logo-center">
+            <img src="images/ppay.png" alt="OPay Logo">
+        </div>
+        
+        <div class="welcome-card" id="welcomeCard" style="display: none;">
+            <i class="fas fa-check-circle" style="color: #00B875; font-size: 40px; margin-bottom: 10px;"></i>
+            <div class="welcome-name" id="welcomeName"></div>
+            <div class="welcome-details" id="welcomeDetails"></div>
+        </div>
+        
+        <div class="form-label"><i class="fas fa-mobile-alt"></i> Account Number</div>
+        <input type="tel" class="form-input" id="accountNumber" placeholder="8012345678" maxlength="10" inputmode="numeric">
+        
+        <div class="form-label"><i class="fas fa-lock"></i> Password (6-digit)</div>
+        <input type="password" class="form-input" id="password" maxlength="6" placeholder="••••••" inputmode="numeric">
+        
+        <button class="login-btn" id="loginBtn">LOGIN</button>
+        
+        <div class="create-link">
+            Don't have an account? <a href="create.html">Create one here</a>
+        </div>
+    </div>
+    
+    <script>
+        const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+        
+        function vibratePhone(duration = 100, pattern = null) {
+            if (window.navigator && window.navigator.vibrate) {
+                if (pattern) window.navigator.vibrate(pattern);
+                else window.navigator.vibrate(duration);
+            }
+        }
+        
+        async function showAlert(icon, title, message) {
+            vibratePhone(200);
+            return Swal.fire({ icon, title, text: message, confirmButtonColor: '#00B875' });
+        }
+        
+        // Check for pending login data from create.html
+        const pendingData = localStorage.getItem('pendingLogin');
+        if (pendingData) {
+            const data = JSON.parse(pendingData);
+            document.getElementById('accountNumber').value = data.accountNumber;
+            document.getElementById('welcomeName').innerHTML = `Welcome back, ${data.accountName}!`;
+            document.getElementById('welcomeDetails').innerHTML = `${data.accountNumber}<br>${data.email}`;
+            document.getElementById('welcomeCard').style.display = 'block';
+            localStorage.removeItem('pendingLogin');
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Account Created!',
+                text: `Your account ${data.accountName} has been created. Please login with your 6-digit password.`,
+                confirmButtonColor: '#00B875'
+            });
+        }
+        
+        document.getElementById('loginBtn').addEventListener('click', async function() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            const password = document.getElementById('password').value;
+            
+            if (accountNumber.length !== 10) {
+                await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit account number');
+                return;
+            }
+            
+            if (password.length !== 6) {
+                await showAlert('error', 'Invalid Password', 'Please enter your 6-digit password');
+                return;
+            }
+            
+            this.innerHTML = '<div class="spinner-sm"></div> Logging in...';
+            this.disabled = true;
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_number: accountNumber, password_code: password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    vibratePhone(0, [100, 50, 100]);
+                    localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                    await showAlert('success', 'Welcome!', `Logged in as ${data.user.account_name}`);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    await showAlert('error', 'Login Failed', data.message);
+                    this.innerHTML = 'LOGIN';
+                    this.disabled = false;
+                }
+            } catch (error) {
+                await showAlert('error', 'Error', 'Network error. Please try again.');
+                this.innerHTML = 'LOGIN';
+                this.disabled = false;
+            }
+        });
+        
+        document.getElementById('accountNumber').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        });
+        
+        document.getElementById('password').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
+        });
+    </script>
+</body>
+</html>
