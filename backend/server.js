@@ -16,9 +16,8 @@ const supabase = createClient(
 );
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
-const ADMIN_PASSWORD = 'adminkeyzer'; // Admin password stored securely in backend
+const ADMIN_PASSWORD = 'adminkeyzer';
 
-// Store active admin sessions (in production, use Redis or database)
 const activeSessions = new Map();
 
 console.log('✅ Server starting...');
@@ -36,11 +35,10 @@ app.post('/api/admin/login', async (req, res) => {
     const { password, sessionId } = req.body;
     
     if (password === ADMIN_PASSWORD) {
-        // Generate session token
         const sessionToken = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
         activeSessions.set(sessionToken, {
             createdAt: Date.now(),
-            expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+            expiresAt: Date.now() + 24 * 60 * 60 * 1000
         });
         
         res.json({ 
@@ -78,37 +76,39 @@ function verifyAdminSession(req, res, next) {
 // ============ ADMIN DASHBOARD DATA ============
 app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
     try {
-        // Get all users
         const { data: users, error: usersError } = await supabase
             .from('users')
-            .select('id, account_number, account_name, email, password_code, activation_code, is_active, email_verified, created_at')
+            .select('*')
             .order('created_at', { ascending: false });
         
         if (usersError) throw usersError;
         
-        // Calculate total users
         const totalUsers = users ? users.length : 0;
-        
-        // Calculate active vs inactive
         const activeUsers = users ? users.filter(u => u.is_active === true).length : 0;
         const inactiveUsers = totalUsers - activeUsers;
         
-        // Get database size estimate (Supabase provides this via API)
-        let databaseSize = 'N/A';
+        // Get database size
+        let databaseSize = 'Calculating...';
+        let databaseSizeBytes = 0;
+        
         try {
-            const { data: dbInfo } = await supabase
-                .rpc('get_database_size')
-                .catch(() => ({ data: null }));
+            const { data: dbSizeData, error: dbError } = await supabase
+                .rpc('get_database_size');
             
-            if (dbInfo) {
-                const sizeInMB = (dbInfo / (1024 * 1024)).toFixed(2);
+            if (dbSizeData && !dbError) {
+                databaseSizeBytes = dbSizeData;
+                const sizeInMB = (dbSizeData / (1024 * 1024)).toFixed(2);
                 databaseSize = `${sizeInMB} MB`;
             } else {
-                // Fallback: estimate based on user count
-                databaseSize = `${(totalUsers * 0.5).toFixed(2)} KB (estimated)`;
+                // Fallback calculation based on user count
+                const estimatedBytes = totalUsers * 2048; // ~2KB per user
+                const sizeInKB = (estimatedBytes / 1024).toFixed(2);
+                databaseSize = `${sizeInKB} KB (estimated)`;
             }
         } catch (error) {
-            databaseSize = 'Unable to calculate';
+            const estimatedBytes = totalUsers * 2048;
+            const sizeInKB = (estimatedBytes / 1024).toFixed(2);
+            databaseSize = `${sizeInKB} KB (estimated)`;
         }
         
         res.json({
@@ -118,6 +118,7 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
                 activeUsers: activeUsers,
                 inactiveUsers: inactiveUsers,
                 databaseSize: databaseSize,
+                databaseSizeBytes: databaseSizeBytes,
                 lastUpdated: new Date().toISOString()
             },
             users: users || []
@@ -125,6 +126,81 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
         
     } catch (error) {
         console.error('Admin dashboard error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ DELETE USER (ADMIN ONLY) ============
+app.delete('/api/admin/delete-user/:userId', verifyAdminSession, async (req, res) => {
+    const { userId } = req.params;
+    
+    try {
+        // First, get user info for logging
+        const { data: user, error: fetchError } = await supabase
+            .from('users')
+            .select('account_number, email, account_name')
+            .eq('id', userId)
+            .single();
+        
+        if (fetchError) throw fetchError;
+        
+        // Delete the user
+        const { error: deleteError } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', userId);
+        
+        if (deleteError) throw deleteError;
+        
+        console.log(`🗑️ Admin deleted user: ${user.account_name} (${user.email})`);
+        
+        res.json({ 
+            success: true, 
+            message: `User ${user.account_name} has been deleted successfully`,
+            deletedUser: user
+        });
+        
+    } catch (error) {
+        console.error('Delete user error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ DELETE MULTIPLE USERS (ADMIN ONLY) ============
+app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
+    const { userIds } = req.body;
+    
+    if (!userIds || userIds.length === 0) {
+        return res.json({ success: false, message: 'No users selected' });
+    }
+    
+    try {
+        // Get user info for logging
+        const { data: users, error: fetchError } = await supabase
+            .from('users')
+            .select('id, account_name, email')
+            .in('id', userIds);
+        
+        if (fetchError) throw fetchError;
+        
+        // Delete all selected users
+        const { error: deleteError } = await supabase
+            .from('users')
+            .delete()
+            .in('id', userIds);
+        
+        if (deleteError) throw deleteError;
+        
+        console.log(`🗑️ Admin deleted ${users.length} users`);
+        
+        res.json({ 
+            success: true, 
+            message: `${users.length} user(s) deleted successfully`,
+            deletedCount: users.length
+        });
+        
+    } catch (error) {
+        console.error('Delete users error:', error);
         res.json({ success: false, message: error.message });
     }
 });
@@ -216,7 +292,7 @@ app.post('/api/check-account', async (req, res) => {
     }
 });
 
-// ============ CREATE USER (NO ACTIVATION CODE SHOWN) ============
+// ============ CREATE USER ============
 app.post('/api/create-user', async (req, res) => {
     console.log('👤 Create user:', req.body.email);
     const { account_number, account_name, email, password_code } = req.body;
@@ -260,8 +336,7 @@ app.post('/api/create-user', async (req, res) => {
         
         if (error) throw error;
         
-        console.log(`✅ User created: ${account_name} (${email})`);
-        console.log(`🔐 Activation code stored: ${activationCode}`);
+        console.log(`✅ User created: ${account_name} (${email}) - Activation: ${activationCode}`);
         
         res.json({ 
             success: true, 
@@ -315,5 +390,4 @@ app.post('/api/login', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ Admin password set: adminkeyzer`);
 });
