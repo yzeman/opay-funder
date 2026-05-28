@@ -27,7 +27,7 @@
 
         /* Main Container - No card, just content */
         .login-container {
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             margin: 0 auto;
             text-align: center;
@@ -61,13 +61,13 @@
             color: #000000;
         }
 
-        /* Login Image - MADE BIGGER */
+        /* Login Image - MUCH BIGGER */
         .login-image {
             margin: 20px 0;
         }
 
         .login-image img {
-            width: 340px;
+            width: 400px;
             height: auto;
             max-width: 100%;
         }
@@ -172,7 +172,7 @@
             animation: fadeInUp 0.6s ease;
         }
 
-        /* Mobile Responsive - Keep original sizes */
+        /* Mobile Responsive */
         @media (max-width: 480px) {
             .instant-text {
                 font-size: 22px;
@@ -184,7 +184,8 @@
             }
             
             .login-image img {
-                width: 300px;
+                width: 100%;
+                max-width: 350px;
             }
             
             .login-btn, .create-account-btn {
@@ -216,7 +217,7 @@
             </div>
         </div>
         
-        <!-- Login Image -->
+        <!-- Login Image - NOW MUCH BIGGER -->
         <div class="login-image">
             <img src="images/loginimg1.png" alt="Login Illustration">
         </div>
@@ -292,8 +293,7 @@
         });
         
         window.addEventListener('load', function() {
-            console.log('✓ OPay Login Page - Login image size increased');
-            console.log('✓ Image changed from 300px to 340px');
+            console.log('✓ OPay Login Page - Login image made much bigger (400px)');
         });
     </script>
 </body>
