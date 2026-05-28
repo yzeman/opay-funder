@@ -14,9 +14,7 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Text', Helvetica, Arial, sans-serif;
             background: white;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
+            min-height: 100vh;
             display: flex;
             align-items: flex-start;
             justify-content: center;
@@ -33,31 +31,27 @@
             width: 100%;
             margin: 0 auto;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 20px;
-            padding-bottom: 30px;
         }
 
-        /* OPay Logo - SMALLER */
+        /* OPay Logo */
         .opay-logo {
-            margin-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .logo-icon img {
-            width: 100px;
-            height: 100px;
+            width: 160px;
+            height: 160px;
             object-fit: contain;
         }
 
         /* Heading Section */
         .heading-section {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .instant-text {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 600;
             color: #00B875;
             line-height: 1.2;
@@ -67,30 +61,20 @@
             color: #000000;
         }
 
-        .free-transfer {
-            font-size: 14px;
-            color: #666666;
-            margin-top: 8px;
-            line-height: 1.4;
-            max-width: 280px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Login Image - SMALLER */
+        /* Login Image */
         .login-image {
-            margin: 10px 0;
+            margin: 20px 0;
         }
 
         .login-image img {
-            width: 220px;
+            width: 300px;
             height: auto;
             max-width: 100%;
         }
 
         /* Bill Payment Section */
         .bill-payment {
-            margin: 8px 0;
+            margin: 15px 0;
         }
 
         .bill-payment p {
@@ -104,14 +88,14 @@
             background: transparent;
             color: #00B875;
             border: 2px solid #00B875;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 14px 32px;
+            font-size: 18px;
             font-weight: 600;
             border-radius: 50px;
             width: 100%;
-            max-width: 240px;
+            max-width: 280px;
             cursor: pointer;
-            margin: 8px auto;
+            margin: 10px auto;
             transition: all 0.3s ease;
             display: block;
         }
@@ -132,14 +116,14 @@
             background: #00B875;
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 16px;
+            padding: 14px 32px;
+            font-size: 18px;
             font-weight: 600;
             border-radius: 50px;
             width: 100%;
-            max-width: 240px;
+            max-width: 280px;
             cursor: pointer;
-            margin: 8px auto;
+            margin: 10px auto 20px auto;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 184, 117, 0.3);
             display: block;
@@ -188,62 +172,30 @@
             animation: fadeInUp 0.6s ease;
         }
 
-        /* Mobile Responsive */
+        /* Mobile Responsive - Keep original sizes */
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-                align-items: flex-start;
-            }
-            
             .instant-text {
-                font-size: 18px;
+                font-size: 22px;
             }
             
             .logo-icon img {
-                width: 80px;
-                height: 80px;
+                width: 140px;
+                height: 140px;
             }
             
             .login-image img {
-                width: 180px;
+                width: 260px;
             }
             
             .login-btn, .create-account-btn {
-                max-width: 220px;
-                padding: 10px 24px;
-                font-size: 15px;
-            }
-            
-            .login-container {
-                padding-top: 10px;
-            }
-        }
-
-        /* For very short screens */
-        @media (max-height: 650px) {
-            .logo-icon img {
-                width: 70px;
-                height: 70px;
-            }
-            
-            .login-image img {
-                width: 150px;
-            }
-            
-            .instant-text {
-                font-size: 16px;
-            }
-            
-            .login-container {
-                padding-top: 5px;
+                max-width: 260px;
+                padding: 12px 28px;
+                font-size: 17px;
             }
             
             .opay-logo {
-                margin-bottom: 5px;
-            }
-            
-            .login-image {
-                margin: 5px 0;
+                margin-top: 10px;
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -292,18 +244,15 @@
         
         // Login button click handler - DIRECTS TO login1.html
         loginBtn.addEventListener('click', function(e) {
-            // Button press animation
             this.style.transform = 'scale(0.97)';
             setTimeout(() => {
                 this.style.transform = '';
             }, 150);
             
-            // Show loading state
             const originalText = this.innerHTML;
             this.innerHTML = '<div class="spinner"></div> Logging in...';
             this.disabled = true;
             
-            // Redirect to login1.html
             setTimeout(() => {
                 window.location.href = 'login1.html';
             }, 1000);
@@ -311,24 +260,21 @@
         
         // Create account button handler - DIRECTS TO create.html
         createAccountBtn.addEventListener('click', function(e) {
-            // Button press animation
             this.style.transform = 'scale(0.97)';
             setTimeout(() => {
                 this.style.transform = '';
             }, 150);
             
-            // Show loading state
             const originalText = this.innerHTML;
             this.innerHTML = '<div class="spinner"></div> Redirecting...';
             this.disabled = true;
             
-            // Redirect to create.html
             setTimeout(() => {
                 window.location.href = 'create.html';
             }, 500);
         });
         
-        // Hover effects for login button
+        // Hover effects
         loginBtn.addEventListener('mouseenter', function() {
             this.style.opacity = '0.95';
         });
@@ -337,7 +283,6 @@
             this.style.opacity = '1';
         });
         
-        // Hover effects for create account button
         createAccountBtn.addEventListener('mouseenter', function() {
             this.style.opacity = '0.95';
         });
@@ -346,11 +291,9 @@
             this.style.opacity = '1';
         });
         
-        // Log successful load
         window.addEventListener('load', function() {
-            console.log('✓ OPay Login Page Loaded Successfully');
+            console.log('✓ OPay Login Page - Original sizes restored');
             console.log('✓ Content shifted up - Login button visible');
-            console.log('✓ All elements resized to fit screen');
         });
     </script>
 </body>
