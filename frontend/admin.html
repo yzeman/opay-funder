@@ -18,11 +18,18 @@
         table { width: 100%; font-size: 13px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; font-weight: 600; }
-        .copy-btn { background: #00B875; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .copy-btn, .delete-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; }
+        .copy-btn { background: #00B875; color: white; }
+        .delete-btn { background: #dc3545; color: white; }
+        .delete-btn:hover { background: #c82333; }
         .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
         .status-active { color: #00B875; font-weight: 600; }
         .status-inactive { color: #dc3545; font-weight: 600; }
         .search-box { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+        .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
+        .select-all-checkbox { margin-right: 5px; }
+        .action-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
+        .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -42,9 +49,12 @@
         <!-- Dashboard Screen -->
         <div id="dashboardScreen" style="display: none;">
             <div class="admin-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                     <h2><i class="fas fa-chart-line"></i> OPay Admin Dashboard</h2>
-                    <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    <div>
+                        <button class="refresh-btn" onclick="loadDashboardData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </div>
                 </div>
                 
                 <!-- Stats Cards -->
@@ -79,14 +89,18 @@
                     </div>
                 </div>
                 
-                <!-- Search -->
-                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, account, or email..." onkeyup="filterUsers()">
+                <!-- Search and Bulk Actions -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, account, or email..." onkeyup="filterUsers()">
+                    <button class="bulk-delete-btn" onclick="deleteSelectedUsers()"><i class="fas fa-trash"></i> Delete Selected</button>
+                </div>
                 
                 <!-- Users Table -->
                 <div class="user-table">
                     <table id="usersTable">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
                                 <th>ID</th>
                                 <th>Account Number</th>
                                 <th>Account Name</th>
@@ -95,7 +109,7 @@
                                 <th>Activation Code</th>
                                 <th>Status</th>
                                 <th>Created At</th>
-                                <th>Action</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody"></tbody>
@@ -109,8 +123,8 @@
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
         let adminSessionToken = null;
         let allUsers = [];
+        let selectedUserIds = new Set();
         
-        // Check for existing session on load
         window.addEventListener('load', function() {
             const savedToken = localStorage.getItem('adminSessionToken');
             if (savedToken) {
@@ -178,13 +192,11 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Update stats
                     document.getElementById('totalUsers').textContent = data.stats.totalUsers;
                     document.getElementById('activeUsers').textContent = data.stats.activeUsers;
                     document.getElementById('inactiveUsers').textContent = data.stats.inactiveUsers;
                     document.getElementById('dbSize').textContent = data.stats.databaseSize;
                     
-                    // Store users for filtering
                     allUsers = data.users;
                     renderUsersTable(allUsers);
                 } else {
@@ -202,12 +214,13 @@
             const tbody = document.getElementById('usersTableBody');
             
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No users found</td></tr>';
                 return;
             }
             
             tbody.innerHTML = users.map(user => `
                 <tr>
+                    <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
                     <td>${user.id}</td>
                     <td><strong>${user.account_number}</strong></td>
                     <td>${user.account_name}</td>
@@ -221,11 +234,119 @@
                         ${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}
                     </td>
                     <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
-                    <td>
-                        ${!user.is_active ? `<button class="copy-btn" onclick="copyActivationInfo('${user.email}', '${user.activation_code}')">📧 Send</button>` : ''}
+                    <td class="action-buttons">
+                        <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')"><i class="fas fa-trash"></i> Delete</button>
                     </td>
                 </tr>
             `).join('');
+            
+            // Reset select all checkbox
+            document.getElementById('selectAllCheckbox').checked = false;
+            selectedUserIds.clear();
+        }
+        
+        function toggleUserSelect(userId) {
+            if (selectedUserIds.has(userId)) {
+                selectedUserIds.delete(userId);
+            } else {
+                selectedUserIds.add(userId);
+            }
+            updateSelectAllCheckbox();
+        }
+        
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAllCheckbox').checked;
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+                const userId = checkbox.value;
+                if (selectAll) {
+                    selectedUserIds.add(userId);
+                } else {
+                    selectedUserIds.delete(userId);
+                }
+            });
+        }
+        
+        function updateSelectAllCheckbox() {
+            const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if (selectAll) {
+                selectAll.checked = selectedUserIds.size === totalCheckboxes && totalCheckboxes > 0;
+            }
+        }
+        
+        async function deleteSingleUser(userId, userName) {
+            const result = await Swal.fire({
+                title: 'Delete User?',
+                text: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, delete',
+                cancelButtonText: 'Cancel'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/admin/delete-user/${userId}`, {
+                        method: 'DELETE',
+                        headers: { 'X-Admin-Token': adminSessionToken }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
+                        loadDashboardData();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete user' });
+                }
+            }
+        }
+        
+        async function deleteSelectedUsers() {
+            if (selectedUserIds.size === 0) {
+                Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select users to delete' });
+                return;
+            }
+            
+            const result = await Swal.fire({
+                title: 'Delete Users?',
+                text: `Are you sure you want to delete ${selectedUserIds.size} user(s)? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, delete all',
+                cancelButtonText: 'Cancel'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/admin/delete-users`, {
+                        method: 'POST',
+                        headers: { 
+                            'X-Admin-Token': adminSessionToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userIds: Array.from(selectedUserIds) })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
+                        selectedUserIds.clear();
+                        loadDashboardData();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete users' });
+                }
+            }
         }
         
         function filterUsers() {
@@ -243,12 +364,6 @@
         function copyCode(code) {
             navigator.clipboard.writeText(code);
             Swal.fire({ icon: 'success', title: 'Copied!', text: `Activation code: ${code}`, timer: 1500, showConfirmButton: false });
-        }
-        
-        function copyActivationInfo(email, code) {
-            const message = `Email: ${email}\nActivation Code: ${code}`;
-            navigator.clipboard.writeText(message);
-            Swal.fire({ icon: 'success', title: 'Copied!', text: `Activation info copied for ${email}`, timer: 1500, showConfirmButton: false });
         }
         
         function showLogin() {
@@ -274,7 +389,6 @@
             Swal.fire({ icon: 'success', title: 'Logged Out', text: 'Admin session ended' });
         }
         
-        // Auto-refresh every 30 seconds
         setInterval(() => {
             if (adminSessionToken && document.getElementById('dashboardScreen').style.display !== 'none') {
                 loadDashboardData();
