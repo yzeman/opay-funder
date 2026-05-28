@@ -31,24 +31,33 @@
             width: 100%;
             margin: 0 auto;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100%;
         }
 
-        /* OPay Logo */
+        /* OPay Logo - Made Bigger */
         .opay-logo {
-            margin-top: 40px;
+            margin-bottom: 20px;
         }
 
-        
+        .logo-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
         .logo-icon img {
-            width: 75px;
-            height: 75px;
+            width: 120px;
+            height: 120px;
             object-fit: contain;
         }
 
         /* Heading Section */
         .heading-section {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .instant-text {
@@ -63,10 +72,10 @@
         }
 
         .free-transfer {
-            font-size: 16px;
+            font-size: 14px;
             color: #666666;
-            margin-top: 10px;
-            line-height: 1.5;
+            margin-top: 8px;
+            line-height: 1.4;
             max-width: 280px;
             margin-left: auto;
             margin-right: auto;
@@ -74,7 +83,7 @@
 
         /* Login Image */
         .login-image {
-            margin: 30px 0;
+            margin: 20px 0;
         }
 
         .login-image img {
@@ -85,11 +94,11 @@
 
         /* Bill Payment Section */
         .bill-payment {
-            margin: 25px 0;
+            margin: 15px 0;
         }
 
         .bill-payment p {
-            font-size: 10px;
+            font-size: 14px;
             font-weight: 500;
             color: #333333;
         }
@@ -106,7 +115,7 @@
             width: 100%;
             max-width: 280px;
             cursor: pointer;
-            margin: 20px auto;
+            margin: 15px auto 10px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 184, 117, 0.3);
             display: block;
@@ -122,32 +131,39 @@
             transform: translateY(0);
         }
 
+        /* Create Account Button */
+        .create-account-btn {
+            background: transparent;
+            color: #00B875;
+            border: 2px solid #00B875;
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 280px;
+            cursor: pointer;
+            margin: 10px auto;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .create-account-btn:hover {
+            background: #00B875;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 184, 117, 0.2);
+        }
+
+        .create-account-btn:active {
+            transform: translateY(0);
+        }
+
         /* Login with OPay Number Text */
         .login-hint {
             margin-top: 20px;
             color: #999999;
             font-size: 14px;
-        }
-
-        /* Create Account Link */
-        .create-account {
-            margin-top: 30px;
-            padding-top: 20px;
-        }
-
-        .create-account p {
-            color: #666666;
-            font-size: 14px;
-        }
-
-        .create-account a {
-            color: #00B875;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .create-account a:hover {
-            text-decoration: underline;
         }
 
         /* Divider */
@@ -156,7 +172,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin: 25px 0;
+            margin: 20px 0;
         }
 
         .divider-line {
@@ -205,39 +221,55 @@
 
         /* Mobile Responsive */
         @media (max-width: 480px) {
+            .logo-icon img {
+                width: 100px;
+                height: 100px;
+            }
+            
             .instant-text {
                 font-size: 15px;
             }
             
             .free-transfer {
-                font-size: 14px;
-            }
-            
-            .logo-icon {
-                width: 70px;
-                height: 70px;
-            }
-            
-            .logo-icon img {
-                width: 58px;
-                height: 58px;
+                font-size: 12px;
+                max-width: 260px;
             }
             
             .login-image img {
-                width: 100%;
+                width: 160px;
             }
             
-            .login-btn {
+            .bill-payment p {
+                font-size: 10px;
+            }
+            
+            .login-btn, .create-account-btn {
                 max-width: 240px;
                 padding: 12px 24px;
                 font-size: 16px;
+            }
+        }
+
+        /* Very Small Devices */
+        @media (max-width: 380px) {
+            .logo-icon img {
+                width: 85px;
+                height: 85px;
+            }
+            
+            .instant-text {
+                font-size: 15px;
+            }
+            
+            .login-image img {
+                width: 140px;
             }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <!-- OPay Logo -->
+        <!-- OPay Logo - Bigger -->
         <div class="opay-logo">
             <div class="logo-icon">
                 <img src="images/ppay.png" alt="OPay Logo">
@@ -249,7 +281,6 @@
             <div class="instant-text">
                 Instant and Free <span>Transfer</span>
             </div>
-            
         </div>
         
         <!-- Login Image -->
@@ -261,18 +292,20 @@
         <div class="bill-payment">
             <p>Bill Payment</p>
         </div>
+        <!-- Create Account Button -->
+        <button class="create-account-btn" id="createAccountBtn">
+            Create a new account
+        </button>
         
         <!-- Login Button -->
         <button class="login-btn" id="loginBtn">
             Login
         </button>
-        
-        
 
     <script>
         // Get elements
         const loginBtn = document.getElementById('loginBtn');
-        const createAccountLink = document.getElementById('createAccountLink');
+        const createAccountBtn = document.getElementById('createAccountBtn');
         
         // Login button click handler
         loginBtn.addEventListener('click', function(e) {
@@ -289,25 +322,34 @@
             
             // Simulate login process
             setTimeout(() => {
-                // Redirect to account lookup/verification page (will create next)
+                // Redirect to account lookup/verification page
                 window.location.href = 'verify-account.html';
             }, 1000);
         });
         
-        // Create account link handler
-        createAccountLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Animate link
-            this.style.opacity = '0.7';
+        // Create Account button click handler
+        createAccountBtn.addEventListener('click', function(e) {
+            // Button press animation
+            this.style.transform = 'scale(0.97)';
             setTimeout(() => {
-                this.style.opacity = '1';
-            }, 200);
+                this.style.transform = '';
+            }, 150);
             
-            // Show info (registration page coming soon)
-            alert('📝 Create Account\n\nAccount registration page coming soon!\n\nFor now, you can proceed to verify account names.');
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<div class="spinner"></div> Processing...';
+            this.disabled = true;
             
-            console.log('Create account clicked - Will implement registration page next');
+            // Simulate account creation process
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+                
+                // Show info (registration page coming soon)
+                alert('📝 Create Account\n\nAccount registration page coming soon!\n\nFor now, you can proceed to verify account names.');
+                
+                console.log('Create account clicked - Will implement registration page next');
+            }, 800);
         });
         
         // Hover effects for login button
@@ -319,11 +361,22 @@
             this.style.opacity = '1';
         });
         
+        // Hover effects for create account button
+        createAccountBtn.addEventListener('mouseenter', function() {
+            this.style.opacity = '0.95';
+        });
+        
+        createAccountBtn.addEventListener('mouseleave', function() {
+            this.style.opacity = '1';
+        });
+        
         // Log successful load
         window.addEventListener('load', function() {
             console.log('✓ OPay Login Page Loaded Successfully');
             console.log('✓ Background: White');
-            console.log('✓ Elements: Logo, Instant & Free Transfer text, Login image, Bill Payment, Login button');
+            console.log('✓ Logo size: 120px (bigger)');
+            console.log('✓ Elements: Big logo, Instant & Free Transfer text, Login image, Bill Payment, Login button, Create Account button');
+            console.log('✓ Vertical centering: Enabled for all devices');
             console.log('✓ Next: Verify Account page with bank API');
         });
     </script>
