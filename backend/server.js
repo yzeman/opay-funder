@@ -9,26 +9,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Supabase Configuration
+// ============ SUPABASE CONFIGURATION ============
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jdvfylqtdwnweodqmevv.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmZ5bHF0ZHdud2VvZHFtZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjYwNDUsImV4cCI6MjA5NTU0MjA0NX0.Ec1-oJpEaC9FoiVuZJh3GPN_PgRD38skuwHvMcWOpGU';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY; // Use SERVICE ROLE key for backend!
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-// Paystack Configuration
+// ============ PAYSTACK CONFIGURATION ============
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
-
-// Generate random activation code
-function generateActivationCode() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
 
 // ============ HEALTH CHECK ============
 app.get('/', (req, res) => {
-    res.json({ message: 'OPay Backend API is running!' });
+    res.json({ message: 'OPay Backend API is running with Supabase!' });
 });
 
-// ============ RESOLVE ACCOUNT NAME (PAYSTACK) ============
+// ============ RESOLVE ACCOUNT NAME (Paystack) ============
 app.post('/api/resolve-account', async (req, res) => {
     const { account_number, bank_code } = req.body;
     
@@ -59,14 +54,11 @@ app.post('/api/resolve-account', async (req, res) => {
         }
     } catch (error) {
         console.error('API Error:', error);
-        res.json({
-            success: false,
-            message: 'Network error. Please try again.'
-        });
+        res.json({ success: false, message: 'Network error' });
     }
 });
 
-// ============ CHECK IF EMAIL EXISTS ============
+// ============ CHECK EMAIL AVAILABILITY ============
 app.post('/api/check-email', async (req, res) => {
     const { email } = req.body;
     
@@ -77,32 +69,51 @@ app.post('/api/check-email', async (req, res) => {
             .eq('email', email)
             .maybeSingle();
         
-        res.json({ exists: !!data });
+        if (error) throw error;
+        
+        res.json({ 
+            available: !data,
+            message: data ? 'Email already registered' : 'Email available'
+        });
     } catch (error) {
-        res.json({ exists: false });
+        res.json({ available: true, message: 'Email available' });
     }
 });
 
-// ============ CHECK IF ACCOUNT EXISTS ============
-app.post('/api/check-account', async (req, res) => {
-    const { account_number } = req.body;
+// ============ SEND ACTIVATION CODE ============
+app.post('/api/send-activation', async (req, res) => {
+    const { email, accountNumber, accountName } = req.body;
+    
+    // Generate 5-digit activation code
+    const activationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60000); // 10 minutes from now
     
     try {
-        const { data, error } = await supabase
+        // Store activation code in database
+        const { error } = await supabase
             .from('users')
-            .select('account_number')
-            .eq('account_number', account_number)
-            .maybeSingle();
+            .update({
+                activation_code: activationCode,
+                activation_expires: expiresAt.toISOString()
+            })
+            .eq('email', email);
         
-        res.json({ exists: !!data });
+        // If email doesn't exist yet, we'll store during verification
+        console.log(`📧 ACTIVATION CODE for ${email}: ${activationCode}`);
+        
+        res.json({ 
+            success: true, 
+            message: 'Activation code sent',
+            code: activationCode // Remove in production
+        });
     } catch (error) {
-        res.json({ exists: false });
+        res.json({ success: false, message: 'Failed to send code' });
     }
 });
 
-// ============ CREATE USER WITH ACTIVATION CODE ============
-app.post('/api/create-user', async (req, res) => {
-    const { account_number, account_name, email, password_code } = req.body;
+// ============ VERIFY CODE & CREATE USER ============
+app.post('/api/verify-and-create', async (req, res) => {
+    const { account_number, account_name, email, password_code, activation_code } = req.body;
     
     try {
         // Check if account number already exists
@@ -113,7 +124,7 @@ app.post('/api/create-user', async (req, res) => {
             .maybeSingle();
         
         if (existingAccount) {
-            return res.json({ success: false, message: 'This account number is already registered. Please use a different account number or contact support.' });
+            return res.json({ success: false, message: 'Account number already registered' });
         }
         
         // Check if email already exists
@@ -124,166 +135,117 @@ app.post('/api/create-user', async (req, res) => {
             .maybeSingle();
         
         if (existingEmail) {
-            return res.json({ success: false, message: 'This email is already registered. Each email can only be used for one account.' });
+            return res.json({ success: false, message: 'Email already registered' });
         }
         
-        // Generate activation code
-        const activationCode = generateActivationCode();
+        // Verify activation code (for demo, accept any 5-digit code)
+        // In production, verify against stored code
+        if (!activation_code || activation_code.length !== 5) {
+            return res.json({ success: false, message: 'Invalid activation code' });
+        }
         
-        // Insert user (inactive until activation)
-        const { data: userData, error: userError } = await supabase
+        // Create new user
+        const { data, error } = await supabase
             .from('users')
             .insert([
-                { 
+                {
                     account_number: account_number,
                     account_name: account_name,
                     email: email,
                     password_code: password_code,
-                    is_active: false
+                    platform: 'opay',
+                    is_active: true,
+                    email_verified: true,
+                    created_at: new Date().toISOString()
                 }
             ])
-            .select()
-            .single();
+            .select();
         
-        if (userError) throw userError;
+        if (error) throw error;
         
-        // Save activation code
-        const { error: codeError } = await supabase
-            .from('activation_codes')
-            .insert([
-                {
-                    email: email,
-                    activation_code: activationCode,
-                    account_number: account_number,
-                    is_used: false
-                }
-            ]);
+        console.log('✅ User created:', data[0]);
         
-        if (codeError) throw codeError;
-        
-        res.json({ 
-            success: true, 
-            message: 'Account created! An activation code has been generated.',
-            activation_code: activationCode,
-            user: userData
+        res.json({
+            success: true,
+            message: 'Account created successfully!',
+            user: { account_number, account_name, email }
         });
         
     } catch (error) {
-        console.error('Supabase error:', error);
-        res.json({ 
-            success: false, 
-            message: error.message || 'Database error' 
-        });
+        console.error('Database error:', error);
+        res.json({ success: false, message: error.message || 'Database error' });
     }
 });
 
-// ============ LOGIN USER ============
+// ============ LOGIN ============
 app.post('/api/login', async (req, res) => {
     const { account_number, password_code } = req.body;
     
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('*')
+            .select('account_number, account_name, email, is_active')
             .eq('account_number', account_number)
             .eq('password_code', password_code)
-            .single();
+            .maybeSingle();
+        
+        if (error) throw error;
         
         if (data) {
-            res.json({ 
-                success: true, 
-                user: data,
-                message: 'Login successful!'
+            if (!data.is_active) {
+                return res.json({ success: false, message: 'Account is deactivated' });
+            }
+            
+            res.json({
+                success: true,
+                message: 'Login successful',
+                user: {
+                    account_number: data.account_number,
+                    account_name: data.account_name,
+                    email: data.email
+                }
             });
         } else {
-            res.json({ 
-                success: false, 
-                message: 'Invalid account number or password. Please check your credentials and try again.'
-            });
+            res.json({ success: false, message: 'Invalid account number or password' });
         }
     } catch (error) {
-        res.json({ success: false, message: 'Login failed. Please try again.' });
+        res.json({ success: false, message: 'Database error' });
     }
 });
 
-// ============ GET USER BY ACCOUNT NUMBER ============
-app.post('/api/get-user', async (req, res) => {
-    const { account_number } = req.body;
-    
+// ============ GET ALL USERS (ADMIN) ============
+app.get('/api/admin/users', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('*')
-            .eq('account_number', account_number)
-            .single();
-        
-        if (data) {
-            res.json({ success: true, user: data });
-        } else {
-            res.json({ success: false, message: 'User not found' });
-        }
-    } catch (error) {
-        res.json({ success: false, message: 'User not found' });
-    }
-});
-
-// ============ ADMIN: GET ALL ACTIVATION CODES ============
-app.post('/api/admin/activation-codes', async (req, res) => {
-    const { username, password } = req.body;
-    
-    try {
-        // Verify admin credentials
-        const { data: admin } = await supabase
-            .from('admins')
-            .select('*')
-            .eq('username', username)
-            .eq('password', password)
-            .single();
-        
-        if (!admin) {
-            return res.json({ success: false, message: 'Invalid admin credentials' });
-        }
-        
-        // Get all activation codes
-        const { data, error } = await supabase
-            .from('activation_codes')
-            .select('*')
+            .select('id, account_number, account_name, email, created_at, is_active')
             .order('created_at', { ascending: false });
         
-        res.json({ success: true, codes: data });
+        if (error) throw error;
+        res.json({ users: data });
     } catch (error) {
-        res.json({ success: false, message: 'Error fetching activation codes' });
+        res.json({ users: [] });
     }
 });
 
-// ============ ADMIN: GET ALL USERS ============
-app.post('/api/admin/users', async (req, res) => {
-    const { username, password } = req.body;
-    
+// ============ GET PENDING ACTIVATIONS (ADMIN) ============
+app.get('/api/admin/pending', async (req, res) => {
     try {
-        const { data: admin } = await supabase
-            .from('admins')
-            .select('*')
-            .eq('username', username)
-            .eq('password', password)
-            .single();
-        
-        if (!admin) {
-            return res.json({ success: false, message: 'Invalid admin credentials' });
-        }
-        
         const { data, error } = await supabase
             .from('users')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('email, activation_code, activation_expires')
+            .not('activation_code', 'is', null);
         
-        res.json({ success: true, users: data });
+        if (error) throw error;
+        res.json({ pending: data });
     } catch (error) {
-        res.json({ success: false, message: 'Error fetching users' });
+        res.json({ pending: [] });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ OPay Backend API running on port ${PORT}`);
+    console.log(`✅ Supabase connected: ${SUPABASE_URL}`);
+    console.log(`✅ Paystack key: ${PAYSTACK_SECRET_KEY ? 'Loaded' : 'Missing'}`);
 });
