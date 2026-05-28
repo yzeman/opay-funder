@@ -21,6 +21,10 @@
             justify-content: center;
             padding: 20px;
             position: relative;
+              -webkit-user-select: none;  /* Safari */
+  -moz-user-select: none;     /* Firefox */
+  -ms-user-select: none;      /* IE/Edge */
+  user-select: none;          /* Standard */
         }
 
         /* Main Container */
@@ -95,8 +99,8 @@
         }
 
         .license-badge img {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: contain;
             flex-shrink: 0;
         }
@@ -106,7 +110,7 @@
             font-size: 20px;
             font-weight: 700;
             letter-spacing: 0.5px;
-            margin-left:-12px;
+            margin-left:-15px;
         }
 
         .license-text span {
