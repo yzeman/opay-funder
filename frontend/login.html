@@ -38,13 +38,11 @@
             margin-top: 40px;
         }
 
-        
-
         .logo-icon img {
-            width: 120px;
-            height: 120px;
+            width: 160px;  /* Changed from 120px to 160px - made bigger */
+            height: 160px;  /* Changed from 120px to 160px - made bigger */
             object-fit: contain;
-            align:center;
+            align: center;
         }
 
         /* Heading Section */
@@ -95,6 +93,34 @@
             color: #333333;
         }
 
+        /* Create Account Button - NEW CSS */
+        .create-account-btn {
+            background: transparent;
+            color: #00B875;
+            border: 2px solid #00B875;
+            padding: 14px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 280px;
+            cursor: pointer;
+            margin: 10px auto;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .create-account-btn:hover {
+            background: #00B875;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 184, 117, 0.3);
+        }
+
+        .create-account-btn:active {
+            transform: translateY(0);
+        }
+
         /* Login Button */
         .login-btn {
             background: #00B875;
@@ -128,27 +154,6 @@
             margin-top: 20px;
             color: #999999;
             font-size: 14px;
-        }
-
-        /* Create Account Link */
-        .create-account {
-            margin-top: 30px;
-            padding-top: 20px;
-        }
-
-        .create-account p {
-            color: #666666;
-            font-size: 14px;
-        }
-
-        .create-account a {
-            color: #00B875;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .create-account a:hover {
-            text-decoration: underline;
         }
 
         /* Divider */
@@ -214,21 +219,16 @@
                 font-size: 14px;
             }
             
-            .logo-icon {
-                width: 70px;
-                height: 70px;
-            }
-            
             .logo-icon img {
-                width: 58px;
-                height: 58px;
+                width: 120px;  /* Responsive size for mobile */
+                height: 120px;  /* Responsive size for mobile */
             }
             
             .login-image img {
                 width: 100%;
             }
             
-            .login-btn {
+            .login-btn, .create-account-btn {
                 max-width: 240px;
                 padding: 12px 24px;
                 font-size: 16px;
@@ -262,23 +262,25 @@
         <div class="bill-payment">
             <p>Bill Payment</p>
         </div>
+        
         <!-- Create Account Button -->
         <button class="create-account-btn" id="createAccountBtn">
             Create a new account
         </button>
+        
         <!-- Login Button -->
         <button class="login-btn" id="loginBtn">
             Login
         </button>
         <br><br><br><br><br><br>
-        
+    </div>
 
     <script>
         // Get elements
         const loginBtn = document.getElementById('loginBtn');
-        const createAccountLink = document.getElementById('createAccountLink');
+        const createAccountBtn = document.getElementById('createAccountBtn');
         
-        // Login button click handler
+        // Login button click handler - NOW DIRECTS TO login1.html
         loginBtn.addEventListener('click', function(e) {
             // Button press animation
             this.style.transform = 'scale(0.97)';
@@ -291,27 +293,29 @@
             this.innerHTML = '<div class="spinner"></div> Logging in...';
             this.disabled = true;
             
-            // Simulate login process
+            // Redirect to login1.html
             setTimeout(() => {
-                // Redirect to account lookup/verification page (will create next)
-                window.location.href = 'verify-account.html';
+                window.location.href = 'login1.html';
             }, 1000);
         });
         
-        // Create account link handler
-        createAccountLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Animate link
-            this.style.opacity = '0.7';
+        // Create account button handler - NOW DIRECTS TO create.html
+        createAccountBtn.addEventListener('click', function(e) {
+            // Button press animation
+            this.style.transform = 'scale(0.97)';
             setTimeout(() => {
-                this.style.opacity = '1';
-            }, 200);
+                this.style.transform = '';
+            }, 150);
             
-            // Show info (registration page coming soon)
-            alert('📝 Create Account\n\nAccount registration page coming soon!\n\nFor now, you can proceed to verify account names.');
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<div class="spinner"></div> Redirecting...';
+            this.disabled = true;
             
-            console.log('Create account clicked - Will implement registration page next');
+            // Redirect to create.html
+            setTimeout(() => {
+                window.location.href = 'create.html';
+            }, 500);
         });
         
         // Hover effects for login button
@@ -323,12 +327,21 @@
             this.style.opacity = '1';
         });
         
+        // Hover effects for create account button
+        createAccountBtn.addEventListener('mouseenter', function() {
+            this.style.opacity = '0.95';
+        });
+        
+        createAccountBtn.addEventListener('mouseleave', function() {
+            this.style.opacity = '1';
+        });
+        
         // Log successful load
         window.addEventListener('load', function() {
             console.log('✓ OPay Login Page Loaded Successfully');
-            console.log('✓ Background: White');
-            console.log('✓ Elements: Logo, Instant & Free Transfer text, Login image, Bill Payment, Login button');
-            console.log('✓ Next: Verify Account page with bank API');
+            console.log('✓ Logo size increased to 160px');
+            console.log('✓ Create Account button styled and directs to create.html');
+            console.log('✓ Login button directs to login1.html');
         });
     </script>
 </body>
