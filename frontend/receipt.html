@@ -20,6 +20,10 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            user-select: none;        /* Chrome, Safari */
+    -webkit-user-select: none; 
+    -moz-user-select: none;   /* Firefox */
+    -ms-user-select: none;    /* IE/Edge */
         }
 
         /* Fixed Header */
@@ -124,7 +128,8 @@
             font-size: 30px;
             font-weight: 800;
             color: #1a1a1a;
-            line-height:3;
+            transform: scaleY(1.8); 
+            display: inline-block;
             margin-bottom: 8px;
         }
 
