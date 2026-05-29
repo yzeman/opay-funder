@@ -907,13 +907,13 @@
         </div>
     </div>
 
-    <script>
+   <script>
         // ========== BACKEND CONNECTION ==========
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
         
         // Global variables
         let currentUser = null;
-        let currentBalance = 50000.82;
+        let currentBalance = 0.00;
         let balanceVisible = true;
         
         // DOM Elements
@@ -922,15 +922,23 @@
         const userNameSpan = document.getElementById('userName');
         const profileImg = document.getElementById('profileImg');
         
-        // Helper function to show alerts
-        function showAlert(icon, title, message) {
+        // Small Toast Alert (no large popups)
+        function showToast(message, icon = 'success') {
+            // Small vibration if available
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(50);
+            }
+            
             Swal.fire({
                 icon: icon,
-                title: title,
-                text: message,
-                confirmButtonColor: '#00B875',
-                timer: 2000,
-                showConfirmButton: true
+                title: message,
+                showConfirmButton: false,
+                timer: 1500,
+                width: '280px',
+                padding: '8px 12px',
+                font: '12px',
+                backdrop: false,
+                position: 'top'
             });
         }
         
@@ -943,7 +951,6 @@
             }
             currentUser = JSON.parse(userData);
             userNameSpan.innerHTML = currentUser.account_name;
-            // Use profile.jpg as requested
             profileImg.src = 'images/profile.jpg';
             return currentUser;
         }
@@ -991,8 +998,8 @@
             });
         }
         
-        // ========== NAVIGATION HANDLERS (All working) ==========
-        // Profile click - opens profile page
+        // ========== NAVIGATION HANDLERS ==========
+        // Profile click
         document.querySelector('.profile-section')?.addEventListener('click', () => {
             window.location.href = 'profile.html';
         });
@@ -1009,7 +1016,7 @@
         
         // Business Card
         document.getElementById('businessCard')?.addEventListener('click', () => {
-            showAlert('info', 'Business Service', 'Business Service coming soon');
+            showToast('Business Service coming soon', 'info');
         });
         
         // To OPay
@@ -1039,32 +1046,32 @@
         
         // TV
         document.getElementById('tvBtn')?.addEventListener('click', () => {
-            showAlert('info', 'TV', 'TV subscription coming soon');
+            showToast('TV subscription coming soon', 'info');
         });
         
         // Betting
         document.getElementById('bettingBtn')?.addEventListener('click', () => {
-            showAlert('info', 'Betting', 'Betting coming soon');
+            showToast('Betting coming soon', 'info');
         });
         
         // Owealth
         document.getElementById('owealthBtn')?.addEventListener('click', () => {
-            showAlert('info', 'Owealth', 'Owealth coming soon');
+            showToast('Owealth coming soon', 'info');
         });
         
         // Education
         document.getElementById('educationBtn')?.addEventListener('click', () => {
-            showAlert('info', 'Education', 'Education coming soon');
+            showToast('Education coming soon', 'info');
         });
         
         // More
         document.getElementById('moreBtn')?.addEventListener('click', () => {
-            showAlert('info', 'More', 'More services coming soon');
+            showToast('More services coming soon', 'info');
         });
         
         // Play4aChild
         document.getElementById('play4aChildBtn')?.addEventListener('click', () => {
-            showAlert('info', 'Play4aChild', 'Play4aChild coming soon');
+            showToast('Play4aChild coming soon', 'info');
         });
         
         // Activate button
@@ -1073,35 +1080,35 @@
                 title: 'Activate Account',
                 html: `
                     <div style="text-align: left;">
-                        <p>Choose an activation plan:</p>
                         <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
                         <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
                         <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
                     </div>
                 `,
                 showConfirmButton: false,
-                width: '320px',
+                width: '300px',
+                padding: '8px',
                 didOpen: () => {
-                    document.getElementById('planBasic')?.addEventListener('click', () => showAlert('info', 'Basic Plan', 'Pay ₦5,000 to activate'));
-                    document.getElementById('planPremium')?.addEventListener('click', () => showAlert('info', 'Premium Plan', 'Pay ₦10,000 to activate'));
-                    document.getElementById('planEnterprise')?.addEventListener('click', () => showAlert('info', 'Enterprise Plan', 'Pay ₦20,000 to activate'));
+                    document.getElementById('planBasic')?.addEventListener('click', () => showToast('Basic Plan selected', 'info'));
+                    document.getElementById('planPremium')?.addEventListener('click', () => showToast('Premium Plan selected', 'info'));
+                    document.getElementById('planEnterprise')?.addEventListener('click', () => showToast('Enterprise Plan selected', 'info'));
                 }
             });
         });
         
         // Promo Banner
         document.getElementById('promoBanner')?.addEventListener('click', () => {
-            showAlert('info', 'Invite Friends', 'Invite friends and earn up to ₦6,300 Bonus');
+            showToast('Invite friends and earn up to ₦6,300 Bonus', 'success');
         });
         
         // Scan Icon
         document.getElementById('scanIcon')?.addEventListener('click', () => {
-            showAlert('info', 'Scan', 'QR Scanner coming soon');
+            showToast('QR Scanner coming soon', 'info');
         });
         
         // Notification Icon
         document.getElementById('notificationIcon')?.addEventListener('click', () => {
-            showAlert('info', 'Notifications', 'No new notifications');
+            showToast('No new notifications', 'info');
         });
         
         // Bottom Navigation
@@ -1109,13 +1116,13 @@
             window.location.reload();
         });
         document.getElementById('rewardsNav')?.addEventListener('click', () => {
-            showAlert('info', 'Rewards', 'Rewards coming soon');
+            showToast('Rewards coming soon', 'info');
         });
         document.getElementById('financeNav')?.addEventListener('click', () => {
-            showAlert('info', 'Finance', 'Finance coming soon');
+            showToast('Finance coming soon', 'info');
         });
         document.getElementById('cardsNav')?.addEventListener('click', () => {
-            showAlert('info', 'Cards', 'Cards coming soon');
+            showToast('Cards coming soon', 'info');
         });
         document.getElementById('meNav')?.addEventListener('click', () => {
             window.location.href = 'login1.html';
@@ -1162,7 +1169,7 @@
         fetchBalance();
         
         console.log('✅ Dashboard connected to backend API');
-        console.log('✅ Navigation: Profile, Transaction, Add Money, To OPay, To Bank, Withdraw, Airtime, Data');
+        console.log('✅ Small alerts enabled');
     </script>
 </body>
 </html>
