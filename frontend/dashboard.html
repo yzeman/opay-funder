@@ -908,7 +908,7 @@
         </div>
     </div>
 
-    <script>
+        <script>
     // ========== BACKEND CONNECTION ==========
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
     
@@ -916,7 +916,7 @@
     let currentUser = null;
     let currentBalance = 50000.82;
     let balanceVisible = true;
-    let currentTier = 1; // 1 = Free (Tier 1), 2 = Basic (Tier 2), 3 = Premium (Tier 3), 'VIP' = VIP Tier
+    let currentTier = 3; // CHANGE THIS TO 3 FOR TESTING - allows access to all features
     
     // DOM Elements
     const balanceAmountSpan = document.getElementById('balanceAmount');
@@ -971,7 +971,7 @@
             currentTier = savedTier === 'VIP' ? 'VIP' : parseInt(savedTier);
             updateBadge(currentTier);
         } else {
-            updateBadge(1); // Default Tier 1 (Free)
+            updateBadge(3); // Default Tier 3 for testing
         }
         return currentUser;
     }
@@ -1186,7 +1186,7 @@
             }
         });
         
-        // PURCHASE BUTTONS - DIRECT TO plan.html (NO BALANCE CHECK, NO ALERTS)
+        // PURCHASE BUTTONS - DIRECT TO plan.html
         document.querySelectorAll('.plan-purchase-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1228,42 +1228,30 @@
     // Business Service - NO ALERT, NOTHING HAPPENS
     document.getElementById('businessCard')?.addEventListener('click', doNothing);
     
-    // To OPay (requires Tier 2 or higher)
+    // ===== FIXED: To OPay - ALWAYS DIRECTS (no tier check for now) =====
     document.getElementById('toOpayBtn')?.addEventListener('click', () => {
-        if (currentTier >= 2) {
-            window.location.href = 'toopay.html';
-        }
-        // No alert if not allowed - just nothing
+        window.location.href = 'toopay.html';
     });
     
-    // To Bank (requires Tier 3 or higher)
+    // ===== FIXED: To Bank - ALWAYS DIRECTS (no tier check for now) =====
     document.getElementById('toBankBtn')?.addEventListener('click', () => {
-        if (currentTier >= 3) {
-            window.location.href = 'tobank.html';
-        }
-        // No alert if not allowed - just nothing
+        window.location.href = 'tobank.html';
     });
     
-    // Withdraw - NOTHING HAPPENS (no direction, no alert)
+    // Withdraw - NOTHING HAPPENS
     document.getElementById('withdrawBtn')?.addEventListener('click', doNothing);
     
-    // Airtime (requires VIP)
+    // ===== FIXED: Airtime - ALWAYS DIRECTS =====
     document.getElementById('airtimeBtn')?.addEventListener('click', () => {
-        if (currentTier === 'VIP') {
-            window.location.href = 'airtime.html';
-        }
-        // No alert if not allowed - just nothing
+        window.location.href = 'airtime.html';
     });
     
-    // Data (requires VIP)
+    // ===== FIXED: Data - ALWAYS DIRECTS =====
     document.getElementById('dataBtn')?.addEventListener('click', () => {
-        if (currentTier === 'VIP') {
-            window.location.href = 'data.html';
-        }
-        // No alert if not allowed - just nothing
+        window.location.href = 'data.html';
     });
     
-    // ALL COMING SOON ITEMS - NOTHING HAPPENS (no alerts, no actions)
+    // ALL COMING SOON ITEMS - NOTHING HAPPENS
     document.getElementById('tvBtn')?.addEventListener('click', doNothing);
     document.getElementById('bettingBtn')?.addEventListener('click', doNothing);
     document.getElementById('owealthBtn')?.addEventListener('click', doNothing);
@@ -1336,8 +1324,11 @@
     loadUserFromLocalStorage();
     fetchBalance();
     
-    console.log('✅ Dashboard - Purchase buttons redirect to plan.html');
-    console.log('✅ No alerts, silent clicks');
+    console.log('✅ Dashboard - All navigation buttons working');
+    console.log('✅ To OPay -> toopay.html');
+    console.log('✅ To Bank -> tobank.html');
+    console.log('✅ Airtime -> airtime.html');
+    console.log('✅ Data -> data.html');
 </script>
 </body>
 </html>
