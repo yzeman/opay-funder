@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Transactions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            padding-bottom: 30px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 16px 0px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+            transition: all 0.2s;
+        }
+
+        .download-btn:active {
+            transform: scale(0.95);
+            color: #00B875;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            background: white;
+        }
+
+        .filter-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 400;
+            color: #1a1a1a;
+            transition: all 0.2s;
+        }
+
+        .filter-item:active {
+            transform: scale(0.98);
+            background: #e8eaed;
+        }
+
+        .filter-item i {
+            font-size: 12px;
+            color: #00B875;
+        }
+
+        /* Month Section */
+        .month-section {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .month-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .month-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .month-title i {
+            font-size: 12px;
+            margin-left: 6px;
+            color: #999;
+        }
+
+        .analysis-text {
+            font-size: 13px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .summary-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* Smaller Transaction Icons */
+        .transaction-icon {
+            width: 36px;
+            height: 36px;
+            background: #f0fdf4;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .transaction-icon i {
+            font-size: 16px;
+            color: #00B875;
+        }
+
+        /* Transaction Amount - BLACK color */
+        .amount-value {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1a1a1a;
+        }
+
+        .transaction-status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: #00B875;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+
+        .status-failed {
+            background: #ffebee;
+            color: #dc3545;
+        }
+
+        /* Bottom Sheet Styles */
+        .bottom-sheet {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .sheet-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .sheet-content {
+            position: relative;
+            background: white;
+            width: 100%;
+            border-radius: 28px 28px 0 0;
+            max-height: 70vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .sheet-header {
+            text-align: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
+
+        .sheet-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .sheet-body {
+            padding: 12px 0;
+        }
+
+        .category-item, .status-item {
+            padding: 14px 20px;
+            font-size: 15px;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .category-item.selected, .status-item.selected {
+            background: #f0fdf4;
+            color: #00B875;
+            font-weight: 500;
+        }
+
+        .selector-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .selector-label {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .selector-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .month-grid-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .month-grid-item.selected {
+            background: #00B875;
+            color: white;
+        }
+
+        .year-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .year-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .year-item.selected {
+            background: #00B875;
+            color: white;
+        }
+
+        .confirm-month-btn {
+            width: 100%;
+            padding: 14px;
+            background: #00B875;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sheet-footer {
+            padding: 16px 20px 30px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .close-sheet-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* Transaction List */
+        .transaction-list {
+            background: white;
+            margin: 0 16px 16px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transaction-item:active {
+            background: #f8f9fc;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .transaction-date {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .transaction-amount {
+            text-align: right;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+
+        /* Receipt Modal */
+        .receipt-modal .swal2-popup {
+            padding: 20px;
+            border-radius: 28px;
+            max-width: 380px;
+        }
+        
+        .receipt-content {
+            text-align: left;
+        }
+        
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .receipt-label {
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .receipt-value {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 13px;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .receipt-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .receipt-status.success {
+            background: #e8f5e9;
+            color: #00B875;
+        }
+        
+        .receipt-status.pending {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+        
+        .receipt-status.failed {
+            background: #ffebee;
+            color: #dc3545;
+        }
+        
+        .receipt-section {
+            margin-bottom: 20px;
+        }
+        
+        .receipt-section-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-size: 15px;
+        }
+        
+        .receipt-timeline {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .timeline-label {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .timeline-value {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .action-btn.primary {
+            background: #f0fdf4;
+            color: #00B875;
+        }
+        
+        .action-btn.secondary {
+            background: #f0f2f5;
+            color: #666;
+        }
+        
+        .footer-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-action-btn {
+            background: none;
+            border: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .footer-action-btn.report {
+            color: #dc3545;
+        }
+        
+        .footer-action-btn.share {
+            color: #00B875;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Transactions</h1>
+            <button class="download-btn" id="downloadBtn">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+        <div class="filter-bar">
+            <div class="filter-item" id="categoryFilterBtn">
+                <span id="selectedCategory">All Categories</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="filter-item" id="statusFilterBtn">
+                <span id="selectedStatus">All Status</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="transactionsContent">
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading transactions...
+        </div>
+    </div>
+
+    <!-- Month/Year Selection Bottom Sheet -->
+    <div id="monthSheet" class="bottom-sheet" style="display: none;">
+        <div class="sheet-overlay"></div>
+        <div class="sheet-content">
+            <div class="sheet-header">
+                <div class="sheet-handle"></div>
+                <h3 class="sheet-title">Select Month</h3>
+            </div>
+            <div class="sheet-body">
+                <div class="selector-row">
+                    <div class="selector-label">Month</div>
+                    <div class="selector-value" id="selectedMonthDisplay">May</div>
+                </div>
+                <div class="month-grid" id="monthGrid">
+                    <div class="month-grid-item" data-month="January">Jan</div>
+                    <div class="month-grid-item" data-month="February">Feb</div>
+                    <div class="month-grid-item" data-month="March">Mar</div>
+                    <div class="month-grid-item" data-month="April">Apr</div>
+                    <div class="month-grid-item" data-month="May">May</div>
+                    <div class="month-grid-item" data-month="June">Jun</div>
+                    <div class="month-grid-item" data-month="July">Jul</div>
+                    <div class="month-grid-item" data-month="August">Aug</div>
+                    <div class="month-grid-item" data-month="September">Sep</div>
+                    <div class="month-grid-item" data-month="October">Oct</div>
+                    <div class="month-grid-item" data-month="November">Nov</div>
+                    <div class="month-grid-item" data-month="December">Dec</div>
+                </div>
+                <div class="selector-row" style="margin-top: 20px;">
+                    <div class="selector-label">Year</div>
+                    <div class="selector-value" id="selectedYearDisplay">2026</div>
+                </div>
+                <div class="year-list" id="yearList"></div>
+            </div>
+            <div class="sheet-footer">
+                <button class="confirm-month-btn" id="confirmMonthBtn">Confirm</button>
+                <button class="close-sheet-btn" style="margin-top: 10px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Bottom Sheet -->
+    <div id="categorySheet" class="bottom-sheet" style="display: none;">
+        <div class="sheet-overlay"></div>
+        <div class="sheet-content">
+            <div class="sheet-header">
+                <div class="sheet-handle"></div>
+                <h3 class="sheet-title">Select Category</h3>
+            </div>
+            <div class="sheet-body">
+                <div class="category-list">
+                    <div class="category-item" data-category="All Categories">All Categories</div>
+                    <div class="category-item" data-category="Bank Deposit">Bank Deposit</div>
+                    <div class="category-item" data-category="Transfer to">Transfer to</div>
+                    <div class="category-item" data-category="Transfer from">Transfer from</div>
+                    <div class="category-item" data-category="Airtime">Airtime</div>
+                    <div class="category-item" data-category="Betting">Betting</div>
+                    <div class="category-item" data-category="Cash Deposit">Cash Deposit</div>
+                    <div class="category-item" data-category="Mobile Data">Mobile Data</div>
+                    <div class="category-item" data-category="OWealth">OWealth</div>
+                    <div class="category-item" data-category="Add Money">Add Money</div>
+                    <div class="category-item" data-category="OPay Card Payment">OPay Card Payment</div>
+                    <div class="category-item" data-category="Electricity">Electricity</div>
+                    <div class="category-item" data-category="TV">TV</div>
+                    <div class="category-item" data-category="Reversal">Reversal</div>
+                    <div class="category-item" data-category="Cash Withdraw">Cash Withdraw</div>
+                    <div class="category-item" data-category="Fixed">Fixed</div>
+                    <div class="category-item" data-category="Targets">Targets</div>
+                    <div class="category-item" data-category="Spend & Save">Spend & Save</div>
+                    <div class="category-item" data-category="Online Payment">Online Payment</div>
+                    <div class="category-item" data-category="SafeBox">SafeBox</div>
+                </div>
+            </div>
+            <div class="sheet-footer">
+                <button class="close-sheet-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bottom Sheet -->
+    <div id="statusSheet" class="bottom-sheet" style="display: none;">
+        <div class="sheet-overlay"></div>
+        <div class="sheet-content">
+            <div class="sheet-header">
+                <div class="sheet-handle"></div>
+                <h3 class="sheet-title">Select Status</h3>
+            </div>
+            <div class="sheet-body">
+                <div class="status-list">
+                    <div class="status-item" data-status="All Status">All Status</div>
+                    <div class="status-item" data-status="Successful">Successful</div>
+                    <div class="status-item" data-status="Pending">Pending</div>
+                    <div class="status-item" data-status="Failed">Failed</div>
+                    <div class="status-item" data-status="To be paid">To be paid</div>
+                    <div class="status-item" data-status="Reversed">Reversed</div>
+                </div>
+            </div>
+            <div class="sheet-footer">
+                <button class="close-sheet-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    let currentUser = null;
+    let currentMonth = 'May';
+    let currentYear = 2026;
+    let currentCategory = 'All Categories';
+    let currentStatus = 'All Status';
+
+    function loadUserFromLocalStorage() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (!userData) {
+            window.location.href = 'login1.html';
+            return null;
+        }
+        currentUser = JSON.parse(userData);
+        return currentUser;
+    }
+
+    // Full transaction data with categories and receipt details
+    function getTransactions() {
+        return [
+            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.09, date: 'May 29th, 01:37:59', dateObj: new Date(2026, 4, 29), status: 'success', category: 'OWealth', ref: '260529010100760988978001', paymentMethod: 'OWealth' },
+            { type: 'credit', title: 'Bonus from Data Purchase', amount: 30.00, date: 'May 28th, 12:37:29', dateObj: new Date(2026, 4, 28), status: 'success', category: 'Airtime', ref: '260528010100760988978002', paymentMethod: 'OPay' },
+            { type: 'debit', title: 'Mobile Data', amount: 3000.00, date: 'May 28th, 12:37:20', dateObj: new Date(2026, 4, 28), status: 'success', category: 'Mobile Data', ref: '260528010100760988978003', paymentMethod: 'OPay' },
+            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.13, date: 'May 28th, 02:57:54', dateObj: new Date(2026, 4, 28), status: 'success', category: 'OWealth', ref: '260528010100760988978004', paymentMethod: 'OWealth' },
+            { type: 'debit', title: 'Transfer to MOBOLADE HELLEN OLA...', amount: 900.00, date: 'May 27th, 20:12:21', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978005', paymentMethod: 'OWealth', fromTo: 'Mobolade Hellen', bank: 'OPay', recipientPhone: '816 977 2140' },
+            { type: 'credit', title: 'Transfer from JOY OLUWAPELUMI T...', amount: 300.00, date: 'May 27th, 19:41:34', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer from', ref: '260527010100760988978006', paymentMethod: 'Paga', fromTo: 'Joy Oluwapelumi', platform: 'paga', senderPlatform: 'Paga', senderAccount: '252****174', remark: 'Sent from my Paga NGN account', transactionType: 'Bank Deposit', sessionId: '100002260527123716001485093768' },
+            { type: 'debit', title: 'Transfer to JOY OLUWAPELUMI THOMAS', amount: 300.00, date: 'May 27th, 18:48:04', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978007', paymentMethod: 'OWealth', fromTo: 'JOY OLUWAPELUMI THOMAS', bank: 'OPay', recipientPhone: '816 977 2140' },
+            { type: 'debit', title: 'Transfer to JOY OLUWAPELUMI T...', amount: 1500.00, date: 'May 27th, 12:39:46', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978008', paymentMethod: 'OWealth', fromTo: 'Joy Oluwapelumi', bank: 'OPay' },
+            { type: 'credit', title: 'Transfer from ALABA', amount: 5100.00, date: 'May 27th, 12:37:15', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer from', ref: '260527060100748454039159', paymentMethod: 'Paga', fromTo: 'ALABA', platform: 'paga', senderPlatform: 'Paga', senderAccount: '252****174', remark: 'Sent from my Paga NGN account', transactionType: 'Bank Deposit', sessionId: '100002260527123716001485093768' },
+            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.13, date: 'May 27th, 01:26:42', dateObj: new Date(2026, 4, 27), status: 'success', category: 'OWealth', ref: '260527010100760988978010', paymentMethod: 'OWealth' },
+            { type: 'debit', title: 'Airtime Purchase', amount: 500.00, date: 'May 26th, 15:30:00', dateObj: new Date(2026, 4, 26), status: 'success', category: 'Airtime', ref: '260526010100760988978011', paymentMethod: 'OPay' },
+            { type: 'debit', title: 'Betting Deposit', amount: 2000.00, date: 'May 25th, 20:00:00', dateObj: new Date(2026, 4, 25), status: 'pending', category: 'Betting', ref: '260525010100760988978012', paymentMethod: 'OPay' },
+            { type: 'debit', title: 'Transfer to FAROTIMI ADEBAYO MICHAEL', amount: 3000.00, date: 'May 24th, 14:09:47', dateObj: new Date(2026, 4, 24), status: 'success', category: 'Transfer to', ref: '260524020100634623822917', paymentMethod: 'OWealth', fromTo: 'FAROTIMI ADEBAYO MICHAEL', bank: 'Polaris Bank Plc', accountNumber: '3018594412', receivedDate: 'May 24th, 14:10:13', sessionId: '100004260524130953160735541017' },
+            { type: 'credit', title: 'Add Money', amount: 10000.00, date: 'May 24th, 10:00:00', dateObj: new Date(2026, 4, 24), status: 'success', category: 'Add Money', ref: '260524010100760988978014', paymentMethod: 'Bank Transfer' }
+        ];
+    }
+
+    // Filter transactions by month/year, category, and status
+    function getFilteredTransactions() {
+        let transactions = getTransactions();
+        
+        // Filter by month and year
+        const monthMap = {
+            'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
+            'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
+        };
+        const selectedMonthIndex = monthMap[currentMonth];
+        
+        transactions = transactions.filter(tx => {
+            return tx.dateObj.getMonth() === selectedMonthIndex && 
+                   tx.dateObj.getFullYear() === currentYear;
+        });
+        
+        // Filter by category
+        if (currentCategory !== 'All Categories') {
+            transactions = transactions.filter(tx => tx.category === currentCategory);
+        }
+        
+        // Filter by status
+        if (currentStatus !== 'All Status') {
+            const statusMap = {
+                'Successful': 'success',
+                'Pending': 'pending',
+                'Failed': 'failed',
+                'To be paid': 'pending',
+                'Reversed': 'failed'
+            };
+            const mappedStatus = statusMap[currentStatus];
+            if (mappedStatus) {
+                transactions = transactions.filter(tx => tx.status === mappedStatus);
+            }
+        }
+        
+        return transactions;
+    }
+
+    function calculateTotals(transactions) {
+        let totalIn = 0, totalOut = 0;
+        transactions.forEach(tx => {
+            if (tx.type === 'credit') totalIn += tx.amount;
+            else totalOut += tx.amount;
+        });
+        return { totalIn, totalOut };
+    }
+
+    function getTransactionIcon(category) {
+        const icons = {
+            'OWealth': '<i class="fas fa-chart-line"></i>',
+            'Airtime': '<i class="fas fa-signal"></i>',
+            'Mobile Data': '<i class="fas fa-wifi"></i>',
+            'Transfer to': '<i class="fas fa-paper-plane"></i>',
+            'Transfer from': '<i class="fas fa-download"></i>',
+            'Add Money': '<i class="fas fa-plus-circle"></i>',
+            'Betting': '<i class="fas fa-futbol"></i>'
+        };
+        return icons[category] || '<i class="fas fa-exchange-alt"></i>';
+    }
+
+    function formatAmount(amount, type) {
+        const formatted = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return type === 'credit' ? `+${formatted}` : `-${formatted}`;
+    }
+
+    // Navigate to receipt page with transaction data
+    function showReceipt(tx) {
+        const encodedData = encodeURIComponent(JSON.stringify(tx));
+        window.location.href = `receipt.html?data=${encodedData}`;
+    }
+
+    function renderTransactions() {
+        const container = document.getElementById('transactionsContent');
+        const filteredTransactions = getFilteredTransactions();
+        const { totalIn, totalOut } = calculateTotals(filteredTransactions);
+        
+        container.innerHTML = `
+            <div class="month-section">
+                <div class="month-header-row">
+                    <div class="month-title" id="monthSelector">
+                        ${currentMonth} <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="analysis-text">Analysis</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-item">
+                        <span class="summary-label">In</span>
+                        <span class="summary-amount">₦${totalIn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Out</span>
+                        <span class="summary-amount">₦${totalOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="transaction-list">
+                ${filteredTransactions.length === 0 ? 
+                    `<div class="empty-state"><i class="fas fa-inbox"></i><div>No transactions found</div></div>` :
+                    filteredTransactions.map((tx, index) => `
+                        <div class="transaction-item" data-index="${index}">
+                            <div class="transaction-icon">
+                                ${getTransactionIcon(tx.category)}
+                            </div>
+                            <div class="transaction-details">
+                                <div class="transaction-title">${tx.title}</div>
+                                <div class="transaction-date">${tx.date}</div>
+                            </div>
+                            <div class="transaction-amount">
+                                <div class="amount-value">${formatAmount(tx.amount, tx.type)}</div>
+                                <div class="transaction-status status-${tx.status}">
+                                    ${tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed'}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')
+                }
+            </div>
+        `;
+        
+        // Add click handlers for each transaction
+        document.querySelectorAll('.transaction-item').forEach((item, idx) => {
+            item.addEventListener('click', () => {
+                const tx = filteredTransactions[idx];
+                if (tx) showReceipt(tx);
+            });
+        });
+        
+        document.getElementById('monthSelector')?.addEventListener('click', () => showSheet(monthSheet));
+    }
+
+    // Sheet functions
+    const categorySheet = document.getElementById('categorySheet');
+    const statusSheet = document.getElementById('statusSheet');
+    const monthSheet = document.getElementById('monthSheet');
+    
+    function showSheet(sheet) { if (sheet) { sheet.style.display = 'flex'; document.body.style.overflow = 'hidden'; } }
+    function hideSheet(sheet) { if (sheet) { sheet.style.display = 'none'; document.body.style.overflow = ''; } }
+
+    // Category handlers
+    document.getElementById('categoryFilterBtn')?.addEventListener('click', () => showSheet(categorySheet));
+    categorySheet?.addEventListener('click', (e) => { if (e.target === categorySheet || e.target.classList.contains('sheet-overlay')) hideSheet(categorySheet); });
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.addEventListener('click', () => {
+            currentCategory = item.getAttribute('data-category');
+            document.getElementById('selectedCategory').textContent = currentCategory;
+            document.querySelectorAll('.category-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            hideSheet(categorySheet);
+            renderTransactions();
+        });
+    });
+
+    // Status handlers
+    document.getElementById('statusFilterBtn')?.addEventListener('click', () => showSheet(statusSheet));
+    statusSheet?.addEventListener('click', (e) => { if (e.target === statusSheet || e.target.classList.contains('sheet-overlay')) hideSheet(statusSheet); });
+    document.querySelectorAll('.status-item').forEach(item => {
+        item.addEventListener('click', () => {
+            currentStatus = item.getAttribute('data-status');
+            document.getElementById('selectedStatus').textContent = currentStatus;
+            document.querySelectorAll('.status-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            hideSheet(statusSheet);
+            renderTransactions();
+        });
+    });
+
+    // Close buttons for sheets
+    document.querySelectorAll('.close-sheet-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            hideSheet(categorySheet);
+            hideSheet(statusSheet);
+            hideSheet(monthSheet);
+        });
+    });
+
+    // Month selector
+    function generateYears() {
+        const yearList = document.getElementById('yearList');
+        let yearsHtml = '';
+        for (let year = 2020; year <= 2028; year++) {
+            yearsHtml += `<div class="year-item ${year === currentYear ? 'selected' : ''}" data-year="${year}">${year}</div>`;
+        }
+        yearList.innerHTML = yearsHtml;
+        document.querySelectorAll('.year-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.year-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+                currentYear = parseInt(item.getAttribute('data-year'));
+                document.getElementById('selectedYearDisplay').textContent = currentYear;
+            });
+        });
+    }
+
+    function setupMonthGrid() {
+        document.querySelectorAll('.month-grid-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.month-grid-item').forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+                currentMonth = item.getAttribute('data-month');
+                document.getElementById('selectedMonthDisplay').textContent = currentMonth;
+            });
+        });
+    }
+
+    document.getElementById('confirmMonthBtn')?.addEventListener('click', () => {
+        hideSheet(monthSheet);
+        renderTransactions();
+    });
+
+    generateYears();
+    setupMonthGrid();
+
+    // Download button
+    document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        Swal.fire({ icon: 'info', title: 'Coming Soon', text: 'Download feature will be available soon', confirmButtonColor: '#00B875' });
+    });
+
+    // Initialize
+    loadUserFromLocalStorage();
+    renderTransactions();
+    
+    console.log('✅ Transaction page loaded - clicking transaction opens receipt.html');
+</script>
+</body>
+</html>
