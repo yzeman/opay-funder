@@ -115,7 +115,6 @@
             margin-top: 0;
         }
 
-        /* Transfer Title - Centered */
         .transfer-title {
             text-align: center;
             font-weight: 700;
@@ -124,7 +123,6 @@
             margin-bottom: 8px;
         }
 
-        /* Amount - Centered */
         .transfer-amount {
             text-align: center;
             font-size: 28px;
@@ -136,7 +134,6 @@
             width: 100%;
         }
 
-        /* Status - Centered */
         .transfer-status {
             text-align: center;
             margin-bottom: 24px;
@@ -165,27 +162,53 @@
             color: #dc3545;
         }
 
-        /* Timeline - Left aligned text */
-        .timeline-container {
-            margin: 20px 0;
-        }
-
-        .timeline-item {
+        /* HORIZONTAL TIMELINE ROW - WITH ICONS AND ARROWS */
+        .timeline-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            margin: 20px 0;
+            padding: 0 5px;
         }
 
-        .timeline-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #1a1a1a;
+        .timeline-step {
+            text-align: center;
+            flex: 1;
         }
 
-        .timeline-date {
-            font-size: 12px;
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            background: #00B875;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+
+        .step-icon i {
+            font-size: 14px;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .step-date {
+            font-size: 9px;
             color: #888;
+        }
+
+        .timeline-arrow {
+            color: #ddd;
+            font-size: 14px;
+            padding: 0 5px;
         }
 
         .info-message {
@@ -193,7 +216,7 @@
             padding: 12px;
             background: #f8f9fa;
             border-radius: 12px;
-            font-size: 11px;
+            font-size: 10px;
             color: #888;
             text-align: left;
         }
@@ -235,10 +258,6 @@
             text-align: right;
             width: 65%;
             word-break: break-word;
-        }
-
-        .recipient-info {
-            text-align: right;
         }
 
         .recipient-name {
@@ -372,7 +391,6 @@
     </div>
 
     <script>
-        // Get user tier from localStorage
         let currentUserTier = null;
         
         function getUserTier() {
@@ -563,21 +581,26 @@
                     </div>
             `;
             
-            // Timeline for Bank Transfers (not OPay)
+            // HORIZONTAL TIMELINE for Bank Transfers (not OPay)
             if (!isOPayTransfer) {
                 html += `
-                    <div class="timeline-container">
-                        <div class="timeline-item">
-                            <span class="timeline-label">Payment successful</span>
-                            <span class="timeline-date">${formatDateToMMDD(tx.date)}</span>
+                    <div class="timeline-row">
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <div class="step-label">Payment<br>successful</div>
+                            <div class="step-date">${formatDateToMMDD(tx.date)}</div>
                         </div>
-                        <div class="timeline-item">
-                            <span class="timeline-label">Processing by bank</span>
-                            <span class="timeline-date">${formatDateToMMDD(tx.date)}</span>
+                        <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-clock"></i></div>
+                            <div class="step-label">Processing<br>by bank</div>
+                            <div class="step-date">${formatDateToMMDD(tx.date)}</div>
                         </div>
-                        <div class="timeline-item">
-                            <span class="timeline-label">Received by bank</span>
-                            <span class="timeline-date">${tx.receivedDate ? formatDateToMMDD(tx.receivedDate) : formatDateToMMDD(tx.date)}</span>
+                        <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-label">Received<br>by bank</div>
+                            <div class="step-date">${tx.receivedDate ? formatDateToMMDD(tx.receivedDate) : formatDateToMMDD(tx.date)}</div>
                         </div>
                     </div>
                     
@@ -632,17 +655,12 @@
             
             document.getElementById('receiptContent').innerHTML = html;
             
-            // Add edit listeners
             if (canEdit) {
                 const amountElement = document.getElementById('amountDisplay');
-                if (amountElement) {
-                    amountElement.addEventListener('click', () => editAmount(amountElement, tx.amount, tx));
-                }
+                if (amountElement) amountElement.addEventListener('click', () => editAmount(amountElement, tx.amount, tx));
                 
                 const statusElement = document.getElementById('statusSpan');
-                if (statusElement) {
-                    statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
-                }
+                if (statusElement) statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
                 
                 const recipientNameElement = document.getElementById('recipientName');
                 if (recipientNameElement) {
