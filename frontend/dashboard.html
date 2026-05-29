@@ -37,6 +37,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
         }
 
         .profile-icon {
@@ -722,7 +723,7 @@
             <div class="profile-section">
                 <div class="profile-icon">
                     <img src="images/profile.jpg" alt="Profile" id="profileImg" onerror="this.src='images/profile.jpg'">
-                    <div class="tier-badge-icon">🥇</div>
+                    <div class="tier-badge-icon">⭐</div>
                 </div>
                 <div class="profile-info">
                     <h2 id="userName">ALABA ISREAL OLAYINKA</h2>
@@ -765,7 +766,7 @@
         </div>
     </div>
 
-    <!-- Business Service Card -->
+    <!-- Business Service Card - NO ALERT -->
     <div class="business-card" id="businessCard">
         <div class="business-left">
             <div class="business-icon">
@@ -907,7 +908,7 @@
         </div>
     </div>
 
-   <script>
+    <script>
     // ========== BACKEND CONNECTION ==========
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
     
@@ -924,21 +925,10 @@
     const profileImg = document.getElementById('profileImg');
     const tierBadge = document.querySelector('.tier-badge-icon');
     
-    // Small Toast Alert
-    function showToast(message, icon = 'success') {
-        if (window.navigator && window.navigator.vibrate) {
-            window.navigator.vibrate(50);
-        }
-        Swal.fire({
-            icon: icon,
-            title: message,
-            showConfirmButton: false,
-            timer: 1500,
-            width: '280px',
-            padding: '8px 12px',
-            backdrop: false,
-            position: 'top'
-        });
+    // NO ALERT FUNCTION - completely silent
+    function doNothing() {
+        // Absolutely nothing happens
+        return;
     }
     
     // Update badge based on tier
@@ -992,7 +982,6 @@
         localStorage.setItem(`user_tier_${currentUser.email}`, tier);
         updateBadge(tier);
         
-        // Also save to backend
         try {
             await fetch(`${BACKEND_URL}/api/update-tier`, {
                 method: 'POST',
@@ -1045,7 +1034,6 @@
     
     // ========== ACTIVATION BOTTOM SHEET ==========
     function showActivationSheet() {
-        // Create overlay and sheet dynamically
         const existingOverlay = document.getElementById('activationOverlay');
         if (existingOverlay) existingOverlay.remove();
         
@@ -1079,7 +1067,6 @@
                     <div style="font-size: 13px; color: #888; margin-top: 6px;">Select a subscription plan to activate or upgrade your existing plan</div>
                 </div>
                 
-                <!-- Current Tier Display -->
                 <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                     <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
                     <span style="font-size: 14px; font-weight: 700; color: #00B875;">
@@ -1101,13 +1088,15 @@
                     </div>
                     <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
                         • Transfer to OPay only<br>
-                        • Add money unlock<br>
+                        • Add money unlock<br>                            
+                        • View receipt<br>
+                        • payment proof - no watermark added<br>
                         • Activate banner removed<br>
                         • 10 times transfer daily<br>
                         • Add Money limit ₦100,000
                     </div>
-                    <button class="plan-purchase-btn" data-plan="basic" data-price="30000" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
-                        ${currentTier >= 2 ? '✓ Already Purchased' : (currentTier === 1 ? 'Purchase Basic Plan >' : 'Upgrade to Basic Plan >')}
+                    <button class="plan-purchase-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
+                        ${currentTier >= 2 ? '✓ Already Purchased' : 'Purchase Basic Plan >'}
                     </button>
                 </div>
                 
@@ -1132,8 +1121,8 @@
                         • Unlimited transfer<br>
                         • Add Money limit ₦1,000,000
                     </div>
-                    <button class="plan-purchase-btn" data-plan="premium" data-price="50000" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
-                        ${currentTier >= 3 ? '✓ Already Purchased' : (currentTier === 2 ? 'Upgrade to Premium Plan >' : (currentTier === 1 ? 'Purchase Premium Plan >' : 'Upgrade to Premium Plan >'))}
+                    <button class="plan-purchase-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
+                        ${currentTier >= 3 ? '✓ Already Purchased' : 'Purchase Premium Plan >'}
                     </button>
                 </div>
                 
@@ -1161,7 +1150,7 @@
                         • Add money unlimited<br>
                         • No transaction limit
                     </div>
-                    <button class="plan-purchase-btn" data-plan="vip" data-price="100000" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
+                    <button class="plan-purchase-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
                         ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Purchase VIP Plan >'}
                     </button>
                 </div>
@@ -1175,7 +1164,6 @@
         document.body.appendChild(overlay);
         document.body.style.overflow = 'hidden';
         
-        // Add animation styles
         if (!document.getElementById('activationSheetStyles')) {
             const style = document.createElement('style');
             style.id = 'activationSheetStyles';
@@ -1186,13 +1174,11 @@
             document.head.appendChild(style);
         }
         
-        // Close button
         document.getElementById('closeActivationSheet')?.addEventListener('click', () => {
             overlay.remove();
             document.body.style.overflow = '';
         });
         
-        // Close on overlay click
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 overlay.remove();
@@ -1200,183 +1186,112 @@
             }
         });
         
-        // Purchase buttons
+        // PURCHASE BUTTONS - DIRECT TO plan.html (NO BALANCE CHECK, NO ALERTS)
         document.querySelectorAll('.plan-purchase-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
                 const plan = btn.getAttribute('data-plan');
-                const price = parseInt(btn.getAttribute('data-price'));
                 const tier = btn.getAttribute('data-tier');
                 
                 if (btn.disabled) return;
                 
-                // Check if user can upgrade
-                const currentTierValue = currentTier === 'VIP' ? 4 : currentTier;
-                const newTierValue = tier === 'VIP' ? 4 : parseInt(tier);
+                // Store selected plan in localStorage for plan.html to read
+                localStorage.setItem('selected_plan', JSON.stringify({
+                    plan: plan,
+                    tier: tier,
+                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+                }));
                 
-                if (newTierValue <= currentTierValue) {
-                    showToast(`You already have this plan or higher!`, 'info');
-                    overlay.remove();
-                    document.body.style.overflow = '';
-                    return;
-                }
-                
-                // Check if user has enough balance
-                if (currentBalance < price) {
-                    showToast(`Insufficient balance! You need ₦${price.toLocaleString()} to purchase this plan.`, 'error');
-                    overlay.remove();
-                    document.body.style.overflow = '';
-                    return;
-                }
-                
-                // Confirm purchase
-                const confirm = await Swal.fire({
-                    title: 'Confirm Purchase',
-                    text: `Are you sure you want to purchase ${plan.toUpperCase()} plan for ₦${price.toLocaleString()}?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#00B875',
-                    confirmButtonText: 'Yes, Purchase',
-                    cancelButtonText: 'Cancel',
-                    width: '300px'
-                });
-                
-                if (confirm.isConfirmed) {
-                    // Deduct balance
-                    currentBalance -= price;
-                    updateBalanceDisplay();
-                    
-                    // Save tier
-                    await saveTier(tier === 'VIP' ? 'VIP' : parseInt(tier));
-                    
-                    showToast(`🎉 Congratulations! You are now on ${plan.toUpperCase()} plan!`, 'success');
-                    overlay.remove();
-                    document.body.style.overflow = '';
-                    
-                    // Refresh page to update badge and features
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                }
+                // Direct to plan.html
+                window.location.href = 'plan.html';
             });
         });
     }
     
     // ========== NAVIGATION HANDLERS ==========
+    // Profile
     document.querySelector('.profile-section')?.addEventListener('click', () => {
         window.location.href = 'profile.html';
     });
     
+    // Transaction History
     document.getElementById('transactionHistory')?.addEventListener('click', () => {
         window.location.href = 'transaction.html';
     });
     
+    // Add Money
     document.getElementById('addMoney')?.addEventListener('click', () => {
         window.location.href = 'add.html';
     });
     
-    document.getElementById('businessCard')?.addEventListener('click', () => {
-        showToast('Business Service coming soon', 'info');
-    });
+    // Business Service - NO ALERT, NOTHING HAPPENS
+    document.getElementById('businessCard')?.addEventListener('click', doNothing);
     
+    // To OPay (requires Tier 2 or higher)
     document.getElementById('toOpayBtn')?.addEventListener('click', () => {
         if (currentTier >= 2) {
             window.location.href = 'toopay.html';
-        } else {
-            showToast('Please purchase Basic plan first! Click Activate button.', 'error');
         }
+        // No alert if not allowed - just nothing
     });
     
+    // To Bank (requires Tier 3 or higher)
     document.getElementById('toBankBtn')?.addEventListener('click', () => {
         if (currentTier >= 3) {
             window.location.href = 'tobank.html';
-        } else {
-            showToast('Premium plan required for bank transfers. Upgrade to Premium!', 'error');
         }
+        // No alert if not allowed - just nothing
     });
     
-    document.getElementById('withdrawBtn')?.addEventListener('click', () => {
-        if (currentTier >= 3) {
-            window.location.href = 'withdraw.html';
-        } else {
-            showToast('Premium plan required for withdrawals. Upgrade to Premium!', 'error');
-        }
-    });
+    // Withdraw - NOTHING HAPPENS (no direction, no alert)
+    document.getElementById('withdrawBtn')?.addEventListener('click', doNothing);
     
+    // Airtime (requires VIP)
     document.getElementById('airtimeBtn')?.addEventListener('click', () => {
         if (currentTier === 'VIP') {
             window.location.href = 'airtime.html';
-        } else {
-            showToast('VIP plan required for airtime purchase. Upgrade to VIP!', 'error');
         }
+        // No alert if not allowed - just nothing
     });
     
+    // Data (requires VIP)
     document.getElementById('dataBtn')?.addEventListener('click', () => {
         if (currentTier === 'VIP') {
             window.location.href = 'data.html';
-        } else {
-            showToast('VIP plan required for data purchase. Upgrade to VIP!', 'error');
         }
+        // No alert if not allowed - just nothing
     });
     
-    document.getElementById('tvBtn')?.addEventListener('click', () => {
-        showToast('TV subscription coming soon', 'info');
-    });
+    // ALL COMING SOON ITEMS - NOTHING HAPPENS (no alerts, no actions)
+    document.getElementById('tvBtn')?.addEventListener('click', doNothing);
+    document.getElementById('bettingBtn')?.addEventListener('click', doNothing);
+    document.getElementById('owealthBtn')?.addEventListener('click', doNothing);
+    document.getElementById('educationBtn')?.addEventListener('click', doNothing);
+    document.getElementById('moreBtn')?.addEventListener('click', doNothing);
+    document.getElementById('play4aChildBtn')?.addEventListener('click', doNothing);
     
-    document.getElementById('bettingBtn')?.addEventListener('click', () => {
-        showToast('Betting coming soon', 'info');
-    });
-    
-    document.getElementById('owealthBtn')?.addEventListener('click', () => {
-        showToast('Owealth coming soon', 'info');
-    });
-    
-    document.getElementById('educationBtn')?.addEventListener('click', () => {
-        showToast('Education coming soon', 'info');
-    });
-    
-    document.getElementById('moreBtn')?.addEventListener('click', () => {
-        showToast('More services coming soon', 'info');
-    });
-    
-    document.getElementById('play4aChildBtn')?.addEventListener('click', () => {
-        showToast('Play4aChild coming soon', 'info');
-    });
-    
-    // Activate button - shows the bottom sheet
+    // Activate button - shows bottom sheet
     document.getElementById('activateBtn')?.addEventListener('click', function() {
         showActivationSheet();
     });
     
-    // Promo Banner
-    document.getElementById('promoBanner')?.addEventListener('click', () => {
-        showToast('Invite friends and earn up to ₦6,300 Bonus', 'success');
-    });
+    // Promo Banner - NOTHING HAPPENS
+    document.getElementById('promoBanner')?.addEventListener('click', doNothing);
     
-    // Scan Icon
-    document.getElementById('scanIcon')?.addEventListener('click', () => {
-        showToast('QR Scanner coming soon', 'info');
-    });
+    // Scan Icon - NOTHING HAPPENS
+    document.getElementById('scanIcon')?.addEventListener('click', doNothing);
     
-    // Notification Icon
-    document.getElementById('notificationIcon')?.addEventListener('click', () => {
-        showToast('No new notifications', 'info');
-    });
+    // Notification Icon - NOTHING HAPPENS
+    document.getElementById('notificationIcon')?.addEventListener('click', doNothing);
     
     // Bottom Navigation
     document.getElementById('homeNav')?.addEventListener('click', () => {
         window.location.reload();
     });
-    document.getElementById('rewardsNav')?.addEventListener('click', () => {
-        showToast('Rewards coming soon', 'info');
-    });
-    document.getElementById('financeNav')?.addEventListener('click', () => {
-        showToast('Finance coming soon', 'info');
-    });
-    document.getElementById('cardsNav')?.addEventListener('click', () => {
-        showToast('Cards coming soon', 'info');
-    });
+    document.getElementById('rewardsNav')?.addEventListener('click', doNothing);
+    document.getElementById('financeNav')?.addEventListener('click', doNothing);
+    document.getElementById('cardsNav')?.addEventListener('click', doNothing);
     document.getElementById('meNav')?.addEventListener('click', () => {
         window.location.href = 'login1.html';
     });
@@ -1421,8 +1336,8 @@
     loadUserFromLocalStorage();
     fetchBalance();
     
-    console.log('✅ Dashboard connected to backend API');
-    console.log('✅ Tier System: Tier 1 (Free) ⭐, Tier 2 (Basic) 🥈, Tier 3 (Premium) 🥉, VIP 👑');
+    console.log('✅ Dashboard - Purchase buttons redirect to plan.html');
+    console.log('✅ No alerts, silent clicks');
 </script>
 </body>
 </html>
