@@ -91,6 +91,68 @@ app.post('/api/update-balance', async (req, res) => {
     }
 });
 
+// ============ GET USER PROFILE ============
+app.post('/api/get-profile', async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('account_number, account_name, email, nickname, gender, date_of_birth, address, profile_picture, phone_number')
+            .eq('email', email)
+            .single();
+        
+        if (error) throw error;
+        
+        res.json({ success: true, profile: data });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ UPDATE USER PROFILE ============
+app.post('/api/update-profile', async (req, res) => {
+    const { email, nickname, gender, date_of_birth, address, phone_number } = req.body;
+    
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({
+                nickname: nickname || null,
+                gender: gender || null,
+                date_of_birth: date_of_birth || null,
+                address: address || null,
+                phone_number: phone_number || null,
+                updated_at: new Date().toISOString()
+            })
+            .eq('email', email);
+        
+        if (error) throw error;
+        
+        res.json({ success: true, message: 'Profile updated successfully' });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ UPDATE PROFILE PICTURE ============
+app.post('/api/update-profile-picture', async (req, res) => {
+    const { email, profile_picture } = req.body;
+    
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ profile_picture: profile_picture })
+            .eq('email', email);
+        
+        if (error) throw error;
+        
+        res.json({ success: true, message: 'Profile picture updated' });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 
 // ============ ADMIN LOGIN ============
 app.post('/api/admin/login', async (req, res) => {
