@@ -20,7 +20,6 @@
             padding-bottom: 30px;
         }
 
-        /* Header */
         .header {
             background: white;
             padding: 16px 16px 10px;
@@ -60,22 +59,52 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
         }
 
         .profile-avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             background: #00B875;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 12px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .profile-avatar span {
-            font-size: 32px;
+            font-size: 40px;
             font-weight: 600;
+            color: white;
+        }
+
+        .camera-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #00B875;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            cursor: pointer;
+        }
+
+        .camera-icon i {
+            font-size: 14px;
             color: white;
         }
 
@@ -122,6 +151,22 @@
             word-break: break-word;
         }
 
+        .info-value.editable {
+            cursor: pointer;
+            color: #00B875;
+        }
+
+        .info-value.editable:hover {
+            text-decoration: underline;
+        }
+
+        .copy-icon {
+            cursor: pointer;
+            margin-left: 8px;
+            color: #00B875;
+            font-size: 12px;
+        }
+
         .upgrade-link {
             color: #00B875;
             font-weight: 600;
@@ -139,7 +184,69 @@
             font-style: italic;
         }
 
-        /* Edit Button */
+        .gender-options {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .gender-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .gender-option input {
+            width: 16px;
+            height: 16px;
+            accent-color: #00B875;
+        }
+
+        /* Edit Mode Styles */
+        .edit-input {
+            border: 1px solid #00B875;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            width: 100%;
+            text-align: right;
+        }
+
+        .edit-select {
+            border: 1px solid #00B875;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .save-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #f0f2f5;
+            color: #666;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Buttons */
         .edit-profile-btn {
             background: #00B875;
             color: white;
@@ -159,7 +266,6 @@
             background: #009a62;
         }
 
-        /* Logout Button */
         .logout-btn {
             background: white;
             color: #dc3545;
@@ -179,16 +285,21 @@
             background: #fff5f5;
         }
 
-        /* Divider */
         .divider {
             height: 8px;
             background: #f0f2f5;
             margin: 8px 0;
         }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
             <button class="back-btn" onclick="window.location.href='dashboard.html'">
@@ -198,141 +309,352 @@
         </div>
     </div>
 
-    <!-- Profile Card -->
-    <div class="profile-card">
-        <div class="profile-avatar" id="profileAvatar">
-            <span id="avatarLetter">A</span>
-        </div>
-        <div class="profile-name" id="profileName">ALABA ISREAL OLAYINKA</div>
-    </div>
-
-    <!-- OPay Account Number -->
-    <div class="info-section">
-        <div class="info-row">
-            <span class="info-label">OPay Account Number</span>
-            <span class="info-value" id="accountNumber">9013104760</span>
+    <div id="profileContent">
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading profile...
         </div>
     </div>
-
-    <!-- Account Tier / Plan -->
-    <div class="info-section">
-        <div class="info-row">
-            <span class="info-label">Account Tier / Plan:</span>
-            <span class="info-value">
-                <span id="tierText">Upgrade to Tier 2</span>
-                <a href="#" class="upgrade-link" id="upgradeLink">Upgrade <i class="fas fa-chevron-right"></i></a>
-            </span>
-        </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Personal Information -->
-    <div class="info-section">
-        <div class="info-row">
-            <span class="info-label">Full Name</span>
-            <span class="info-value" id="fullName">ALABA ISREAL OLAYINKA</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Mobile Number</span>
-            <span class="info-value" id="mobileNumber">+2349013104760</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Nickname</span>
-            <span class="info-value" id="nickname">ALABA ISREAL OLAYINKA</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Gender</span>
-            <span class="info-value null-value" id="gender">null</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Date of Birth</span>
-            <span class="info-value null-value" id="dob">null</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value" id="email">olas@gmail.com</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Address</span>
-            <span class="info-value null-value" id="address">null</span>
-        </div>
-    </div>
-
-    <!-- Edit Profile Button -->
-    <button class="edit-profile-btn" id="editProfileBtn">
-        <i class="fas fa-edit"></i> Edit Profile
-    </button>
-
-    <!-- Logout Button -->
-    <button class="logout-btn" id="logoutBtn">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
 
     <script>
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
-        
-        // Load user data from localStorage
-        const userData = localStorage.getItem('loggedInUser');
-        if (!userData) {
-            window.location.href = 'login1.html';
+        let currentUser = null;
+        let profileData = null;
+        let isEditMode = false;
+
+        // Load user from localStorage
+        function loadUserFromLocalStorage() {
+            const userData = localStorage.getItem('loggedInUser');
+            if (!userData) {
+                window.location.href = 'login1.html';
+                return null;
+            }
+            currentUser = JSON.parse(userData);
+            return currentUser;
         }
-        
-        const user = JSON.parse(userData);
-        
-        // Get saved tier from localStorage
-        let currentTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
-        
-        // Update profile with user data
-        function loadProfile() {
-            // Profile name
-            const fullName = user.account_name;
-            document.getElementById('profileName').innerText = fullName;
-            document.getElementById('fullName').innerText = fullName;
-            document.getElementById('nickname').innerText = fullName;
-            
-            // Avatar letter
-            const firstLetter = fullName.charAt(0).toUpperCase();
-            document.getElementById('avatarLetter').innerText = firstLetter;
-            
-            // Account number
-            const accountNumber = user.account_number;
-            document.getElementById('accountNumber').innerText = accountNumber;
-            document.getElementById('mobileNumber').innerText = `+234${accountNumber}`;
-            
-            // Email
-            document.getElementById('email').innerText = user.email;
-            
-            // Update tier display
-            updateTierDisplay();
-        }
-        
-        function updateTierDisplay() {
-            const tierTextSpan = document.getElementById('tierText');
-            const upgradeLink = document.getElementById('upgradeLink');
-            
-            if (currentTier === '1' || currentTier === 1) {
-                tierTextSpan.innerText = '⭐ Tier 1 (Free)';
-                upgradeLink.style.display = 'inline-flex';
-            } else if (currentTier === '2' || currentTier === 2) {
-                tierTextSpan.innerText = '🥈 Tier 2 (Basic)';
-                upgradeLink.style.display = 'inline-flex';
-            } else if (currentTier === '3' || currentTier === 3) {
-                tierTextSpan.innerText = '🥉 Tier 3 (Premium)';
-                upgradeLink.style.display = 'inline-flex';
-            } else if (currentTier === 'VIP') {
-                tierTextSpan.innerText = '👑 VIP Tier';
-                upgradeLink.style.display = 'none';
+
+        // Fetch profile from backend
+        async function fetchProfile() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    profileData = data.profile;
+                } else {
+                    profileData = {
+                        account_number: currentUser.account_number,
+                        account_name: currentUser.account_name,
+                        email: currentUser.email,
+                        nickname: null,
+                        gender: null,
+                        date_of_birth: null,
+                        address: null,
+                        phone_number: `+234${currentUser.account_number}`,
+                        profile_picture: null
+                    };
+                }
+                renderProfile();
+            } catch (error) {
+                console.error('Fetch profile error:', error);
+                renderProfile();
             }
         }
-        
-        // Upgrade button click - show activation sheet
+
+        // Update profile in backend
+        async function updateProfile(updates) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/update-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        ...updates
+                    })
+                });
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                return { success: false, message: error.message };
+            }
+        }
+
+        // Update profile picture
+        async function updateProfilePicture(base64Image) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/update-profile-picture`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        profile_picture: base64Image
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    profileData.profile_picture = base64Image;
+                    // Update localStorage for dashboard
+                    const userData = JSON.parse(localStorage.getItem('loggedInUser'));
+                    userData.profile_picture = base64Image;
+                    localStorage.setItem('loggedInUser', JSON.stringify(userData));
+                    renderProfile();
+                }
+                return data;
+            } catch (error) {
+                return { success: false };
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            Swal.fire({
+                icon: 'success',
+                title: 'Copied!',
+                text: `${text} copied to clipboard`,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        // Handle image upload
+        function handleImageUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        const base64 = event.target.result;
+                        await updateProfilePicture(base64);
+                        // Also update dashboard avatar
+                        localStorage.setItem('profile_picture', base64);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        // Save edited field
+        async function saveField(field, value) {
+            const updates = {};
+            updates[field] = value;
+            const result = await updateProfile(updates);
+            if (result.success) {
+                profileData[field] = value;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated!',
+                    text: `${field.replace('_', ' ')} updated successfully`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                renderProfile();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: result.message
+                });
+            }
+        }
+
+        // Show edit modal
+        function showEditModal(field, currentValue, label) {
+            Swal.fire({
+                title: `Edit ${label}`,
+                input: 'text',
+                inputValue: currentValue && currentValue !== 'null' ? currentValue : '',
+                inputPlaceholder: `Enter ${label.toLowerCase()}`,
+                showCancelButton: true,
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'Save',
+                cancelButtonText: 'Cancel',
+                preConfirm: (value) => {
+                    if (!value || value.trim() === '') {
+                        Swal.showValidationMessage(`${label} cannot be empty`);
+                        return false;
+                    }
+                    return value.trim();
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    saveField(field, result.value);
+                }
+            });
+        }
+
+        // Show gender selection modal
+        function showGenderModal(currentGender) {
+            Swal.fire({
+                title: 'Select Gender',
+                html: `
+                    <div style="display: flex; justify-content: center; gap: 20px; padding: 20px;">
+                        <div class="gender-option" onclick="selectGender('Male')" style="cursor: pointer; text-align: center;">
+                            <i class="fas fa-mars" style="font-size: 40px; color: #00B875;"></i>
+                            <div style="margin-top: 8px;">Male</div>
+                        </div>
+                        <div class="gender-option" onclick="selectGender('Female')" style="cursor: pointer; text-align: center;">
+                            <i class="fas fa-venus" style="font-size: 40px; color: #00B875;"></i>
+                            <div style="margin-top: 8px;">Female</div>
+                        </div>
+                        <div class="gender-option" onclick="selectGender('Other')" style="cursor: pointer; text-align: center;">
+                            <i class="fas fa-genderless" style="font-size: 40px; color: #00B875;"></i>
+                            <div style="margin-top: 8px;">Other</div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'Close',
+                cancelButtonColor: '#888'
+            });
+        }
+
+        window.selectGender = function(gender) {
+            Swal.close();
+            saveField('gender', gender);
+        };
+
+        // Render profile
+        function renderProfile() {
+            const container = document.getElementById('profileContent');
+            const firstLetter = profileData.account_name.charAt(0).toUpperCase();
+            const profilePic = profileData.profile_picture || localStorage.getItem('profile_picture');
+            
+            // Determine tier display
+            let tierDisplay = '⭐ Tier 1 (Free)';
+            let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+            if (currentTier === '1' || currentTier === 1) tierDisplay = '⭐ Tier 1 (Free)';
+            else if (currentTier === '2' || currentTier === 2) tierDisplay = '🥈 Tier 2 (Basic)';
+            else if (currentTier === '3' || currentTier === 3) tierDisplay = '🥉 Tier 3 (Premium)';
+            else if (currentTier === 'VIP') tierDisplay = '👑 VIP Tier';
+
+            container.innerHTML = `
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-avatar" id="avatarContainer">
+                        ${profilePic ? `<img src="${profilePic}" alt="Profile">` : `<span id="avatarLetter">${firstLetter}</span>`}
+                        <div class="camera-icon" onclick="handleImageUpload()">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="profile-name" id="profileName">${profileData.account_name}</div>
+                </div>
+
+                <!-- OPay Account Number -->
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">OPay Account Number</span>
+                        <span class="info-value">
+                            ${profileData.account_number}
+                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${profileData.account_number}')"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Account Tier / Plan -->
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">Account Tier / Plan:</span>
+                        <span class="info-value">
+                            <span>${tierDisplay}</span>
+                            ${currentTier !== 'VIP' ? `<a href="#" class="upgrade-link" id="upgradeLink"> Upgrade <i class="fas fa-chevron-right"></i></a>` : ''}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Personal Information -->
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">Full Name</span>
+                        <span class="info-value">${profileData.account_name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mobile Number</span>
+                        <span class="info-value">
+                            ${profileData.phone_number || `+234${profileData.account_number}`}
+                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${profileData.phone_number || `+234${profileData.account_number}`}')"></i>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Nickname</span>
+                        <span class="info-value editable" onclick="showEditModal('nickname', '${profileData.nickname || ''}', 'Nickname')">
+                            ${profileData.nickname ? profileData.nickname : '<span class="null-value">Add nickname</span>'}
+                            <i class="fas fa-pen" style="font-size: 10px; margin-left: 6px; color: #00B875;"></i>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gender</span>
+                        <span class="info-value editable" onclick="showGenderModal('${profileData.gender || ''}')">
+                            ${profileData.gender ? profileData.gender : '<span class="null-value">Select gender</span>'}
+                            <i class="fas fa-pen" style="font-size: 10px; margin-left: 6px; color: #00B875;"></i>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Date of Birth</span>
+                        <span class="info-value editable" onclick="showEditModal('date_of_birth', '${profileData.date_of_birth || ''}', 'Date of Birth')">
+                            ${profileData.date_of_birth ? profileData.date_of_birth : '<span class="null-value">Add date of birth</span>'}
+                            <i class="fas fa-pen" style="font-size: 10px; margin-left: 6px; color: #00B875;"></i>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">${profileData.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address</span>
+                        <span class="info-value editable" onclick="showEditModal('address', '${profileData.address || ''}', 'Address')">
+                            ${profileData.address ? profileData.address : '<span class="null-value">Add address</span>'}
+                            <i class="fas fa-pen" style="font-size: 10px; margin-left: 6px; color: #00B875;"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Logout Button -->
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            `;
+
+            // Add event listeners
+            document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                Swal.fire({
+                    title: 'Logout',
+                    text: 'Are you sure you want to logout?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#888',
+                    confirmButtonText: 'Yes, Logout',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem('loggedInUser');
+                        localStorage.removeItem('profile_picture');
+                        window.location.href = 'login1.html';
+                    }
+                });
+            });
+
+            document.getElementById('upgradeLink')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showUpgradeSheet();
+            });
+        }
+
+        // Upgrade sheet function
         function showUpgradeSheet() {
-            const existingOverlay = document.getElementById('upgradeOverlay');
-            if (existingOverlay) existingOverlay.remove();
+            let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
             
             const overlay = document.createElement('div');
-            overlay.id = 'upgradeOverlay';
             overlay.style.cssText = `
                 position: fixed;
                 top: 0;
@@ -343,22 +665,14 @@
                 z-index: 2000;
                 display: flex;
                 align-items: flex-end;
-                animation: fadeIn 0.3s ease;
             `;
             
             overlay.innerHTML = `
-                <div style="
-                    background: white;
-                    width: 100%;
-                    border-radius: 28px 28px 0 0;
-                    animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                    max-height: 85vh;
-                    overflow-y: auto;
-                ">
-                    <div style="text-align: center; padding: 20px 20px 10px;">
+                <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+                    <div style="text-align: center; padding: 20px;">
                         <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                        <div style="font-size: 22px; font-weight: 700; color: #1a1a1a;">Upgrade Your Plan</div>
-                        <div style="font-size: 13px; color: #888; margin-top: 6px;">Choose a plan to unlock more features</div>
+                        <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                        <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
                     </div>
                     
                     <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
@@ -370,89 +684,41 @@
                         </span>
                     </div>
                     
-                    <!-- Basic Plan (Tier 2) -->
                     <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 28px;">🥈</span>
-                                <div>
-                                    <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
-                                    <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
+                            <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
                         </div>
-                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                            • Transfer to OPay only<br>
-                            • Add money unlock<br>                            
-                            • View receipt<br>
-                            • payment proof - no watermark added<br>
-                            • Activate banner removed<br>
-                            • 10 times transfer daily<br>
-                            • Add Money limit ₦100,000
-                        </div>
-                        <button class="plan-purchase-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
-                            ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic >'}
+                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• Transfer to OPay only<br>• Add money unlock<br>• View receipt</div>
+                        <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; ${currentTier >= 2 ? 'opacity:0.6' : ''}" ${currentTier >= 2 ? 'disabled' : ''}>
+                            ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic'}
                         </button>
                     </div>
                     
-                    <!-- Premium Plan (Tier 3) -->
                     <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 28px;">🥉</span>
-                                <div>
-                                    <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
-                                    <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
+                            <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
                         </div>
-                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                            Everything in Basic plus:<br>
-                            • History access, recent recipients history<br>
-                            • OPay and bank transfer<br>
-                            • Custom sender name<br>
-                            • Custom transaction status (failed, success, pending)<br>
-                            • Unlimited transfer<br>
-                            • Add Money limit ₦1,000,000
-                        </div>
-                        <button class="plan-purchase-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
-                            ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
+                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• OPay and bank transfer<br>• Unlimited transfer<br>• Add Money limit ₦1,000,000</div>
+                        <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; ${currentTier >= 3 ? 'opacity:0.6' : ''}" ${currentTier >= 3 ? 'disabled' : ''}>
+                            ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium'}
                         </button>
                     </div>
                     
-                    <!-- VIP Plan -->
-                    <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 28px;">👑</span>
-                                <div>
-                                    <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
-                                    <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
-                                </div>
-                            </div>
-                            <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                    <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
+                            <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
                         </div>
-                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                            Everything in Basic and Premium plus:<br>
-                            • OPay Funder in-app transfers<br>
-                            • Statement of account generation<br>
-                            • Receivers receive alert<br>
-                            • Money add up to receiver balance<br>
-                            • Expire in user balance after 24hrs<br>
-                            • Airtime access purchase<br>
-                            • Data access purchase<br>
-                            • Add money unlimited<br>
-                            • No transaction limit
-                        </div>
-                        <button class="plan-purchase-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
-                            ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
+                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• All features unlocked<br>• Airtime & Data purchase<br>• Unlimited everything</div>
+                        <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; ${currentTier === 'VIP' ? 'opacity:0.6' : ''}" ${currentTier === 'VIP' ? 'disabled' : ''}>
+                            ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP'}
                         </button>
                     </div>
                     
                     <div style="padding: 16px 20px 30px;">
-                        <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+                        <button id="closeSheetBtn" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
                     </div>
                 </div>
             `;
@@ -460,87 +726,36 @@
             document.body.appendChild(overlay);
             document.body.style.overflow = 'hidden';
             
-            if (!document.getElementById('upgradeSheetStyles')) {
-                const style = document.createElement('style');
-                style.id = 'upgradeSheetStyles';
-                style.textContent = `
-                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
+            document.getElementById('closeSheetBtn')?.addEventListener('click', () => {
                 overlay.remove();
                 document.body.style.overflow = '';
             });
             
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.remove();
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            // Purchase buttons
-            document.querySelectorAll('.plan-purchase-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
+            overlay.querySelectorAll('.plan-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
                     if (btn.disabled) return;
-                    
                     const plan = btn.getAttribute('data-plan');
                     const tier = btn.getAttribute('data-tier');
-                    
                     localStorage.setItem('selected_plan', JSON.stringify({
                         plan: plan,
                         tier: tier,
                         price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
                     }));
-                    
                     window.location.href = 'plan.html';
                 });
             });
         }
-        
-        // Upgrade link click
-        document.getElementById('upgradeLink')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            showUpgradeSheet();
-        });
-        
-        // Edit Profile button
-        document.getElementById('editProfileBtn')?.addEventListener('click', () => {
-            Swal.fire({
-                title: 'Edit Profile',
-                text: 'Profile editing feature coming soon!',
-                icon: 'info',
-                confirmButtonColor: '#00B875'
-            });
-        });
-        
-        // Logout button
-        document.getElementById('logoutBtn')?.addEventListener('click', () => {
-            Swal.fire({
-                title: 'Logout',
-                text: 'Are you sure you want to logout?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#888',
-                confirmButtonText: 'Yes, Logout',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.removeItem('loggedInUser');
-                    window.location.href = 'login1.html';
-                }
-            });
-        });
-        
-        // Load profile
-        loadProfile();
-        
-        console.log('✅ Profile page loaded');
+
+        // Expose functions globally
+        window.handleImageUpload = handleImageUpload;
+        window.copyToClipboard = copyToClipboard;
+        window.showEditModal = showEditModal;
+        window.showGenderModal = showGenderModal;
+        window.showUpgradeSheet = showUpgradeSheet;
+
+        // Initialize
+        loadUserFromLocalStorage();
+        fetchProfile();
     </script>
 </body>
 </html>
