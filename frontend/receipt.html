@@ -20,10 +20,10 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            user-select: none;        /* Chrome, Safari */
-    -webkit-user-select: none; 
-    -moz-user-select: none;   /* Firefox */
-    -ms-user-select: none;    /* IE/Edge */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         /* Fixed Header */
@@ -77,7 +77,7 @@
             padding: 20px;
         }
 
-        /* Bank Logo - Proper positioning */
+        /* Bank Logo */
         .logo-wrapper {
             display: flex;
             justify-content: center;
@@ -107,7 +107,7 @@
             object-fit: cover;
         }
 
-        /* Content Card - Overlaps with logo */
+        /* Content Card */
         .content-card {
             background: white;
             border-radius: 24px;
@@ -123,19 +123,31 @@
             margin-bottom: 8px;
         }
 
+        /* Editable Amount */
         .transfer-amount {
             text-align: center;
             font-size: 28px;
             font-weight: 750;
             color: #1a1a1a;
-            transform: scaleY(1.1); 
-            
             margin-bottom: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: inline-block;
+            width: auto;
+            background: transparent;
+            border: none;
         }
 
+        .transfer-amount.editable:hover {
+            background: #f0fdf4;
+            border-radius: 12px;
+        }
+
+        /* Editable Status */
         .transfer-status {
             text-align: center;
             margin-bottom: 24px;
+            cursor: pointer;
         }
 
         .status-badge {
@@ -144,6 +156,7 @@
             border-radius: 20px;
             font-size: 13px;
             font-weight: 500;
+            transition: all 0.2s;
         }
 
         .status-badge.success {
@@ -151,7 +164,22 @@
             color: #00B875;
         }
 
-        /* Horizontal Timeline Row */
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+
+        .status-badge.failed {
+            background: #ffebee;
+            color: #dc3545;
+        }
+
+        .status-badge.editable:hover {
+            transform: scale(1.02);
+            opacity: 0.8;
+        }
+
+        /* Timeline Row */
         .timeline-row {
             display: flex;
             justify-content: space-between;
@@ -222,7 +250,7 @@
             color: #00B875;
         }
 
-        /* Transaction Details Section */
+        /* Transaction Details */
         .details-section {
             margin-top: 24px;
         }
@@ -239,7 +267,6 @@
             justify-content: space-between;
             align-items: flex-start;
             padding: 12px 0;
-            
         }
 
         .detail-label {
@@ -254,6 +281,15 @@
             text-align: right;
             max-width: 60%;
             word-break: break-word;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+        }
+
+        .detail-value.editable:hover {
+            background: #f0fdf4;
         }
 
         .recipient-info {
@@ -315,6 +351,25 @@
         .footer-btn:active {
             transform: scale(0.98);
         }
+
+        /* Edit Input - No border */
+        .edit-input {
+            background: #f0fdf4;
+            border: none;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 8px;
+            width: auto;
+            font-family: inherit;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            background: #e8f5e9;
+        }
     </style>
 </head>
 <body>
@@ -347,238 +402,369 @@
     </div>
 
     <script>
-    // Helper function to copy to clipboard
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        Swal.fire({ icon: 'success', title: 'Copied!', text: 'Copied to clipboard', timer: 1500, showConfirmButton: false });
-    }
+        // Get user tier from localStorage
+        let currentUserTier = null;
+        
+        function getUserTier() {
+            const userData = localStorage.getItem('loggedInUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const savedTier = localStorage.getItem(`user_tier_${user.email}`);
+                currentUserTier = savedTier === '3' || savedTier === 3 ? 'premium' : (savedTier === 'VIP' ? 'vip' : 'basic');
+            }
+            return currentUserTier === 'premium' || currentUserTier === 'vip';
+        }
 
-    // Format date function
-    function formatDateToMMDD(dateString) {
-        const monthMap = {
-            'January': '01', 'February': '02', 'March': '03', 'April': '04',
-            'May': '05', 'June': '06', 'July': '07', 'August': '08',
-            'September': '09', 'October': '10', 'November': '11', 'December': '12'
-        };
-        
-        const parts = dateString.split(',');
-        const datePart = parts[0].trim();
-        const timePart = parts[1] ? parts[1].trim() : '';
-        
-        let monthNum = '';
-        let dayNum = '';
-        
-        for (const month of Object.keys(monthMap)) {
-            if (datePart.startsWith(month)) {
-                monthNum = monthMap[month];
-                dayNum = datePart.replace(month, '').replace(/th|st|nd|rd/g, '').trim();
-                break;
+        const canEdit = getUserTier();
+
+        // Helper function to copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            Swal.fire({ icon: 'success', title: 'Copied!', text: 'Copied to clipboard', timer: 1500, showConfirmButton: false });
+        }
+
+        // Format date function
+        function formatDateToMMDD(dateString) {
+            const monthMap = {
+                'January': '01', 'February': '02', 'March': '03', 'April': '04',
+                'May': '05', 'June': '06', 'July': '07', 'August': '08',
+                'September': '09', 'October': '10', 'November': '11', 'December': '12'
+            };
+            
+            const parts = dateString.split(',');
+            const datePart = parts[0].trim();
+            const timePart = parts[1] ? parts[1].trim() : '';
+            
+            let monthNum = '';
+            let dayNum = '';
+            
+            for (const month of Object.keys(monthMap)) {
+                if (datePart.startsWith(month)) {
+                    monthNum = monthMap[month];
+                    dayNum = datePart.replace(month, '').replace(/th|st|nd|rd/g, '').trim();
+                    break;
+                }
+            }
+            
+            if (dayNum.length === 1) dayNum = '0' + dayNum;
+            
+            return `${monthNum}-${dayNum} ${timePart}`;
+        }
+
+        // Generate Transaction Number
+        function generateTransactionNumber() {
+            return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
+        }
+
+        // Load receipt data
+        function loadReceipt() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const receiptData = urlParams.get('data');
+            
+            if (!receiptData) {
+                document.getElementById('receiptContent').innerHTML = '<div class="loading">No receipt data found</div>';
+                return;
+            }
+            
+            try {
+                const tx = JSON.parse(decodeURIComponent(receiptData));
+                renderReceipt(tx);
+            } catch (error) {
+                document.getElementById('receiptContent').innerHTML = '<div class="loading">Error loading receipt</div>';
             }
         }
-        
-        if (dayNum.length === 1) dayNum = '0' + dayNum;
-        
-        return `${monthNum}-${dayNum} ${timePart}`;
-    }
 
-    // Generate Session ID
-    function generateSessionId() {
-        return '10000' + Date.now().toString() + Math.random().toString(36).substring(2, 15).toUpperCase();
-    }
-
-    // Generate Transaction Number
-    function generateTransactionNumber() {
-        return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
-    }
-
-    // Load receipt data from URL parameters
-    function loadReceipt() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const receiptData = urlParams.get('data');
-        
-        if (!receiptData) {
-            document.getElementById('receiptContent').innerHTML = '<div class="loading">No receipt data found</div>';
-            return;
-        }
-        
-        try {
-            const tx = JSON.parse(decodeURIComponent(receiptData));
-            renderReceipt(tx);
-        } catch (error) {
-            document.getElementById('receiptContent').innerHTML = '<div class="loading">Error loading receipt</div>';
-        }
-    }
-
-    function renderReceipt(tx) {
-        const statusText = tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed';
-        const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
-        
-        // Check if this is an OPay transfer (no timeline) or Bank transfer (with timeline)
-        const isOPayTransfer = tx.bank === 'OPay';
-        
-        const bankLogos = {
-            'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
-            'OPay': 'https://opay-cdn.s3.us-east-2.amazonaws.com/opay-logo.png',
-            'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
-            'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
-            'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
-            'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
-            'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
-        };
-        
-        const bankLogo = bankLogos[tx.bank] || (tx.bank === 'OPay' ? bankLogos['OPay'] : 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png');
-        
-        // Generate transaction number if not present
-        const transactionRef = tx.ref || generateTransactionNumber();
-        
-        let html = `
-            <!-- Bank Logo - Half inside card, half outside -->
-            <div class="logo-wrapper">
-                <div class="bank-logo-circle">
-                    <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
-                </div>
-            </div>
+        // Edit Amount function
+        function editAmount(element, currentAmount, tx) {
+            if (!canEdit) return;
             
-            <div class="content-card">
-                <div class="transfer-title">Transfer to ${tx.fromTo || 'Recipient'}</div>
-                <div class="transfer-amount">₦${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                <div class="transfer-status">
-                    <span class="status-badge ${statusClass}">${statusText}</span>
+            const currentValue = currentAmount.toString();
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.className = 'edit-input';
+            input.style.textAlign = 'center';
+            input.style.fontSize = '28px';
+            input.style.fontWeight = '750';
+            input.style.width = 'auto';
+            input.style.minWidth = '150px';
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            
+            input.addEventListener('blur', () => {
+                const newAmount = parseFloat(input.value.replace(/[^0-9.]/g, ''));
+                if (!isNaN(newAmount) && newAmount !== currentAmount) {
+                    element.innerHTML = `₦${newAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    tx.amount = newAmount;
+                    Swal.fire({ icon: 'success', title: 'Updated!', text: 'Amount updated successfully', timer: 1200, showConfirmButton: false });
+                } else {
+                    element.innerHTML = `₦${currentAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+            });
+            
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+        }
+
+        // Edit Text function (for recipient name, account number)
+        function editText(element, currentValue, tx, field, displayField) {
+            if (!canEdit) return;
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.className = 'edit-input';
+            input.style.textAlign = 'right';
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            
+            input.addEventListener('blur', () => {
+                const newValue = input.value.trim();
+                if (newValue && newValue !== currentValue) {
+                    element.innerHTML = newValue;
+                    if (field === 'recipientName') {
+                        tx.fromTo = newValue;
+                    } else if (field === 'accountNumber') {
+                        tx.accountNumber = newValue;
+                    }
+                    Swal.fire({ icon: 'success', title: 'Updated!', text: `${displayField} updated`, timer: 1200, showConfirmButton: false });
+                } else {
+                    element.innerHTML = currentValue;
+                }
+            });
+            
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur();
+                }
+            });
+        }
+
+        // Edit Status function
+        function editStatus(element, currentStatus, tx) {
+            if (!canEdit) return;
+            
+            const statuses = [
+                { value: 'success', label: 'Successful', class: 'success' },
+                { value: 'pending', label: 'Pending', class: 'pending' },
+                { value: 'failed', label: 'Failed', class: 'failed' }
+            ];
+            
+            let currentStatusValue = currentStatus === 'Successful' ? 'success' : (currentStatus === 'Pending' ? 'pending' : 'failed');
+            
+            const optionsHtml = statuses.map(s => `
+                <div class="status-badge ${s.class}" style="margin: 5px 0; cursor: pointer; display: block;" data-status="${s.value}" data-label="${s.label}">
+                    ${s.label}
                 </div>
-        `;
-        
-        // Show timeline ONLY for Bank transfers (not OPay)
-        if (!isOPayTransfer) {
-            html += `
-                <!-- Horizontal Timeline Row (Only for Bank Transfers) -->
-                <div class="timeline-row">
-                    <div class="timeline-step">
-                        <div class="step-icon"><i class="fas fa-check"></i></div>
-                        <div class="step-label">Payment<br>successful</div>
-                        <div class="step-date">${formatDateToMMDD(tx.date)}</div>
-                    </div>
-                    <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
-                    <div class="timeline-step">
-                        <div class="step-icon"><i class="fas fa-clock"></i></div>
-                        <div class="step-label">Processing<br>by bank</div>
-                        <div class="step-date">${formatDateToMMDD(tx.date)}</div>
-                    </div>
-                    <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
-                    <div class="timeline-step">
-                        <div class="step-icon"><i class="fas fa-check-circle"></i></div>
-                        <div class="step-label">Received<br>by bank</div>
-                        <div class="step-date">${tx.receivedDate ? formatDateToMMDD(tx.receivedDate) : formatDateToMMDD(tx.date)}</div>
+            `).join('');
+            
+            Swal.fire({
+                title: 'Change Status',
+                html: optionsHtml,
+                showConfirmButton: false,
+                showCloseButton: true,
+                width: '250px',
+                didOpen: () => {
+                    document.querySelectorAll('.status-badge').forEach(badge => {
+                        badge.addEventListener('click', () => {
+                            const newStatusValue = badge.getAttribute('data-status');
+                            const newStatusLabel = badge.getAttribute('data-label');
+                            const newStatusClass = newStatusValue;
+                            
+                            tx.status = newStatusValue;
+                            
+                            const statusSpan = document.getElementById('statusSpan');
+                            if (statusSpan) {
+                                statusSpan.textContent = newStatusLabel;
+                                statusSpan.className = `status-badge ${newStatusClass}`;
+                            }
+                            
+                            Swal.close();
+                            Swal.fire({ icon: 'success', title: 'Updated!', text: `Status changed to ${newStatusLabel}`, timer: 1200, showConfirmButton: false });
+                        });
+                    });
+                }
+            });
+        }
+
+        function renderReceipt(tx) {
+            const statusText = tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed';
+            const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
+            
+            const isOPayTransfer = tx.bank === 'OPay';
+            
+            const bankLogos = {
+                'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
+                'OPay': 'https://opay-cdn.s3.us-east-2.amazonaws.com/opay-logo.png',
+                'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
+                'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
+                'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
+                'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
+                'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
+            };
+            
+            const bankLogo = bankLogos[tx.bank] || (tx.bank === 'OPay' ? bankLogos['OPay'] : 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png');
+            const transactionRef = tx.ref || generateTransactionNumber();
+            
+            let html = `
+                <div class="logo-wrapper">
+                    <div class="bank-logo-circle">
+                        <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
                     </div>
                 </div>
                 
-                <div class="info-message">
-                    <i class="fas fa-info-circle"></i> The recipient account is expected to be credited within 5 minutes, subject to notification by the bank.
-                </div>
+                <div class="content-card">
+                    <div class="transfer-title">Transfer to <span id="recipientName" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient'}</span></div>
+                    <div id="amountDisplay" class="transfer-amount ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">₦${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="transfer-status">
+                        <span id="statusSpan" class="status-badge ${statusClass} ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${statusText}</span>
+                    </div>
             `;
-        }
-        
-        // Transaction Details section
-        html += `
-                <!-- Transaction Details -->
-                <div class="details-section">
-                    <div class="section-title">Transaction Details</div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Recipient Details</span>
-                        <div class="detail-value recipient-info">
-                            <div class="recipient-name">${tx.fromTo || 'Recipient Name'}</div>
-                            <div class="recipient-bank">${tx.bank || 'Bank'} | ${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</div>
+            
+            if (!isOPayTransfer) {
+                html += `
+                    <div class="timeline-row">
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <div class="step-label">Payment<br>successful</div>
+                            <div class="step-date">${formatDateToMMDD(tx.date)}</div>
+                        </div>
+                        <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-clock"></i></div>
+                            <div class="step-label">Processing<br>by bank</div>
+                            <div class="step-date">${formatDateToMMDD(tx.date)}</div>
+                        </div>
+                        <div class="timeline-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="timeline-step">
+                            <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="step-label">Received<br>by bank</div>
+                            <div class="step-date">${tx.receivedDate ? formatDateToMMDD(tx.receivedDate) : formatDateToMMDD(tx.date)}</div>
                         </div>
                     </div>
                     
-                    <div class="detail-row">
-                        <span class="detail-label">Transaction No.</span>
-                        <span class="detail-value">
-                            ${transactionRef}
-                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${transactionRef}')"></i>
-                        </span>
+                    <div class="info-message">
+                        <i class="fas fa-info-circle"></i> The recipient account is expected to be credited within 5 minutes, subject to notification by the bank.
                     </div>
-                    
-                    <div class="detail-row" style="margin-buttom:20px;">
-                        <span class="detail-label">Payment Method</span>
-                        <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
+                `;
+            }
+            
+            html += `
+                    <div class="details-section">
+                        <div class="section-title">Transaction Details</div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Recipient Details</span>
+                            <div class="detail-value recipient-info">
+                                <div class="recipient-name" id="recipientNameDetail">${tx.fromTo || 'Recipient Name'}</div>
+                                <div class="recipient-bank" id="recipientBankDetail">${tx.bank || 'Bank'} | <span id="accountNumberSpan">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Transaction No.</span>
+                            <span class="detail-value">
+                                ${transactionRef}
+                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${transactionRef}')"></i>
+                            </span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Payment Method</span>
+                            <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Transaction Date</span>
+                            <span class="detail-value">${tx.date}</span>
+                        </div>
+                        
+                        ${tx.sessionId ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Session ID</span>
+                            <span class="detail-value">
+                                ${tx.sessionId}
+                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
+                            </span>
+                        </div>
+                        ` : ''}
                     </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Transaction Date</span>
-                        <span class="detail-value">${tx.date}</span>
-                    </div>
-                    
-                    ${tx.sessionId ? `
-                    <div class="detail-row">
-                        <span class="detail-label">Session ID</span>
-                        <span class="detail-value">
-                            ${tx.sessionId}
-                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
-                        </span>
-                    </div>
-                    ` : ''}
                 </div>
+            `;
+            
+            document.getElementById('receiptContent').innerHTML = html;
+            
+            // Add edit listeners only if user can edit
+            if (canEdit) {
+                const amountElement = document.getElementById('amountDisplay');
+                if (amountElement) {
+                    amountElement.addEventListener('click', () => editAmount(amountElement, tx.amount, tx));
+                }
                 
-                <!-- More Actions Section (Only for OPay Transfers) -->
-                <div class="details-section">
-                    <div class="section-title">More Actions</div>
-                    <div style="display: flex; gap: 16px; margin-top: 10px;">
-                        <button class="action-btn" id="transferAgainBtn" style="flex: 1; padding: 12px; background: #e8f5e9; border: none; border-radius: 30px; color: #00B875; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                            <i class="fas fa-redo-alt"></i> Transfer Again
-                        </button>
-                        <button class="action-btn" id="viewRecordsBtn" style="flex: 1; padding: 12px; background: #f0f2f5; border: none; border-radius: 30px; color: #666; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                            <i class="fas fa-history"></i> View Records
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.getElementById('receiptContent').innerHTML = html;
-        
-        // Add event listeners for More Actions buttons
-        document.getElementById('transferAgainBtn')?.addEventListener('click', () => {
-            window.location.href = 'toopay.html';
-        });
-        
-        document.getElementById('viewRecordsBtn')?.addEventListener('click', () => {
-            Swal.fire({ icon: 'info', title: 'View Records', text: 'Transaction history coming soon', confirmButtonColor: '#00B875' });
-        });
-    }
+                const statusElement = document.getElementById('statusSpan');
+                if (statusElement) {
+                    statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
+                }
+                
+                const recipientNameElement = document.getElementById('recipientName');
+                if (recipientNameElement) {
+                    recipientNameElement.addEventListener('click', () => {
+                        const currentName = tx.fromTo || 'Recipient';
+                        editText(recipientNameElement, currentName, tx, 'recipientName', 'Recipient Name');
+                        const nameDetail = document.getElementById('recipientNameDetail');
+                        if (nameDetail) nameDetail.innerHTML = currentName;
+                    });
+                }
+                
+                const accountSpan = document.getElementById('accountNumberSpan');
+                if (accountSpan) {
+                    accountSpan.addEventListener('click', () => {
+                        const currentAccount = tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number');
+                        editText(accountSpan, currentAccount, tx, 'accountNumber', 'Account Number');
+                    });
+                }
+            }
+        }
 
-    // Help icon click
-    document.getElementById('helpIcon')?.addEventListener('click', () => {
-        Swal.fire({
-            title: 'Need Help?',
-            text: 'Contact our support team for assistance with this transaction',
-            confirmButtonColor: '#00B875',
-            confirmButtonText: 'OK'
+        // Help icon click
+        document.getElementById('helpIcon')?.addEventListener('click', () => {
+            Swal.fire({
+                title: 'Need Help?',
+                text: 'Contact our support team for assistance with this transaction',
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'OK'
+            });
         });
-    });
 
-    // Report Issue button
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        Swal.fire({ 
-            icon: 'info', 
-            title: 'Report Issue', 
-            text: 'Our support team will contact you shortly', 
-            confirmButtonColor: '#00B875' 
+        // Report Issue button
+        document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
+            Swal.fire({ 
+                icon: 'info', 
+                title: 'Report Issue', 
+                text: 'Our support team will contact you shortly', 
+                confirmButtonColor: '#00B875' 
+            });
         });
-    });
 
-    // Share Receipt button
-    document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Shared!', 
-            text: 'Receipt shared successfully', 
-            timer: 1500, 
-            showConfirmButton: false 
+        // Share Receipt button
+        document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Shared!', 
+                text: 'Receipt shared successfully', 
+                timer: 1500, 
+                showConfirmButton: false 
+            });
         });
-    });
 
-    loadReceipt();
-</script>
+        loadReceipt();
+    </script>
 </body>
 </html>
