@@ -650,101 +650,157 @@
             });
         }
 
-        // Upgrade sheet function
-        function showUpgradeSheet() {
-            let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+      // Upgrade sheet function with COMPLETE plan details
+function showUpgradeSheet() {
+    let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: flex-end;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+            <div style="text-align: center; padding: 20px;">
+                <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
+            </div>
             
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 2000;
-                display: flex;
-                align-items: flex-end;
-            `;
+            <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                    ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                </span>
+            </div>
             
-            overlay.innerHTML = `
-                <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
-                    <div style="text-align: center; padding: 20px;">
-                        <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                        <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
-                        <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
-                    </div>
-                    
-                    <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
-                        <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
-                        <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                            ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                              currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                              currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
-                        </span>
-                    </div>
-                    
-                    <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
-                            <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
+            <!-- Basic Plan (Tier 2) -->
+            <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">🥈</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
                         </div>
-                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• Transfer to OPay only<br>• Add money unlock<br>• View receipt</div>
-                        <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; ${currentTier >= 2 ? 'opacity:0.6' : ''}" ${currentTier >= 2 ? 'disabled' : ''}>
-                            ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic'}
-                        </button>
                     </div>
-                    
-                    <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
-                            <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
-                        </div>
-                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• OPay and bank transfer<br>• Unlimited transfer<br>• Add Money limit ₦1,000,000</div>
-                        <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; ${currentTier >= 3 ? 'opacity:0.6' : ''}" ${currentTier >= 3 ? 'disabled' : ''}>
-                            ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium'}
-                        </button>
-                    </div>
-                    
-                    <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
-                            <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
-                        </div>
-                        <div style="font-size: 12px; color: #555; margin: 10px 0;">• All features unlocked<br>• Airtime & Data purchase<br>• Unlimited everything</div>
-                        <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; ${currentTier === 'VIP' ? 'opacity:0.6' : ''}" ${currentTier === 'VIP' ? 'disabled' : ''}>
-                            ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP'}
-                        </button>
-                    </div>
-                    
-                    <div style="padding: 16px 20px 30px;">
-                        <button id="closeSheetBtn" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
-                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
                 </div>
-            `;
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    • Transfer to OPay only<br>
+                    • Add money unlock<br>                            
+                    • View receipt<br>
+                    • payment proof - no watermark added<br>
+                    • Activate banner removed<br>
+                    • 10 times transfer daily<br>
+                    • Add Money limit ₦100,000
+                </div>
+                <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
+                    ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic >'}
+                </button>
+            </div>
             
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
+            <!-- Premium Plan (Tier 3) -->
+            <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">🥉</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    Everything in Basic plus:<br>
+                    • History access, recent recipients history<br>
+                    • OPay and bank transfer<br>
+                    • Custom sender name<br>
+                    • Custom transaction status (failed, success, pending)<br>
+                    • Unlimited transfer<br>
+                    • Add Money limit ₦1,000,000
+                </div>
+                <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
+                    ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
+                </button>
+            </div>
             
-            document.getElementById('closeSheetBtn')?.addEventListener('click', () => {
-                overlay.remove();
-                document.body.style.overflow = '';
-            });
+            <!-- VIP Plan -->
+            <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">👑</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    Everything in Basic and Premium plus:<br>
+                    • OPay Funder in-app transfers<br>
+                    • Statement of account generation<br>
+                    • Receivers receive alert<br>
+                    • Money add up to receiver balance<br>
+                    • Expire in user balance after 24hrs<br>
+                    • Airtime access purchase<br>
+                    • Data access purchase<br>
+                    • Add money unlimited<br>
+                    • No transaction limit
+                </div>
+                <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
+                    ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
+                </button>
+            </div>
             
-            overlay.querySelectorAll('.plan-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (btn.disabled) return;
-                    const plan = btn.getAttribute('data-plan');
-                    const tier = btn.getAttribute('data-tier');
-                    localStorage.setItem('selected_plan', JSON.stringify({
-                        plan: plan,
-                        tier: tier,
-                        price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
-                    }));
-                    window.location.href = 'plan.html';
-                });
-            });
+            <div style="padding: 16px 20px 30px;">
+                <button id="closeSheetBtn" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    document.getElementById('closeSheetBtn')?.addEventListener('click', () => {
+        overlay.remove();
+        document.body.style.overflow = '';
+    });
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = '';
         }
+    });
+    
+    overlay.querySelectorAll('.plan-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (btn.disabled) return;
+            const plan = btn.getAttribute('data-plan');
+            const tier = btn.getAttribute('data-tier');
+            localStorage.setItem('selected_plan', JSON.stringify({
+                plan: plan,
+                tier: tier,
+                price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+            }));
+            window.location.href = 'plan.html';
+        });
+    });
+}
 
         // Expose functions globally
         window.handleImageUpload = handleImageUpload;
