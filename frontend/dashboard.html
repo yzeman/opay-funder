@@ -757,7 +757,7 @@
         <div class="balance-amount-row">
             <div class="balance-amount-wrapper">         
                 <span class="currency-symbol">₦</span>
-                <span class="balance-amount" id="balanceAmount">50,000.82</span>&nbsp;<i class="fas fa-chevron-right chevron-icon"></i>
+                <span class="balance-amount" id="balanceAmount">0.00</span>&nbsp;<i class="fas fa-chevron-right chevron-icon"></i>
             </div>
             <div class="add-money-btn" id="addMoney">
                 <i class="fas fa-plus-circle"></i> Add Money
@@ -908,268 +908,521 @@
     </div>
 
    <script>
-        // ========== BACKEND CONNECTION ==========
-        const BACKEND_URL = 'https://opay-backend-api.onrender.com';
-        
-        // Global variables
-        let currentUser = null;
-        let currentBalance = 0.00;
-        let balanceVisible = true;
-        
-        // DOM Elements
-        const balanceAmountSpan = document.getElementById('balanceAmount');
-        const toggleBalanceBtn = document.getElementById('toggleBalance');
-        const userNameSpan = document.getElementById('userName');
-        const profileImg = document.getElementById('profileImg');
-        
-        // Small Toast Alert (no large popups)
-        function showToast(message, icon = 'success') {
-            // Small vibration if available
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(50);
-            }
-            
-            Swal.fire({
-                icon: icon,
-                title: message,
-                showConfirmButton: false,
-                timer: 1500,
-                width: '280px',
-                padding: '8px 12px',
-                font: '12px',
-                backdrop: false,
-                position: 'top'
-            });
+    // ========== BACKEND CONNECTION ==========
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    
+    // Global variables
+    let currentUser = null;
+    let currentBalance = 50000.82;
+    let balanceVisible = true;
+    let currentTier = 1; // 1 = Free (Tier 1), 2 = Basic (Tier 2), 3 = Premium (Tier 3), 'VIP' = VIP Tier
+    
+    // DOM Elements
+    const balanceAmountSpan = document.getElementById('balanceAmount');
+    const toggleBalanceBtn = document.getElementById('toggleBalance');
+    const userNameSpan = document.getElementById('userName');
+    const profileImg = document.getElementById('profileImg');
+    const tierBadge = document.querySelector('.tier-badge-icon');
+    
+    // Small Toast Alert
+    function showToast(message, icon = 'success') {
+        if (window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(50);
         }
+        Swal.fire({
+            icon: icon,
+            title: message,
+            showConfirmButton: false,
+            timer: 1500,
+            width: '280px',
+            padding: '8px 12px',
+            backdrop: false,
+            position: 'top'
+        });
+    }
+    
+    // Update badge based on tier
+    function updateBadge(tier) {
+        if (!tierBadge) return;
         
-        // Load user from localStorage
-        function loadUserFromLocalStorage() {
-            const userData = localStorage.getItem('loggedInUser');
-            if (!userData) {
-                window.location.href = 'login1.html';
-                return null;
-            }
-            currentUser = JSON.parse(userData);
-            userNameSpan.innerHTML = currentUser.account_name;
-            profileImg.src = 'images/profile.jpg';
-            return currentUser;
+        if (tier === 1) {
+            tierBadge.innerHTML = '⭐';
+            tierBadge.style.background = 'linear-gradient(135deg, #aaa, #888)';
+            tierBadge.style.fontSize = '10px';
+        } else if (tier === 2) {
+            tierBadge.innerHTML = '🥈';
+            tierBadge.style.background = 'linear-gradient(135deg, #C0C0C0, #A0A0A0)';
+            tierBadge.style.fontSize = '10px';
+        } else if (tier === 3) {
+            tierBadge.innerHTML = '🥉';
+            tierBadge.style.background = 'linear-gradient(135deg, #CD7F32, #B87333)';
+            tierBadge.style.fontSize = '10px';
+        } else if (tier === 'VIP') {
+            tierBadge.innerHTML = '👑';
+            tierBadge.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+            tierBadge.style.fontSize = '12px';
         }
-        
-        // Fetch balance from backend
-        async function fetchBalance() {
-            if (!currentUser) return;
-            
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/get-balance`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentUser.email })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentBalance = data.balance;
-                } else {
-                    currentBalance = 0.00;
-                }
-                updateBalanceDisplay();
-            } catch (error) {
-                console.log('Backend error, using default balance');
-                currentBalance = 50000.82;
-                updateBalanceDisplay();
-            }
-        }
-        
-        // Update balance display
-        function updateBalanceDisplay() {
-            if (balanceVisible) {
-                balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            } else {
-                balanceAmountSpan.textContent = '****';
-            }
-        }
-        
-        // Toggle balance visibility
-        if (toggleBalanceBtn) {
-            toggleBalanceBtn.addEventListener('click', function() {
-                balanceVisible = !balanceVisible;
-                updateBalanceDisplay();
-                this.classList.toggle('fa-eye-slash');
-            });
-        }
-        
-        // ========== NAVIGATION HANDLERS ==========
-        // Profile click
-        document.querySelector('.profile-section')?.addEventListener('click', () => {
-            window.location.href = 'profile.html';
-        });
-        
-        // Transaction History
-        document.getElementById('transactionHistory')?.addEventListener('click', () => {
-            window.location.href = 'transaction.html';
-        });
-        
-        // Add Money
-        document.getElementById('addMoney')?.addEventListener('click', () => {
-            window.location.href = 'add.html';
-        });
-        
-        // Business Card
-        document.getElementById('businessCard')?.addEventListener('click', () => {
-            showToast('Business Service coming soon', 'info');
-        });
-        
-        // To OPay
-        document.getElementById('toOpayBtn')?.addEventListener('click', () => {
-            window.location.href = 'toopay.html';
-        });
-        
-        // To Bank
-        document.getElementById('toBankBtn')?.addEventListener('click', () => {
-            window.location.href = 'tobank.html';
-        });
-        
-        // Withdraw
-        document.getElementById('withdrawBtn')?.addEventListener('click', () => {
-            window.location.href = 'withdraw.html';
-        });
-        
-        // Airtime
-        document.getElementById('airtimeBtn')?.addEventListener('click', () => {
-            window.location.href = 'airtime.html';
-        });
-        
-        // Data
-        document.getElementById('dataBtn')?.addEventListener('click', () => {
-            window.location.href = 'data.html';
-        });
-        
-        // TV
-        document.getElementById('tvBtn')?.addEventListener('click', () => {
-            showToast('TV subscription coming soon', 'info');
-        });
-        
-        // Betting
-        document.getElementById('bettingBtn')?.addEventListener('click', () => {
-            showToast('Betting coming soon', 'info');
-        });
-        
-        // Owealth
-        document.getElementById('owealthBtn')?.addEventListener('click', () => {
-            showToast('Owealth coming soon', 'info');
-        });
-        
-        // Education
-        document.getElementById('educationBtn')?.addEventListener('click', () => {
-            showToast('Education coming soon', 'info');
-        });
-        
-        // More
-        document.getElementById('moreBtn')?.addEventListener('click', () => {
-            showToast('More services coming soon', 'info');
-        });
-        
-        // Play4aChild
-        document.getElementById('play4aChildBtn')?.addEventListener('click', () => {
-            showToast('Play4aChild coming soon', 'info');
-        });
-        
-        // Activate button
-        document.getElementById('activateBtn')?.addEventListener('click', function() {
-            Swal.fire({
-                title: 'Activate Account',
-                html: `
-                    <div style="text-align: left;">
-                        <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
-                        <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
-                        <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
-                    </div>
-                `,
-                showConfirmButton: false,
-                width: '300px',
-                padding: '8px',
-                didOpen: () => {
-                    document.getElementById('planBasic')?.addEventListener('click', () => showToast('Basic Plan selected', 'info'));
-                    document.getElementById('planPremium')?.addEventListener('click', () => showToast('Premium Plan selected', 'info'));
-                    document.getElementById('planEnterprise')?.addEventListener('click', () => showToast('Enterprise Plan selected', 'info'));
-                }
-            });
-        });
-        
-        // Promo Banner
-        document.getElementById('promoBanner')?.addEventListener('click', () => {
-            showToast('Invite friends and earn up to ₦6,300 Bonus', 'success');
-        });
-        
-        // Scan Icon
-        document.getElementById('scanIcon')?.addEventListener('click', () => {
-            showToast('QR Scanner coming soon', 'info');
-        });
-        
-        // Notification Icon
-        document.getElementById('notificationIcon')?.addEventListener('click', () => {
-            showToast('No new notifications', 'info');
-        });
-        
-        // Bottom Navigation
-        document.getElementById('homeNav')?.addEventListener('click', () => {
-            window.location.reload();
-        });
-        document.getElementById('rewardsNav')?.addEventListener('click', () => {
-            showToast('Rewards coming soon', 'info');
-        });
-        document.getElementById('financeNav')?.addEventListener('click', () => {
-            showToast('Finance coming soon', 'info');
-        });
-        document.getElementById('cardsNav')?.addEventListener('click', () => {
-            showToast('Cards coming soon', 'info');
-        });
-        document.getElementById('meNav')?.addEventListener('click', () => {
+    }
+    
+    // Load user from localStorage
+    function loadUserFromLocalStorage() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (!userData) {
             window.location.href = 'login1.html';
-        });
+            return null;
+        }
+        currentUser = JSON.parse(userData);
+        userNameSpan.innerHTML = currentUser.account_name;
+        profileImg.src = 'images/profile.jpg';
         
-        // ========== HELP & SUPPORT BOTTOM SHEET ==========
-        const helpOverlay = document.getElementById('helpOverlay');
-        const closeHelpSheet = document.getElementById('closeHelpSheet');
-        const helpIcon = document.getElementById('helpIcon');
+        // Load saved tier from localStorage
+        const savedTier = localStorage.getItem(`user_tier_${currentUser.email}`);
+        if (savedTier) {
+            currentTier = savedTier === 'VIP' ? 'VIP' : parseInt(savedTier);
+            updateBadge(currentTier);
+        } else {
+            updateBadge(1); // Default Tier 1 (Free)
+        }
+        return currentUser;
+    }
+    
+    // Save tier to localStorage and backend
+    async function saveTier(tier) {
+        currentTier = tier;
+        localStorage.setItem(`user_tier_${currentUser.email}`, tier);
+        updateBadge(tier);
         
-        function showHelpSheet() {
-            if (helpOverlay) {
-                helpOverlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+        // Also save to backend
+        try {
+            await fetch(`${BACKEND_URL}/api/update-tier`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email, tier: tier })
+            });
+        } catch (error) {
+            console.log('Backend tier save error');
+        }
+    }
+    
+    // Fetch balance from backend
+    async function fetchBalance() {
+        if (!currentUser) return;
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/get-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                currentBalance = data.balance;
             }
+            updateBalanceDisplay();
+        } catch (error) {
+            updateBalanceDisplay();
+        }
+    }
+    
+    // Update balance display
+    function updateBalanceDisplay() {
+        if (balanceVisible) {
+            balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        } else {
+            balanceAmountSpan.textContent = '****';
+        }
+    }
+    
+    // Toggle balance visibility
+    if (toggleBalanceBtn) {
+        toggleBalanceBtn.addEventListener('click', function() {
+            balanceVisible = !balanceVisible;
+            updateBalanceDisplay();
+            this.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    // ========== ACTIVATION BOTTOM SHEET ==========
+    function showActivationSheet() {
+        // Create overlay and sheet dynamically
+        const existingOverlay = document.getElementById('activationOverlay');
+        if (existingOverlay) existingOverlay.remove();
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'activationOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-end;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="
+                background: white;
+                width: 100%;
+                border-radius: 28px 28px 0 0;
+                animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+                max-height: 85vh;
+                overflow-y: auto;
+            ">
+                <div style="text-align: center; padding: 20px 20px 10px;">
+                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                    <div style="font-size: 22px; font-weight: 700; color: #1a1a1a;">Purchase License Plan</div>
+                    <div style="font-size: 13px; color: #888; margin-top: 6px;">Select a subscription plan to activate or upgrade your existing plan</div>
+                </div>
+                
+                <!-- Current Tier Display -->
+                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                        ${currentTier === 1 ? '⭐ Tier 1 (Free)' : currentTier === 2 ? '🥈 Tier 2 (Basic)' : currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    </span>
+                </div>
+                
+                <!-- Basic Plan (Tier 2) -->
+                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 28px;">🥈</span>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
+                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
+                    </div>
+                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                        • Transfer to OPay only<br>
+                        • Add money unlock<br>
+                        • Activate banner removed<br>
+                        • 10 times transfer daily<br>
+                        • Add Money limit ₦100,000
+                    </div>
+                    <button class="plan-purchase-btn" data-plan="basic" data-price="30000" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
+                        ${currentTier >= 2 ? '✓ Already Purchased' : (currentTier === 1 ? 'Purchase Basic Plan >' : 'Upgrade to Basic Plan >')}
+                    </button>
+                </div>
+                
+                <!-- Premium Plan (Tier 3) -->
+                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 28px;">🥉</span>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
+                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                    </div>
+                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                        Everything in Basic plus:<br>
+                        • History access, recent recipients history<br>
+                        • OPay and bank transfer<br>
+                        • Custom sender name<br>
+                        • Custom transaction status (failed, success, pending)<br>
+                        • Unlimited transfer<br>
+                        • Add Money limit ₦1,000,000
+                    </div>
+                    <button class="plan-purchase-btn" data-plan="premium" data-price="50000" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
+                        ${currentTier >= 3 ? '✓ Already Purchased' : (currentTier === 2 ? 'Upgrade to Premium Plan >' : (currentTier === 1 ? 'Purchase Premium Plan >' : 'Upgrade to Premium Plan >'))}
+                    </button>
+                </div>
+                
+                <!-- VIP Plan -->
+                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 28px;">👑</span>
+                            <div>
+                                <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
+                                <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                    </div>
+                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                        Everything in Basic and Premium plus:<br>
+                        • OPay Funder in-app transfers<br>
+                        • Statement of account generation<br>
+                        • Receivers receive alert<br>
+                        • Money add up to receiver balance<br>
+                        • Expire in user balance after 24hrs<br>
+                        • Airtime access purchase<br>
+                        • Data access purchase<br>
+                        • Add money unlimited<br>
+                        • No transaction limit
+                    </div>
+                    <button class="plan-purchase-btn" data-plan="vip" data-price="100000" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
+                        ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Purchase VIP Plan >'}
+                    </button>
+                </div>
+                
+                <div style="padding: 16px 20px 30px;">
+                    <button id="closeActivationSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        // Add animation styles
+        if (!document.getElementById('activationSheetStyles')) {
+            const style = document.createElement('style');
+            style.id = 'activationSheetStyles';
+            style.textContent = `
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+            `;
+            document.head.appendChild(style);
         }
         
-        function hideHelpSheet() {
-            if (helpOverlay) {
-                helpOverlay.style.display = 'none';
+        // Close button
+        document.getElementById('closeActivationSheet')?.addEventListener('click', () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
                 document.body.style.overflow = '';
             }
-        }
+        });
         
-        if (helpIcon) {
-            helpIcon.addEventListener('click', function(e) {
+        // Purchase buttons
+        document.querySelectorAll('.plan-purchase-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                showHelpSheet();
+                
+                const plan = btn.getAttribute('data-plan');
+                const price = parseInt(btn.getAttribute('data-price'));
+                const tier = btn.getAttribute('data-tier');
+                
+                if (btn.disabled) return;
+                
+                // Check if user can upgrade
+                const currentTierValue = currentTier === 'VIP' ? 4 : currentTier;
+                const newTierValue = tier === 'VIP' ? 4 : parseInt(tier);
+                
+                if (newTierValue <= currentTierValue) {
+                    showToast(`You already have this plan or higher!`, 'info');
+                    overlay.remove();
+                    document.body.style.overflow = '';
+                    return;
+                }
+                
+                // Check if user has enough balance
+                if (currentBalance < price) {
+                    showToast(`Insufficient balance! You need ₦${price.toLocaleString()} to purchase this plan.`, 'error');
+                    overlay.remove();
+                    document.body.style.overflow = '';
+                    return;
+                }
+                
+                // Confirm purchase
+                const confirm = await Swal.fire({
+                    title: 'Confirm Purchase',
+                    text: `Are you sure you want to purchase ${plan.toUpperCase()} plan for ₦${price.toLocaleString()}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#00B875',
+                    confirmButtonText: 'Yes, Purchase',
+                    cancelButtonText: 'Cancel',
+                    width: '300px'
+                });
+                
+                if (confirm.isConfirmed) {
+                    // Deduct balance
+                    currentBalance -= price;
+                    updateBalanceDisplay();
+                    
+                    // Save tier
+                    await saveTier(tier === 'VIP' ? 'VIP' : parseInt(tier));
+                    
+                    showToast(`🎉 Congratulations! You are now on ${plan.toUpperCase()} plan!`, 'success');
+                    overlay.remove();
+                    document.body.style.overflow = '';
+                    
+                    // Refresh page to update badge and features
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
             });
+        });
+    }
+    
+    // ========== NAVIGATION HANDLERS ==========
+    document.querySelector('.profile-section')?.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+    });
+    
+    document.getElementById('transactionHistory')?.addEventListener('click', () => {
+        window.location.href = 'transaction.html';
+    });
+    
+    document.getElementById('addMoney')?.addEventListener('click', () => {
+        window.location.href = 'add.html';
+    });
+    
+    document.getElementById('businessCard')?.addEventListener('click', () => {
+        showToast('Business Service coming soon', 'info');
+    });
+    
+    document.getElementById('toOpayBtn')?.addEventListener('click', () => {
+        if (currentTier >= 2) {
+            window.location.href = 'toopay.html';
+        } else {
+            showToast('Please purchase Basic plan first! Click Activate button.', 'error');
         }
-        
+    });
+    
+    document.getElementById('toBankBtn')?.addEventListener('click', () => {
+        if (currentTier >= 3) {
+            window.location.href = 'tobank.html';
+        } else {
+            showToast('Premium plan required for bank transfers. Upgrade to Premium!', 'error');
+        }
+    });
+    
+    document.getElementById('withdrawBtn')?.addEventListener('click', () => {
+        if (currentTier >= 3) {
+            window.location.href = 'withdraw.html';
+        } else {
+            showToast('Premium plan required for withdrawals. Upgrade to Premium!', 'error');
+        }
+    });
+    
+    document.getElementById('airtimeBtn')?.addEventListener('click', () => {
+        if (currentTier === 'VIP') {
+            window.location.href = 'airtime.html';
+        } else {
+            showToast('VIP plan required for airtime purchase. Upgrade to VIP!', 'error');
+        }
+    });
+    
+    document.getElementById('dataBtn')?.addEventListener('click', () => {
+        if (currentTier === 'VIP') {
+            window.location.href = 'data.html';
+        } else {
+            showToast('VIP plan required for data purchase. Upgrade to VIP!', 'error');
+        }
+    });
+    
+    document.getElementById('tvBtn')?.addEventListener('click', () => {
+        showToast('TV subscription coming soon', 'info');
+    });
+    
+    document.getElementById('bettingBtn')?.addEventListener('click', () => {
+        showToast('Betting coming soon', 'info');
+    });
+    
+    document.getElementById('owealthBtn')?.addEventListener('click', () => {
+        showToast('Owealth coming soon', 'info');
+    });
+    
+    document.getElementById('educationBtn')?.addEventListener('click', () => {
+        showToast('Education coming soon', 'info');
+    });
+    
+    document.getElementById('moreBtn')?.addEventListener('click', () => {
+        showToast('More services coming soon', 'info');
+    });
+    
+    document.getElementById('play4aChildBtn')?.addEventListener('click', () => {
+        showToast('Play4aChild coming soon', 'info');
+    });
+    
+    // Activate button - shows the bottom sheet
+    document.getElementById('activateBtn')?.addEventListener('click', function() {
+        showActivationSheet();
+    });
+    
+    // Promo Banner
+    document.getElementById('promoBanner')?.addEventListener('click', () => {
+        showToast('Invite friends and earn up to ₦6,300 Bonus', 'success');
+    });
+    
+    // Scan Icon
+    document.getElementById('scanIcon')?.addEventListener('click', () => {
+        showToast('QR Scanner coming soon', 'info');
+    });
+    
+    // Notification Icon
+    document.getElementById('notificationIcon')?.addEventListener('click', () => {
+        showToast('No new notifications', 'info');
+    });
+    
+    // Bottom Navigation
+    document.getElementById('homeNav')?.addEventListener('click', () => {
+        window.location.reload();
+    });
+    document.getElementById('rewardsNav')?.addEventListener('click', () => {
+        showToast('Rewards coming soon', 'info');
+    });
+    document.getElementById('financeNav')?.addEventListener('click', () => {
+        showToast('Finance coming soon', 'info');
+    });
+    document.getElementById('cardsNav')?.addEventListener('click', () => {
+        showToast('Cards coming soon', 'info');
+    });
+    document.getElementById('meNav')?.addEventListener('click', () => {
+        window.location.href = 'login1.html';
+    });
+    
+    // ========== HELP & SUPPORT BOTTOM SHEET ==========
+    const helpOverlay = document.getElementById('helpOverlay');
+    const closeHelpSheet = document.getElementById('closeHelpSheet');
+    const helpIcon = document.getElementById('helpIcon');
+    
+    function showHelpSheet() {
         if (helpOverlay) {
-            helpOverlay.addEventListener('click', function(e) {
-                if (e.target === helpOverlay) hideHelpSheet();
-            });
+            helpOverlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
-        
-        if (closeHelpSheet) {
-            closeHelpSheet.addEventListener('click', hideHelpSheet);
+    }
+    
+    function hideHelpSheet() {
+        if (helpOverlay) {
+            helpOverlay.style.display = 'none';
+            document.body.style.overflow = '';
         }
-        
-        // ========== INITIALIZE ==========
-        loadUserFromLocalStorage();
-        fetchBalance();
-        
-        console.log('✅ Dashboard connected to backend API');
-        console.log('✅ Small alerts enabled');
-    </script>
+    }
+    
+    if (helpIcon) {
+        helpIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            showHelpSheet();
+        });
+    }
+    
+    if (helpOverlay) {
+        helpOverlay.addEventListener('click', function(e) {
+            if (e.target === helpOverlay) hideHelpSheet();
+        });
+    }
+    
+    if (closeHelpSheet) {
+        closeHelpSheet.addEventListener('click', hideHelpSheet);
+    }
+    
+    // ========== INITIALIZE ==========
+    loadUserFromLocalStorage();
+    fetchBalance();
+    
+    console.log('✅ Dashboard connected to backend API');
+    console.log('✅ Tier System: Tier 1 (Free) ⭐, Tier 2 (Basic) 🥈, Tier 3 (Premium) 🥉, VIP 👑');
+</script>
 </body>
 </html>
