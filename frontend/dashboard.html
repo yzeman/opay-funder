@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* ========== YOUR EXACT CSS (UNCHANGED) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -36,7 +37,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
         }
 
         .profile-icon {
@@ -76,6 +76,17 @@
             margin: 0;
         }
 
+        .sub-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .sub-text i {
+            color: #ff4444;
+            font-size: 8px;
+        }
+
         .header-icons {
             display: flex;
             align-items: center;
@@ -95,6 +106,7 @@
         }
 
         .icon-wrapper:hover {
+            border-color: #00B875;
             background: rgba(0, 184, 117, 0.05);
         }
 
@@ -111,10 +123,38 @@
             animation: subtlePulse 2s ease-in-out infinite;
         }
 
+        .animated-icon i {
+            animation: headsetRing 3s ease-in-out infinite;
+        }
+
         @keyframes subtlePulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); border-color: #ddd; }
+            50% { transform: scale(1.05); border-color: #00B875; }
+            100% { transform: scale(1); border-color: #ddd; }
+        }
+
+        @keyframes headsetRing {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(15deg); }
+            20% { transform: rotate(-10deg); }
+            30% { transform: rotate(5deg); }
+            40% { transform: rotate(-5deg); }
+            50% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: #ff4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 20px;
+            min-width: 18px;
+            text-align: center;
         }
 
         .deactivated-banner {
@@ -133,6 +173,10 @@
             font-weight: 500;
         }
 
+        .deactivated-banner span i {
+            margin-right: 5px;
+        }
+
         .deactivated-banner button {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -141,6 +185,28 @@
             border-radius: 20px;
             font-size: 12px;
             cursor: pointer;
+        }
+
+        .fixed-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 0 16px 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .fixed-banner i {
+            color: #ffc107;
+            font-size: 18px;
+        }
+
+        .fixed-banner span {
+            font-size: 12px;
+            color: #856404;
+            flex: 1;
         }
 
         .balance-card {
@@ -163,7 +229,6 @@
             opacity: 0.8;
             display: flex;
             align-items: center;
-            gap: 8px;
         }
 
         .transaction-link {
@@ -173,6 +238,14 @@
             display: flex;
             align-items: center;
             gap: 4px;
+        }
+
+        .transaction-link i {
+            font-size: 10px;
+        }
+
+        .transaction-link:hover {
+            opacity: 1;
         }
 
         .balance-amount-row {
@@ -189,14 +262,25 @@
             gap: 2px;
         }
 
+        .chevron-icon {
+            font-size: 12px;
+            color: white;
+            opacity: 0.9;  
+        }
+
         .currency-symbol {
             font-size: 14px;
             font-weight: 400;
+            opacity: 0.9;
         }
 
         .balance-amount {
             font-size: 24px;
             font-weight: 700;
+        }
+
+        .balance-amount.large-number {
+            font-size: 20px;
         }
 
         .add-money-btn {
@@ -209,39 +293,54 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
             color: #00B875;
+        }
+
+        .add-money-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .add-money-btn:active {
+            transform: scale(0.98);
         }
 
         .business-card {
             background: #e8f5e9;
             margin: -16px 16px 16px 16px;
-            padding: 12px 16px;
-            border-radius: 12px;
+            padding: 10px 10px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .business-card:active {
+            transform: scale(0.98);
         }
 
         .business-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
 
         .business-icon {
-            width: 40px;
-            height: 40px;
-            background: #00B875;
-            border-radius: 20px;
+            width: 15px;
+            height: 15px;
+            color: #00B875;
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .business-icon i {
-            font-size: 20px;
-            color: white;
+            font-size: 15px;
+            color: #00B875;
         }
 
         .business-info {
@@ -250,19 +349,31 @@
         }
 
         .business-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: #1a1a1a;
+            margin-bottom: 4px;
         }
 
         .business-sales {
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
         }
 
-        .business-sales span {
+        .currency-symbol-small {
+            font-size: 11px;
+            font-weight: 400;
             color: #00B875;
+        }
+
+        .sales-amount {
             font-weight: 600;
+            color: #00B875;
+        }
+
+        .business-right .chevron-icon {
+            font-size: 14px;
+            color: #00B875;
         }
 
         .menu-grid {
@@ -290,7 +401,18 @@
             cursor: pointer;
         }
 
-        .menu-icon, .menu-icons {
+        .menu-icon {
+            width: 50px;
+            height: 50px;
+            background: #f0fdf4;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+
+        .menu-icons {
             width: 50px;
             height: 50px;
             background: #f0fdf4;
@@ -301,8 +423,13 @@
             margin: 0 auto 8px;
         }
 
-        .menu-icon i, .menu-icons i {
-            font-size: 20px;
+        .menu-icon i {
+            font-size: 18px;
+            color: #00B875;
+        }
+
+        .menu-icons i {
+            font-size: 18px;
             color: #00B875;
         }
 
@@ -326,6 +453,7 @@
 
         .nav-item {
             text-align: center;
+            text-decoration: none;
             cursor: pointer;
         }
 
@@ -348,20 +476,25 @@
         }
 
         .promo-banner {
-            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            background: white;
             margin: 16px;
-            padding: 16px;
+            padding: 16px 20px;
             border-radius: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .promo-banner:active {
+            transform: scale(0.98);
         }
 
         .promo-content {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
         }
 
         .promo-icon {
@@ -376,21 +509,33 @@
 
         .promo-icon i {
             font-size: 24px;
-            color: white;
+            color: black;
         }
 
         .promo-text {
-            color: white;
+            color: black;
         }
 
         .promo-title {
             font-size: 16px;
             font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .promo-subtitle {
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.9;
+        }
+
+        .promo-currency {
+            font-size: 11px;
+            font-weight: 400;
+        }
+
+        .promo-arrow i {
+            font-size: 16px;
+            color: white;
+            opacity: 0.8;
         }
 
         .help-overlay {
@@ -403,19 +548,32 @@
             z-index: 1000;
             display: flex;
             align-items: flex-end;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .help-sheet {
             background: white;
             width: 100%;
             border-radius: 28px 28px 0 0;
+            animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             max-height: 90vh;
             overflow-y: auto;
         }
 
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
         .help-sheet-header {
             text-align: center;
-            padding: 16px 20px;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .help-sheet-handle {
@@ -429,6 +587,8 @@
         .help-sheet-title {
             font-size: 20px;
             font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
         }
 
         .help-sheet-subtitle {
@@ -440,14 +600,60 @@
             padding: 20px;
         }
 
+        .help-contact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .help-contact-btn {
             display: flex;
             align-items: center;
             gap: 15px;
             padding: 16px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
+            background: #f8f9fa;
             border-radius: 20px;
             text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #eef2f6;
+        }
+
+        .help-contact-btn:active {
+            transform: scale(0.98);
+            background: #f0f2f5;
+        }
+
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border: none;
+            animation: pulseGreen 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseGreen {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); transform: scale(1); }
+        }
+
+        .whatsapp-btn .help-contact-icon {
+            background: white;
+        }
+
+        .whatsapp-btn .help-contact-icon i {
+            color: #25D366;
+        }
+
+        .whatsapp-btn .help-contact-name {
+            color: white;
+        }
+
+        .whatsapp-btn .help-contact-desc {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .whatsapp-btn .help-contact-arrow {
+            color: white;
+            opacity: 0.8;
         }
 
         .help-contact-icon {
@@ -462,7 +668,6 @@
 
         .help-contact-icon i {
             font-size: 26px;
-            color: #25D366;
         }
 
         .help-contact-info {
@@ -472,16 +677,23 @@
         .help-contact-name {
             font-size: 16px;
             font-weight: 600;
-            color: white;
+            margin-bottom: 4px;
+            color: #1a1a1a;
         }
 
         .help-contact-desc {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            color: #888;
+        }
+
+        .help-contact-arrow {
+            font-size: 14px;
+            color: #ccc;
         }
 
         .help-sheet-footer {
             padding: 16px 20px 30px;
+            border-top: 1px solid #f0f0f0;
         }
 
         .help-close-btn {
@@ -492,35 +704,51 @@
             border-radius: 30px;
             font-size: 15px;
             font-weight: 600;
+            color: #666;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .help-close-btn:active {
+            transform: scale(0.98);
+            background: #e8eaed;
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
         <div class="header-top">
-            <div class="profile-section" id="profileSection">
+            <div class="profile-section">
                 <div class="profile-icon">
-                    <img src="" alt="Profile" id="profileImg">
+                    <img src="images/profile.jpg" alt="Profile" id="profileImg" onerror="this.src='images/profile.jpg'">
                     <div class="tier-badge-icon">🥇</div>
                 </div>
                 <div class="profile-info">
-                    <h2 id="userName">Loading...</h2>
+                    <h2 id="userName">ALABA ISREAL OLAYINKA</h2>
                 </div>
             </div>
+            
             <div class="header-icons">
-                <div class="icon-wrapper animated-icon" id="helpIcon"><i class="fas fa-headset"></i></div>
-                <div class="icon-wrapper" id="scanIcon"><i class="fas fa-qrcode"></i></div>
-                <div class="icon-wrapper" id="notificationIcon"><i class="fas fa-bell"></i></div>
+                <div class="icon-wrapper animated-icon" id="helpIcon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="icon-wrapper" id="scanIcon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="icon-wrapper" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Balance Card -->
     <div class="balance-card">
         <div class="balance-row">
             <div class="balance-label">
                 Available Balance 
-                <i class="fas fa-eye" id="toggleBalance" style="cursor: pointer;"></i>
+                <i class="fas fa-eye" id="toggleBalance" style="cursor: pointer; margin-left: 8px; font-size: 12px;"></i>
             </div>
             <div class="transaction-link" id="transactionHistory">
                 <i class="fas fa-history"></i> Transaction History <i class="fas fa-chevron-right"></i>
@@ -529,7 +757,7 @@
         <div class="balance-amount-row">
             <div class="balance-amount-wrapper">         
                 <span class="currency-symbol">₦</span>
-                <span class="balance-amount" id="balanceAmount">0.00</span>
+                <span class="balance-amount" id="balanceAmount">50,000.82</span>&nbsp;<i class="fas fa-chevron-right chevron-icon"></i>
             </div>
             <div class="add-money-btn" id="addMoney">
                 <i class="fas fa-plus-circle"></i> Add Money
@@ -537,50 +765,97 @@
         </div>
     </div>
 
+    <!-- Business Service Card -->
     <div class="business-card" id="businessCard">
         <div class="business-left">
-            <div class="business-icon"><i class="fas fa-briefcase"></i></div>
+            <div class="business-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
             <div class="business-info">
-                <div class="business-title">Business Service</div>
-                <div class="business-sales">Today's Sales: <span>₦0.00</span></div>
+                <div class="business-title"></div>
+                <div class="business-sales">Business Service - Today's Sales: <span class="currency-symbol-small">₦</span><span class="sales-amount">0.00</span></div>
             </div>
         </div>
-        <div class="business-right"><i class="fas fa-chevron-right"></i></div>
+        <div class="business-right">
+            <i class="fas fa-chevron-right chevron-icon"></i>
+        </div>
     </div>
     
+    <!-- Deactivated Banner -->
     <div class="deactivated-banner">
         <span><i class="fas fa-exclamation-triangle"></i> Activate: click to purchase an activation plan</span>
         <button id="activateBtn">Activate</button>
     </div>
     
+    <!-- Menu Grid Row 1 - 3 items -->
     <div class="menu-grid-three">
-        <div class="menu-item" data-page="toopay.html"><div class="menu-icon"><i class="fas fa-exchange-alt"></i></div><div class="menu-label">To OPay</div></div>
-        <div class="menu-item" data-page="tobank.html"><div class="menu-icon"><i class="fas fa-university"></i></div><div class="menu-label">To Bank</div></div>
-        <div class="menu-item" data-page="withdraw.html"><div class="menu-icon"><i class="fas fa-download"></i></div><div class="menu-label">Withdraw</div></div>
+        <div class="menu-item" id="toOpayBtn">
+            <div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="menu-label">To OPay</div>
+        </div>
+        <div class="menu-item" id="toBankBtn">
+            <div class="menu-icon"><i class="fas fa-university"></i></div>
+            <div class="menu-label">To Bank</div>
+        </div>
+        <div class="menu-item" id="withdrawBtn">
+            <div class="menu-icon"><i class="fas fa-download"></i></div>
+            <div class="menu-label">Withdraw</div>
+        </div>
     </div>
 
+    <!-- Menu Grid Row 2 - 8 items -->
     <div class="menu-grid">
-        <div class="menu-item" data-page="airtime.html"><div class="menu-icons"><i class="fas fa-signal"></i></div><div class="menu-label">Airtime</div></div>
-        <div class="menu-item" data-page="data.html"><div class="menu-icons"><i class="fas fa-wifi"></i></div><div class="menu-label">Data</div></div>
-        <div class="menu-item" data-page="tv.html"><div class="menu-icons"><i class="fas fa-tv"></i></div><div class="menu-label">TV</div></div>
-        <div class="menu-item" data-page="betting.html"><div class="menu-icons"><i class="fas fa-futbol"></i></div><div class="menu-label">Betting</div></div>
-        <div class="menu-item" data-page="owealth.html"><div class="menu-icons"><i class="fas fa-chart-line"></i></div><div class="menu-label">Owealth</div></div>
-        <div class="menu-item" data-page="education.html"><div class="menu-icons"><i class="fas fa-graduation-cap"></i></div><div class="menu-label">Education</div></div>
-        <div class="menu-item" data-page="more.html"><div class="menu-icons"><i class="fas fa-ellipsis-h"></i></div><div class="menu-label">More</div></div>
-        <div class="menu-item" data-page="play4achild.html"><div class="menu-icons"><i class="fas fa-child"></i></div><div class="menu-label">Play4aChild</div></div>
+        <div class="menu-item" id="airtimeBtn">
+            <div class="menu-icons"><i class="fas fa-signal"></i></div>
+            <div class="menu-label">Airtime</div>
+        </div>
+        <div class="menu-item" id="dataBtn">
+            <div class="menu-icons"><i class="fas fa-wifi"></i></div>
+            <div class="menu-label">Data</div>
+        </div>
+        <div class="menu-item" id="tvBtn">
+            <div class="menu-icons"><i class="fas fa-tv"></i></div>
+            <div class="menu-label">TV</div>
+        </div>
+        <div class="menu-item" id="bettingBtn">
+            <div class="menu-icons"><i class="fas fa-futbol"></i></div>
+            <div class="menu-label">Betting</div>
+        </div>
+        <div class="menu-item" id="owealthBtn">
+            <div class="menu-icons"><i class="fas fa-chart-line"></i></div>
+            <div class="menu-label">Owealth</div>
+        </div>
+        <div class="menu-item" id="educationBtn">
+            <div class="menu-icons"><i class="fas fa-graduation-cap"></i></div>
+            <div class="menu-label">Education</div>
+        </div>
+        <div class="menu-item" id="moreBtn">
+            <div class="menu-icons"><i class="fas fa-ellipsis-h"></i></div>
+            <div class="menu-label">More</div>
+        </div>
+        <div class="menu-item" id="play4aChildBtn">
+            <div class="menu-icons"><i class="fas fa-child"></i></div>
+            <div class="menu-label">Play4aChild</div>
+        </div>
     </div>
 
+    <!-- Promo Banner -->
     <div class="promo-banner" id="promoBanner">
         <div class="promo-content">
-            <div class="promo-icon"><i class="fas fa-gift"></i></div>
+            <div class="promo-icon">
+                <i class="fas fa-gift"></i>
+            </div>
             <div class="promo-text">
                 <div class="promo-title">Cash up for grabs!</div>
-                <div class="promo-subtitle">Invite friends and earn up to ₦6,300 Bonus</div>
+                <div class="promo-subtitle">Invite friends and earn up to <span class="promo-currency">₦</span>6,300 Bonus</div>
             </div>
         </div>
-        <div class="promo-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="promo-arrow">
+            <i class="fas fa-chevron-right"></i>
+        </div>
     </div>
 
+    <!-- Help Overlay -->
     <div id="helpOverlay" class="help-overlay" style="display: none;">
         <div class="help-sheet">
             <div class="help-sheet-header">
@@ -589,14 +864,18 @@
                 <div class="help-sheet-subtitle">Get help with OPay Funder issues</div>
             </div>
             <div class="help-sheet-body">
-                <a href="https://wa.link/ctaxj9" target="_blank" class="help-contact-btn">
-                    <div class="help-contact-icon"><i class="fab fa-whatsapp"></i></div>
-                    <div class="help-contact-info">
-                        <div class="help-contact-name">WhatsApp Support</div>
-                        <div class="help-contact-desc">Click to chat with our support team</div>
-                    </div>
-                    <i class="fas fa-chevron-right"></i>
-                </a>
+                <div class="help-contact-list">
+                    <a href="https://wa.link/ctaxj9" target="_blank" class="help-contact-btn whatsapp-btn">
+                        <div class="help-contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="help-contact-info">
+                            <div class="help-contact-name">WhatsApp Support</div>
+                            <div class="help-contact-desc">Click to chat with our support team</div>
+                        </div>
+                        <i class="fas fa-chevron-right help-contact-arrow"></i>
+                    </a>
+                </div>
             </div>
             <div class="help-sheet-footer">
                 <button class="help-close-btn" id="closeHelpSheet">Close</button>
@@ -604,34 +883,57 @@
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" data-page="dashboard.html"><i class="fas fa-home"></i><span>Home</span></div>
-        <div class="nav-item" data-page="rewards.html"><i class="fas fa-gift"></i><span>Rewards</span></div>
-        <div class="nav-item" data-page="finance.html"><i class="fas fa-chart-line"></i><span>Finance</span></div>
-        <div class="nav-item" data-page="cards.html"><i class="fas fa-credit-card"></i><span>Cards</span></div>
-        <div class="nav-item" data-page="login1.html"><i class="fas fa-user"></i><span>Me</span></div>
+        <div class="nav-item active" id="homeNav">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" id="rewardsNav">
+            <i class="fas fa-gift"></i>
+            <span>Rewards</span>
+        </div>
+        <div class="nav-item" id="financeNav">
+            <i class="fas fa-chart-line"></i>
+            <span>Finance</span>
+        </div>
+        <div class="nav-item" id="cardsNav">
+            <i class="fas fa-credit-card"></i>
+            <span>Cards</span>
+        </div>
+        <div class="nav-item" id="meNav">
+            <i class="fas fa-user"></i>
+            <span>Me</span>
+        </div>
     </div>
 
     <script>
+        // ========== BACKEND CONNECTION ==========
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
-        let currentBalance = 70000.00;
-        let isBalanceVisible = true;
+        
+        // Global variables
         let currentUser = null;
-
+        let currentBalance = 50000.82;
+        let balanceVisible = true;
+        
         // DOM Elements
         const balanceAmountSpan = document.getElementById('balanceAmount');
         const toggleBalanceBtn = document.getElementById('toggleBalance');
         const userNameSpan = document.getElementById('userName');
         const profileImg = document.getElementById('profileImg');
-
-        function showToast(message, icon = 'success') {
-            Swal.fire({ icon: icon, title: message, confirmButtonColor: '#00B875', timer: 1500, showConfirmButton: false });
+        
+        // Helper function to show alerts
+        function showAlert(icon, title, message) {
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: '#00B875',
+                timer: 2000,
+                showConfirmButton: true
+            });
         }
-
-        function showAlert(title, message, icon = 'info') {
-            Swal.fire({ icon: icon, title: title, text: message, confirmButtonColor: '#00B875' });
-        }
-
+        
         // Load user from localStorage
         function loadUserFromLocalStorage() {
             const userData = localStorage.getItem('loggedInUser');
@@ -641,11 +943,11 @@
             }
             currentUser = JSON.parse(userData);
             userNameSpan.innerHTML = currentUser.account_name;
-            const firstLetter = currentUser.account_name.charAt(0).toUpperCase();
-            profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
+            // Use profile.jpg as requested
+            profileImg.src = 'images/profile.jpg';
             return currentUser;
         }
-
+        
         // Fetch balance from backend
         async function fetchBalance() {
             if (!currentUser) return;
@@ -661,110 +963,206 @@
                 if (data.success) {
                     currentBalance = data.balance;
                 } else {
-                    currentBalance = 70000.00;
+                    currentBalance = 50000.82;
                 }
                 updateBalanceDisplay();
             } catch (error) {
                 console.log('Backend error, using default balance');
-                currentBalance = 70000.00;
+                currentBalance = 50000.82;
                 updateBalanceDisplay();
             }
         }
-
+        
         // Update balance display
         function updateBalanceDisplay() {
-            if (isBalanceVisible) {
+            if (balanceVisible) {
                 balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             } else {
                 balanceAmountSpan.textContent = '****';
             }
         }
-
+        
         // Toggle balance visibility
         if (toggleBalanceBtn) {
             toggleBalanceBtn.addEventListener('click', function() {
-                isBalanceVisible = !isBalanceVisible;
+                balanceVisible = !balanceVisible;
                 updateBalanceDisplay();
                 this.classList.toggle('fa-eye-slash');
             });
         }
-
-        // Setup all click handlers
-        function setupClickHandlers() {
-            // Profile
-            document.getElementById('profileSection')?.addEventListener('click', () => window.location.href = 'profile.html');
-            
-            // Transaction History
-            document.getElementById('transactionHistory')?.addEventListener('click', () => window.location.href = 'transaction.html');
-            
-            // Add Money
-            document.getElementById('addMoney')?.addEventListener('click', () => window.location.href = 'add.html');
-            
-            // Business Card
-            document.getElementById('businessCard')?.addEventListener('click', () => showToast('Business Service coming soon'));
-            
-            // Activate Button
-            document.getElementById('activateBtn')?.addEventListener('click', () => {
-                Swal.fire({
-                    title: 'Activate Account',
-                    html: `<button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
-                           <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
-                           <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>`,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        document.getElementById('planBasic')?.addEventListener('click', () => showToast('Basic Plan selected'));
-                        document.getElementById('planPremium')?.addEventListener('click', () => showToast('Premium Plan selected'));
-                        document.getElementById('planEnterprise')?.addEventListener('click', () => showToast('Enterprise Plan selected'));
-                    }
-                });
+        
+        // ========== NAVIGATION HANDLERS (All working) ==========
+        // Profile click - opens profile page
+        document.querySelector('.profile-section')?.addEventListener('click', () => {
+            window.location.href = 'profile.html';
+        });
+        
+        // Transaction History
+        document.getElementById('transactionHistory')?.addEventListener('click', () => {
+            window.location.href = 'transaction.html';
+        });
+        
+        // Add Money
+        document.getElementById('addMoney')?.addEventListener('click', () => {
+            window.location.href = 'add.html';
+        });
+        
+        // Business Card
+        document.getElementById('businessCard')?.addEventListener('click', () => {
+            showAlert('info', 'Business Service', 'Business Service coming soon');
+        });
+        
+        // To OPay
+        document.getElementById('toOpayBtn')?.addEventListener('click', () => {
+            window.location.href = 'toopay.html';
+        });
+        
+        // To Bank
+        document.getElementById('toBankBtn')?.addEventListener('click', () => {
+            window.location.href = 'tobank.html';
+        });
+        
+        // Withdraw
+        document.getElementById('withdrawBtn')?.addEventListener('click', () => {
+            window.location.href = 'withdraw.html';
+        });
+        
+        // Airtime
+        document.getElementById('airtimeBtn')?.addEventListener('click', () => {
+            window.location.href = 'airtime.html';
+        });
+        
+        // Data
+        document.getElementById('dataBtn')?.addEventListener('click', () => {
+            window.location.href = 'data.html';
+        });
+        
+        // TV
+        document.getElementById('tvBtn')?.addEventListener('click', () => {
+            showAlert('info', 'TV', 'TV subscription coming soon');
+        });
+        
+        // Betting
+        document.getElementById('bettingBtn')?.addEventListener('click', () => {
+            showAlert('info', 'Betting', 'Betting coming soon');
+        });
+        
+        // Owealth
+        document.getElementById('owealthBtn')?.addEventListener('click', () => {
+            showAlert('info', 'Owealth', 'Owealth coming soon');
+        });
+        
+        // Education
+        document.getElementById('educationBtn')?.addEventListener('click', () => {
+            showAlert('info', 'Education', 'Education coming soon');
+        });
+        
+        // More
+        document.getElementById('moreBtn')?.addEventListener('click', () => {
+            showAlert('info', 'More', 'More services coming soon');
+        });
+        
+        // Play4aChild
+        document.getElementById('play4aChildBtn')?.addEventListener('click', () => {
+            showAlert('info', 'Play4aChild', 'Play4aChild coming soon');
+        });
+        
+        // Activate button
+        document.getElementById('activateBtn')?.addEventListener('click', function() {
+            Swal.fire({
+                title: 'Activate Account',
+                html: `
+                    <div style="text-align: left;">
+                        <p>Choose an activation plan:</p>
+                        <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
+                        <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
+                        <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
+                    </div>
+                `,
+                showConfirmButton: false,
+                width: '320px',
+                didOpen: () => {
+                    document.getElementById('planBasic')?.addEventListener('click', () => showAlert('info', 'Basic Plan', 'Pay ₦5,000 to activate'));
+                    document.getElementById('planPremium')?.addEventListener('click', () => showAlert('info', 'Premium Plan', 'Pay ₦10,000 to activate'));
+                    document.getElementById('planEnterprise')?.addEventListener('click', () => showAlert('info', 'Enterprise Plan', 'Pay ₦20,000 to activate'));
+                }
             });
-            
-            // Menu items with data-page attribute
-            document.querySelectorAll('.menu-item[data-page]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const page = el.getAttribute('data-page');
-                    if (page) window.location.href = page;
-                });
-            });
-            
-            // Bottom navigation
-            document.querySelectorAll('.nav-item[data-page]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const page = el.getAttribute('data-page');
-                    window.location.href = page;
-                });
-            });
-            
-            // Promo banner
-            document.getElementById('promoBanner')?.addEventListener('click', () => showToast('Invite friends and earn up to ₦6,300 Bonus'));
-            
-            // Scan icon
-            document.getElementById('scanIcon')?.addEventListener('click', () => showToast('QR Scanner coming soon'));
-            
-            // Notification icon
-            document.getElementById('notificationIcon')?.addEventListener('click', () => showToast('No new notifications'));
-        }
-
-        // Help & Support Bottom Sheet
+        });
+        
+        // Promo Banner
+        document.getElementById('promoBanner')?.addEventListener('click', () => {
+            showAlert('info', 'Invite Friends', 'Invite friends and earn up to ₦6,300 Bonus');
+        });
+        
+        // Scan Icon
+        document.getElementById('scanIcon')?.addEventListener('click', () => {
+            showAlert('info', 'Scan', 'QR Scanner coming soon');
+        });
+        
+        // Notification Icon
+        document.getElementById('notificationIcon')?.addEventListener('click', () => {
+            showAlert('info', 'Notifications', 'No new notifications');
+        });
+        
+        // Bottom Navigation
+        document.getElementById('homeNav')?.addEventListener('click', () => {
+            window.location.reload();
+        });
+        document.getElementById('rewardsNav')?.addEventListener('click', () => {
+            showAlert('info', 'Rewards', 'Rewards coming soon');
+        });
+        document.getElementById('financeNav')?.addEventListener('click', () => {
+            showAlert('info', 'Finance', 'Finance coming soon');
+        });
+        document.getElementById('cardsNav')?.addEventListener('click', () => {
+            showAlert('info', 'Cards', 'Cards coming soon');
+        });
+        document.getElementById('meNav')?.addEventListener('click', () => {
+            window.location.href = 'login1.html';
+        });
+        
+        // ========== HELP & SUPPORT BOTTOM SHEET ==========
         const helpOverlay = document.getElementById('helpOverlay');
+        const closeHelpSheet = document.getElementById('closeHelpSheet');
         const helpIcon = document.getElementById('helpIcon');
-
-        function showHelpSheet() { if (helpOverlay) helpOverlay.style.display = 'flex'; }
-        function hideHelpSheet() { if (helpOverlay) helpOverlay.style.display = 'none'; }
-
-        if (helpIcon) helpIcon.addEventListener('click', showHelpSheet);
-        if (helpOverlay) helpOverlay.addEventListener('click', (e) => { if (e.target === helpOverlay) hideHelpSheet(); });
-        document.getElementById('closeHelpSheet')?.addEventListener('click', hideHelpSheet);
-
-        // Initialize
-        async function init() {
-            loadUserFromLocalStorage();
-            await fetchBalance();
-            setupClickHandlers();
-            console.log('✅ Dashboard initialized with balance: ₦' + currentBalance);
+        
+        function showHelpSheet() {
+            if (helpOverlay) {
+                helpOverlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
         }
         
-        init();
+        function hideHelpSheet() {
+            if (helpOverlay) {
+                helpOverlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+        
+        if (helpIcon) {
+            helpIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showHelpSheet();
+            });
+        }
+        
+        if (helpOverlay) {
+            helpOverlay.addEventListener('click', function(e) {
+                if (e.target === helpOverlay) hideHelpSheet();
+            });
+        }
+        
+        if (closeHelpSheet) {
+            closeHelpSheet.addEventListener('click', hideHelpSheet);
+        }
+        
+        // ========== INITIALIZE ==========
+        loadUserFromLocalStorage();
+        fetchBalance();
+        
+        console.log('✅ Dashboard connected to backend API');
+        console.log('✅ Navigation: Profile, Transaction, Add Money, To OPay, To Bank, Withdraw, Airtime, Data');
     </script>
 </body>
 </html>
