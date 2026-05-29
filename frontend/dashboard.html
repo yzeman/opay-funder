@@ -908,7 +908,7 @@
         </div>
     </div>
 
-        <script>
+      <script>
     // ========== BACKEND CONNECTION ==========
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
     
@@ -916,7 +916,7 @@
     let currentUser = null;
     let currentBalance = 50000.82;
     let balanceVisible = true;
-    let currentTier = 3; // CHANGE THIS TO 3 FOR TESTING - allows access to all features
+    let currentTier = 3;
     
     // DOM Elements
     const balanceAmountSpan = document.getElementById('balanceAmount');
@@ -925,11 +925,8 @@
     const profileImg = document.getElementById('profileImg');
     const tierBadge = document.querySelector('.tier-badge-icon');
     
-    // NO ALERT FUNCTION - completely silent
-    function doNothing() {
-        // Absolutely nothing happens
-        return;
-    }
+    // NO ALERT FUNCTION
+    function doNothing() { return; }
     
     // Update badge based on tier
     function updateBadge(tier) {
@@ -938,19 +935,15 @@
         if (tier === 1) {
             tierBadge.innerHTML = '⭐';
             tierBadge.style.background = 'linear-gradient(135deg, #aaa, #888)';
-            tierBadge.style.fontSize = '10px';
         } else if (tier === 2) {
             tierBadge.innerHTML = '🥈';
             tierBadge.style.background = 'linear-gradient(135deg, #C0C0C0, #A0A0A0)';
-            tierBadge.style.fontSize = '10px';
         } else if (tier === 3) {
             tierBadge.innerHTML = '🥉';
             tierBadge.style.background = 'linear-gradient(135deg, #CD7F32, #B87333)';
-            tierBadge.style.fontSize = '10px';
         } else if (tier === 'VIP') {
             tierBadge.innerHTML = '👑';
             tierBadge.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
-            tierBadge.style.fontSize = '12px';
         }
     }
     
@@ -963,57 +956,46 @@
         }
         currentUser = JSON.parse(userData);
         userNameSpan.innerHTML = currentUser.account_name;
-        profileImg.src = 'images/profile.jpg';
         
-        // Load saved tier from localStorage
         const savedTier = localStorage.getItem(`user_tier_${currentUser.email}`);
         if (savedTier) {
             currentTier = savedTier === 'VIP' ? 'VIP' : parseInt(savedTier);
             updateBadge(currentTier);
         } else {
-            updateBadge(3); // Default Tier 3 for testing
+            updateBadge(3);
         }
         return currentUser;
     }
     
-    // Save tier to localStorage and backend
-    async function saveTier(tier) {
-        currentTier = tier;
-        localStorage.setItem(`user_tier_${currentUser.email}`, tier);
-        updateBadge(tier);
+    // Load profile picture from database
+    async function loadProfilePicture() {
+        if (!currentUser) return;
         
         try {
-            await fetch(`${BACKEND_URL}/api/update-tier`, {
+            const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: currentUser.email, tier: tier })
+                body: JSON.stringify({ email: currentUser.email })
             });
+            const data = await response.json();
+            
+            if (data.success && data.profile && data.profile.profile_picture) {
+                profileImg.src = data.profile.profile_picture;
+                localStorage.setItem('profile_picture', data.profile.profile_picture);
+            } else {
+                const localPic = localStorage.getItem('profile_picture');
+                if (localPic) {
+                    profileImg.src = localPic;
+                } else {
+                    const firstLetter = currentUser.account_name.charAt(0).toUpperCase();
+                    profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
+                }
+            }
         } catch (error) {
-            console.log('Backend tier save error');
+            const firstLetter = currentUser.account_name.charAt(0).toUpperCase();
+            profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
         }
     }
-
-            // Load profile picture for dashboard
-async function loadProfilePicture() {
-    try {
-        const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email })
-        });
-        const data = await response.json();
-        if (data.success && data.profile.profile_picture) {
-            document.getElementById('profileImg').src = data.profile.profile_picture;
-        }
-    } catch (error) {
-        // Use default avatar
-        const firstLetter = currentUser.account_name.charAt(0).toUpperCase();
-        document.getElementById('profileImg').src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
-    }
-}
-
-// Call this after loading user
-loadProfilePicture();
     
     // Fetch balance from backend
     async function fetchBalance() {
@@ -1056,6 +1038,7 @@ loadProfilePicture();
     
     // ========== ACTIVATION BOTTOM SHEET ==========
     function showActivationSheet() {
+        // Your existing activation sheet code...
         const existingOverlay = document.getElementById('activationOverlay');
         if (existingOverlay) existingOverlay.remove();
         
@@ -1071,22 +1054,14 @@ loadProfilePicture();
             z-index: 2000;
             display: flex;
             align-items: flex-end;
-            animation: fadeIn 0.3s ease;
         `;
         
         overlay.innerHTML = `
-            <div style="
-                background: white;
-                width: 100%;
-                border-radius: 28px 28px 0 0;
-                animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                max-height: 85vh;
-                overflow-y: auto;
-            ">
-                <div style="text-align: center; padding: 20px 20px 10px;">
+            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+                <div style="text-align: center; padding: 20px;">
                     <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                    <div style="font-size: 22px; font-weight: 700; color: #1a1a1a;">Purchase License Plan</div>
-                    <div style="font-size: 13px; color: #888; margin-top: 6px;">Select a subscription plan to activate or upgrade your existing plan</div>
+                    <div style="font-size: 22px; font-weight: 700;">Purchase License Plan</div>
+                    <div style="font-size: 13px; color: #888;">Select a subscription plan</div>
                 </div>
                 
                 <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
@@ -1096,105 +1071,38 @@ loadProfilePicture();
                     </span>
                 </div>
                 
-                <!-- Basic Plan (Tier 2) -->
-                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">🥈</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
+                <div style="margin: 12px 16px; padding: 16px; border: 1px solid #eee; border-radius: 20px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
                     </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                        • Transfer to OPay only<br>
-                        • Add money unlock<br>                            
-                        • View receipt<br>
-                        • payment proof - no watermark added<br>
-                        • Activate banner removed<br>
-                        • 10 times transfer daily<br>
-                        • Add Money limit ₦100,000
-                    </div>
-                    <button class="plan-purchase-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
-                        ${currentTier >= 2 ? '✓ Already Purchased' : 'Purchase Basic Plan >'}
-                    </button>
+                    <button class="plan-purchase-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Purchase Basic Plan</button>
                 </div>
                 
-                <!-- Premium Plan (Tier 3) -->
-                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">🥉</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                <div style="margin: 12px 16px; padding: 16px; border: 1px solid #eee; border-radius: 20px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
                     </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                        Everything in Basic plus:<br>
-                        • History access, recent recipients history<br>
-                        • OPay and bank transfer<br>
-                        • Custom sender name<br>
-                        • Custom transaction status (failed, success, pending)<br>
-                        • Unlimited transfer<br>
-                        • Add Money limit ₦1,000,000
-                    </div>
-                    <button class="plan-purchase-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
-                        ${currentTier >= 3 ? '✓ Already Purchased' : 'Purchase Premium Plan >'}
-                    </button>
+                    <button class="plan-purchase-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Purchase Premium Plan</button>
                 </div>
                 
-                <!-- VIP Plan -->
-                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">👑</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                <div style="margin: 12px 16px; padding: 16px; border: 2px solid #FFD700; border-radius: 20px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
                     </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                        Everything in Basic and Premium plus:<br>
-                        • OPay Funder in-app transfers<br>
-                        • Statement of account generation<br>
-                        • Receivers receive alert<br>
-                        • Money add up to receiver balance<br>
-                        • Expire in user balance after 24hrs<br>
-                        • Airtime access purchase<br>
-                        • Data access purchase<br>
-                        • Add money unlimited<br>
-                        • No transaction limit
-                    </div>
-                    <button class="plan-purchase-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
-                        ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Purchase VIP Plan >'}
-                    </button>
+                    <button class="plan-purchase-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Purchase VIP Plan</button>
                 </div>
                 
                 <div style="padding: 16px 20px 30px;">
-                    <button id="closeActivationSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+                    <button id="closeActivationSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
                 </div>
             </div>
         `;
         
         document.body.appendChild(overlay);
         document.body.style.overflow = 'hidden';
-        
-        if (!document.getElementById('activationSheetStyles')) {
-            const style = document.createElement('style');
-            style.id = 'activationSheetStyles';
-            style.textContent = `
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-            `;
-            document.head.appendChild(style);
-        }
         
         document.getElementById('closeActivationSheet')?.addEventListener('click', () => {
             overlay.remove();
@@ -1208,103 +1116,55 @@ loadProfilePicture();
             }
         });
         
-        // PURCHASE BUTTONS - DIRECT TO plan.html
         document.querySelectorAll('.plan-purchase-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                
                 const plan = btn.getAttribute('data-plan');
                 const tier = btn.getAttribute('data-tier');
-                
-                if (btn.disabled) return;
-                
-                // Store selected plan in localStorage for plan.html to read
                 localStorage.setItem('selected_plan', JSON.stringify({
                     plan: plan,
                     tier: tier,
                     price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
                 }));
-                
-                // Direct to plan.html
                 window.location.href = 'plan.html';
             });
         });
     }
     
     // ========== NAVIGATION HANDLERS ==========
-    // Profile
     document.querySelector('.profile-section')?.addEventListener('click', () => {
         window.location.href = 'profile.html';
     });
     
-    // Transaction History
     document.getElementById('transactionHistory')?.addEventListener('click', () => {
         window.location.href = 'transaction.html';
     });
     
-    // Add Money
     document.getElementById('addMoney')?.addEventListener('click', () => {
         window.location.href = 'add.html';
     });
     
-    // Business Service - NO ALERT, NOTHING HAPPENS
     document.getElementById('businessCard')?.addEventListener('click', doNothing);
-    
-    // ===== FIXED: To OPay - ALWAYS DIRECTS (no tier check for now) =====
-    document.getElementById('toOpayBtn')?.addEventListener('click', () => {
-        window.location.href = 'toopay.html';
-    });
-    
-    // ===== FIXED: To Bank - ALWAYS DIRECTS (no tier check for now) =====
-    document.getElementById('toBankBtn')?.addEventListener('click', () => {
-        window.location.href = 'tobank.html';
-    });
-    
-    // Withdraw - NOTHING HAPPENS
+    document.getElementById('toOpayBtn')?.addEventListener('click', () => { window.location.href = 'toopay.html'; });
+    document.getElementById('toBankBtn')?.addEventListener('click', () => { window.location.href = 'tobank.html'; });
     document.getElementById('withdrawBtn')?.addEventListener('click', doNothing);
-    
-    // ===== FIXED: Airtime - ALWAYS DIRECTS =====
-    document.getElementById('airtimeBtn')?.addEventListener('click', () => {
-        window.location.href = 'airtime.html';
-    });
-    
-    // ===== FIXED: Data - ALWAYS DIRECTS =====
-    document.getElementById('dataBtn')?.addEventListener('click', () => {
-        window.location.href = 'data.html';
-    });
-    
-    // ALL COMING SOON ITEMS - NOTHING HAPPENS
+    document.getElementById('airtimeBtn')?.addEventListener('click', () => { window.location.href = 'airtime.html'; });
+    document.getElementById('dataBtn')?.addEventListener('click', () => { window.location.href = 'data.html'; });
     document.getElementById('tvBtn')?.addEventListener('click', doNothing);
     document.getElementById('bettingBtn')?.addEventListener('click', doNothing);
     document.getElementById('owealthBtn')?.addEventListener('click', doNothing);
     document.getElementById('educationBtn')?.addEventListener('click', doNothing);
     document.getElementById('moreBtn')?.addEventListener('click', doNothing);
     document.getElementById('play4aChildBtn')?.addEventListener('click', doNothing);
-    
-    // Activate button - shows bottom sheet
-    document.getElementById('activateBtn')?.addEventListener('click', function() {
-        showActivationSheet();
-    });
-    
-    // Promo Banner - NOTHING HAPPENS
+    document.getElementById('activateBtn')?.addEventListener('click', () => { showActivationSheet(); });
     document.getElementById('promoBanner')?.addEventListener('click', doNothing);
-    
-    // Scan Icon - NOTHING HAPPENS
     document.getElementById('scanIcon')?.addEventListener('click', doNothing);
-    
-    // Notification Icon - NOTHING HAPPENS
     document.getElementById('notificationIcon')?.addEventListener('click', doNothing);
-    
-    // Bottom Navigation
-    document.getElementById('homeNav')?.addEventListener('click', () => {
-        window.location.reload();
-    });
+    document.getElementById('homeNav')?.addEventListener('click', () => { window.location.reload(); });
     document.getElementById('rewardsNav')?.addEventListener('click', doNothing);
     document.getElementById('financeNav')?.addEventListener('click', doNothing);
     document.getElementById('cardsNav')?.addEventListener('click', doNothing);
-    document.getElementById('meNav')?.addEventListener('click', () => {
-        window.location.href = 'login1.html';
-    });
+    document.getElementById('meNav')?.addEventListener('click', () => { window.location.href = 'login1.html'; });
     
     // ========== HELP & SUPPORT BOTTOM SHEET ==========
     const helpOverlay = document.getElementById('helpOverlay');
@@ -1342,15 +1202,15 @@ loadProfilePicture();
         closeHelpSheet.addEventListener('click', hideHelpSheet);
     }
     
-    // ========== INITIALIZE ==========
+    // ========== INITIALIZE (CORRECT ORDER) ==========
     loadUserFromLocalStorage();
+    // Load profile picture AFTER user is loaded
+    if (currentUser) {
+        loadProfilePicture();
+    }
     fetchBalance();
     
-    console.log('✅ Dashboard - All navigation buttons working');
-    console.log('✅ To OPay -> toopay.html');
-    console.log('✅ To Bank -> tobank.html');
-    console.log('✅ Airtime -> airtime.html');
-    console.log('✅ Data -> data.html');
+    console.log('✅ Dashboard initialized with profile picture loading');
 </script>
 </body>
 </html>
