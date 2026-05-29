@@ -992,6 +992,28 @@
             console.log('Backend tier save error');
         }
     }
+
+            // Load profile picture for dashboard
+async function loadProfilePicture() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email })
+        });
+        const data = await response.json();
+        if (data.success && data.profile.profile_picture) {
+            document.getElementById('profileImg').src = data.profile.profile_picture;
+        }
+    } catch (error) {
+        // Use default avatar
+        const firstLetter = currentUser.account_name.charAt(0).toUpperCase();
+        document.getElementById('profileImg').src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
+    }
+}
+
+// Call this after loading user
+loadProfilePicture();
     
     // Fetch balance from backend
     async function fetchBalance() {
