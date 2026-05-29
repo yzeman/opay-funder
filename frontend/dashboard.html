@@ -7,1186 +7,561 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Add Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f8f9fc;
-            padding-bottom: 70px;
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            padding: 16px 16px 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Profile Section - Left side */
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .profile-icon {
-            position: relative;
-            width: 40px;
-            height: 40px;
-        }
-
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #00B875;
-        }
-
-        .tier-badge-icon {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .profile-info h2 {
-            font-size: 13px;
-            font-weight: 400;
-            color: #1a1a1a;
-            margin: 0;
-        }
-
-        .sub-text {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .sub-text i {
-            color: #ff4444;
-            font-size: 8px;
-        }
-
-/* Header Icons - Right side */
-.header-icons {
-    display: flex;
-    align-items: center;
-    gap: 1px;
-}
-
-.icon-wrapper {
-    position: relative;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    border-radius: 50%;
-    transition: all 0.2s;
-}
-
-.icon-wrapper:hover {
-    border-color: #00B875;
-    background: rgba(0, 184, 117, 0.05);
-}
-
-.icon-wrapper:active {
-    transform: scale(0.95);
-}
-
-.icon-wrapper i {
-    font-size: 18px;
-    color: #666;
-}
-
-/* Animation for Headset Icon */
-.animated-icon {
-    animation: subtlePulse 2s ease-in-out infinite;
-}
-
-.animated-icon i {
-    animation: headsetRing 3s ease-in-out infinite;
-}
-
-@keyframes subtlePulse {
-    0% {
-        transform: scale(1);
-        border-color: #ddd;
-    }
-    50% {
-        transform: scale(1.05);
-        border-color: #00B875;
-    }
-    100% {
-        transform: scale(1);
-        border-color: #ddd;
-    }
-}
-
-@keyframes headsetRing {
-    0% {
-        transform: rotate(0deg);
-    }
-    10% {
-        transform: rotate(15deg);
-    }
-    20% {
-        transform: rotate(-10deg);
-    }
-    30% {
-        transform: rotate(5deg);
-    }
-    40% {
-        transform: rotate(-5deg);
-    }
-    50% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -8px;
-    background: #ff4444;
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 20px;
-    min-width: 18px;
-    text-align: center;
-}
-
-        /* Deactivated Banner */
-        .deactivated-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 16px;
-            margin: 10px 16px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .deactivated-banner span {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .deactivated-banner span i {
-            margin-right: 5px;
-        }
-
-        .deactivated-banner button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        /* Fixed Soon Banner */
-        .fixed-banner {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 12px 16px;
-            margin: 0 16px 10px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .fixed-banner i {
-            color: #ffc107;
-            font-size: 18px;
-        }
-
-        .fixed-banner span {
-            font-size: 12px;
-            color: #856404;
-            flex: 1;
-        }
-
-        /* Balance Card */
-.balance-card {
-    background: #00B875;
-    margin: 16px;
-    padding: 20px;
-    border-radius: 20px;
-    color: white;
-}
-
-.balance-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.balance-label {
-    font-size: 12px;
-    opacity: 0.8;
-    display: flex;
-    align-items: center;
-}
-
-.transaction-link {
-    font-size: 11px;
-    opacity: 0.8;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.transaction-link i {
-    font-size: 10px;
-}
-
-.transaction-link:hover {
-    opacity: 1;
-}
-
-.balance-amount-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.balance-amount-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.chevron-icon {
-    font-size: 12px;
-    color: white;
-    opacity: 0.9;  
-}
-
-.currency-symbol {
-    font-size: 14px;
-    font-weight: 400;
-    opacity: 0.9;
-}
-
-.balance-amount {
-    font-size: 24px;
-    font-weight: 700;
-}
-
-/* For very large numbers (millions) */
-.balance-amount.large-number {
-    font-size: 20px;
-}
-
-.add-money-btn {
-    background: white;
-    padding: 8px 14px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    white-space: nowrap;
-    color:#00B875;
-}
-
-.add-money-btn:hover {
-    background: rgba(255,255,255,0.25);
-}
-
-.add-money-btn:active {
-    transform: scale(0.98);
-}
-        
-/* Business Service Card */
-.business-card {
-    background: #e8f5e9;
-    margin: -16px 16px 16px 16px;
-    padding: 10px 10px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.business-card:active {
-    transform: scale(0.98);
-}
-
-.business-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.business-icon {
-    width: 15px;
-    height: 15px;
-    color: #00B875;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.business-icon i {
-    font-size: 15px;
-    color: #00B875;
-}
-
-.business-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.business-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 4px;
-}
-
-.business-sales {
-    font-size: 12px;
-    color: #666;
-}
-
-.currency-symbol-small {
-    font-size: 11px;
-    font-weight: 400;
-    color: #00B875;
-}
-
-.sales-amount {
-    font-weight: 600;
-    color: #00B875;
-}
-
-.business-right .chevron-icon {
-    font-size: 14px;
-    color: #00B875;
-    
-}
-        
-
-        
-
-        
-/* Menu Grid - 4 items (default) */
-.menu-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    padding: 16px;
-    background: white;
-    margin: 0 16px 16px;
-    border-radius: 20px;
-}
-
-/* Menu Grid - 3 items (first row) */
-.menu-grid-three {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    padding: 16px;
-    background: white;
-    margin: 0 16px 16px;
-    border-radius: 15px;
-}
-
-/* Individual Menu Item */
-.menu-item {
-    text-align: center;
-    cursor: pointer;
-}
-
-.menu-icon {
-    width: 50px;
-    height: 50px;
-    background: #f0fdf4;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 8px;
-}
-
-.menu-icons {
-    width: 50px;
-    height: 50px;
-    background: #f0fdf4;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 8px;
-}
-
-.menu-icon i {
-    font-size: 18px;
-    color: #00B875;
-}
-
-.menu-icons i {
-    font-size: 18px;
-    color: #00B875;
-}
-
-.menu-label {
-    font-size: 11px;
-    color: #333;
-    font-weight: 500;
-}
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 16px 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .nav-item {
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .nav-item i {
-            font-size: 22px;
-            color: #aaa;
-            display: block;
-        }
-
-        .nav-item span {
-            font-size: 10px;
-            color: #aaa;
-            margin-top: 4px;
-            display: block;
-        }
-
-        .nav-item.active i,
-        .nav-item.active span {
-            color: #00B875;
-        }
-        
-        /* Promo Banner */
-.promo-banner {
-    background: white;
-    margin: 16px;
-    padding: 16px 20px;
-    border-radius: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.promo-banner:active {
-    transform: scale(0.98);
-}
-
-.promo-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.promo-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.promo-icon i {
-    font-size: 24px;
-    color: black;
-}
-
-.promo-text {
-    color: black;
-}
-
-.promo-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.promo-subtitle {
-    font-size: 12px;
-    opacity: 0.9;
-}
-
-.promo-currency {
-    font-size: 11px;
-    font-weight: 400;
-}
-
-.promo-arrow i {
-    font-size: 16px;
-    color: white;
-    opacity: 0.8;
-}
-/* Help & Support Bottom Sheet Styles */
-.help-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    display: flex;
-    align-items: flex-end;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.help-sheet {
-    background: white;
-    width: 100%;
-    border-radius: 28px 28px 0 0;
-    animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-.help-sheet-header {
-    text-align: center;
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.help-sheet-handle {
-    width: 40px;
-    height: 4px;
-    background: #ddd;
-    border-radius: 2px;
-    margin: 0 auto 16px;
-}
-
-.help-sheet-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 4px;
-}
-
-.help-sheet-subtitle {
-    font-size: 13px;
-    color: #888;
-}
-
-.help-sheet-body {
-    padding: 20px;
-}
-
-.help-contact-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.help-contact-btn {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 20px;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: 1px solid #eef2f6;
-}
-
-.help-contact-btn:active {
-    transform: scale(0.98);
-    background: #f0f2f5;
-}
-
-.whatsapp-btn {
-    background: linear-gradient(135deg, #25D366, #128C7E);
-    border: none;
-    animation: pulseGreen 1.5s ease-in-out infinite;
-}
-
-@keyframes pulseGreen {
-    0% {
-        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
-        transform: scale(1);
-    }
-    50% {
-        box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
-        transform: scale(1.02);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
-        transform: scale(1);
-    }
-}
-
-.whatsapp-btn .help-contact-icon {
-    background: white;
-}
-
-.whatsapp-btn .help-contact-icon i {
-    color: #25D366;
-}
-
-.whatsapp-btn .help-contact-name {
-    color: white;
-}
-
-.whatsapp-btn .help-contact-desc {
-    color: rgba(255,255,255,0.8);
-}
-
-.whatsapp-btn .help-contact-arrow {
-    color: white;
-    opacity: 0.8;
-}
-
-.help-contact-icon {
-    width: 50px;
-    height: 50px;
-    background: white;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.help-contact-icon i {
-    font-size: 26px;
-}
-
-.help-contact-info {
-    flex: 1;
-}
-
-.help-contact-name {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #1a1a1a;
-}
-
-.help-contact-desc {
-    font-size: 12px;
-    color: #888;
-}
-
-.help-contact-arrow {
-    font-size: 14px;
-    color: #ccc;
-}
-
-.help-sheet-footer {
-    padding: 16px 20px 30px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.help-close-btn {
-    width: 100%;
-    padding: 14px;
-    background: #f0f2f5;
-    border: none;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.help-close-btn:active {
-    transform: scale(0.98);
-    background: #e8eaed;
-}
-</style>
+        /* Your existing styles - keeping them exactly as you had */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f8f9fc; padding-bottom: 70px; }
+        .header { background: white; padding: 16px 16px 10px; border-bottom: 1px solid #eee; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .profile-icon { position: relative; width: 40px; height: 40px; }
+        .profile-icon img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #00B875; }
+        .tier-badge-icon { position: absolute; bottom: -5px; right: -5px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; border: 2px solid white; }
+        .profile-info h2 { font-size: 13px; font-weight: 400; color: #1a1a1a; margin: 0; }
+        .header-icons { display: flex; align-items: center; gap: 1px; }
+        .icon-wrapper { position: relative; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; }
+        .icon-wrapper:hover { border-color: #00B875; background: rgba(0, 184, 117, 0.05); }
+        .icon-wrapper:active { transform: scale(0.95); }
+        .icon-wrapper i { font-size: 18px; color: #666; }
+        .animated-icon { animation: subtlePulse 2s ease-in-out infinite; }
+        .animated-icon i { animation: headsetRing 3s ease-in-out infinite; }
+        @keyframes subtlePulse { 0% { transform: scale(1); border-color: #ddd; } 50% { transform: scale(1.05); border-color: #00B875; } 100% { transform: scale(1); border-color: #ddd; } }
+        @keyframes headsetRing { 0% { transform: rotate(0deg); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-10deg); } 30% { transform: rotate(5deg); } 40% { transform: rotate(-5deg); } 50% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
+        .notification-badge { position: absolute; top: -5px; right: -8px; background: #ff4444; color: white; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 20px; min-width: 18px; text-align: center; }
+        .deactivated-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; margin: 10px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .deactivated-banner span { font-size: 13px; font-weight: 500; }
+        .deactivated-banner span i { margin-right: 5px; }
+        .deactivated-banner button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .fixed-banner { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 0 16px 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .fixed-banner i { color: #ffc107; font-size: 18px; }
+        .fixed-banner span { font-size: 12px; color: #856404; flex: 1; }
+        .balance-card { background: #00B875; margin: 16px; padding: 20px; border-radius: 20px; color: white; }
+        .balance-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .balance-label { font-size: 12px; opacity: 0.8; display: flex; align-items: center; }
+        .transaction-link { font-size: 11px; opacity: 0.8; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .transaction-link i { font-size: 10px; }
+        .transaction-link:hover { opacity: 1; }
+        .balance-amount-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .balance-amount-wrapper { display: flex; align-items: center; gap: 2px; }
+        .chevron-icon { font-size: 12px; color: white; opacity: 0.9; }
+        .currency-symbol { font-size: 14px; font-weight: 400; opacity: 0.9; }
+        .balance-amount { font-size: 24px; font-weight: 700; }
+        .balance-amount.large-number { font-size: 20px; }
+        .add-money-btn { background: white; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; color: #00B875; }
+        .add-money-btn:hover { background: rgba(255,255,255,0.25); }
+        .add-money-btn:active { transform: scale(0.98); }
+        .business-card { background: #e8f5e9; margin: -16px 16px 16px 16px; padding: 10px 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .business-card:active { transform: scale(0.98); }
+        .business-left { display: flex; align-items: center; gap: 15px; }
+        .business-icon { width: 15px; height: 15px; color: #00B875; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .business-icon i { font-size: 15px; color: #00B875; }
+        .business-info { display: flex; flex-direction: column; }
+        .business-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+        .business-sales { font-size: 12px; color: #666; }
+        .currency-symbol-small { font-size: 11px; font-weight: 400; color: #00B875; }
+        .sales-amount { font-weight: 600; color: #00B875; }
+        .business-right .chevron-icon { font-size: 14px; color: #00B875; }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px; background: white; margin: 0 16px 16px; border-radius: 20px; }
+        .menu-grid-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 16px; background: white; margin: 0 16px 16px; border-radius: 15px; }
+        .menu-item { text-align: center; cursor: pointer; }
+        .menu-icon { width: 50px; height: 50px; background: #f0fdf4; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+        .menu-icons { width: 50px; height: 50px; background: #f0fdf4; border-radius: 25px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+        .menu-icon i, .menu-icons i { font-size: 18px; color: #00B875; }
+        .menu-label { font-size: 11px; color: #333; font-weight: 500; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 16px 20px; border-top: 1px solid #eee; }
+        .nav-item { text-align: center; text-decoration: none; cursor: pointer; }
+        .nav-item i { font-size: 22px; color: #aaa; display: block; }
+        .nav-item span { font-size: 10px; color: #aaa; margin-top: 4px; display: block; }
+        .nav-item.active i, .nav-item.active span { color: #00B875; }
+        .promo-banner { background: white; margin: 16px; padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .promo-banner:active { transform: scale(0.98); }
+        .promo-content { display: flex; align-items: center; gap: 15px; }
+        .promo-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .promo-icon i { font-size: 24px; color: black; }
+        .promo-text { color: black; }
+        .promo-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .promo-subtitle { font-size: 12px; opacity: 0.9; }
+        .promo-currency { font-size: 11px; font-weight: 400; }
+        .promo-arrow i { font-size: 16px; color: white; opacity: 0.8; }
+        .help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .help-sheet { background: white; width: 100%; border-radius: 28px 28px 0 0; animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); max-height: 90vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .help-sheet-header { text-align: center; padding: 16px 20px 12px; border-bottom: 1px solid #f0f0f0; }
+        .help-sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
+        .help-sheet-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .help-sheet-subtitle { font-size: 13px; color: #888; }
+        .help-sheet-body { padding: 20px; }
+        .help-contact-list { display: flex; flex-direction: column; gap: 12px; }
+        .help-contact-btn { display: flex; align-items: center; gap: 15px; padding: 16px; background: #f8f9fa; border-radius: 20px; text-decoration: none; transition: all 0.2s; border: 1px solid #eef2f6; }
+        .help-contact-btn:active { transform: scale(0.98); background: #f0f2f5; }
+        .whatsapp-btn { background: linear-gradient(135deg, #25D366, #128C7E); border: none; animation: pulseGreen 1.5s ease-in-out infinite; }
+        @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); transform: scale(1.02); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); transform: scale(1); } }
+        .whatsapp-btn .help-contact-icon { background: white; }
+        .whatsapp-btn .help-contact-icon i { color: #25D366; }
+        .whatsapp-btn .help-contact-name { color: white; }
+        .whatsapp-btn .help-contact-desc { color: rgba(255,255,255,0.8); }
+        .whatsapp-btn .help-contact-arrow { color: white; opacity: 0.8; }
+        .help-contact-icon { width: 50px; height: 50px; background: white; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .help-contact-icon i { font-size: 26px; }
+        .help-contact-info { flex: 1; }
+        .help-contact-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
+        .help-contact-desc { font-size: 12px; color: #888; }
+        .help-contact-arrow { font-size: 14px; color: #ccc; }
+        .help-sheet-footer { padding: 16px 20px 30px; border-top: 1px solid #f0f0f0; }
+        .help-close-btn { width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; }
+        .help-close-btn:active { transform: scale(0.98); background: #e8eaed; }
+    </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
-            <!-- Left side - Profile (Click to go to profile.html) -->
             <div class="profile-section" id="profileSection">
                 <div class="profile-icon">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" id="profileImg" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" id="profileImg">
                     <div class="tier-badge-icon">🥇</div>
                 </div>
                 <div class="profile-info">
-                    <h2 id="userName">ALABA ISREAL OLAYINKA</h2>
+                    <h2 id="userName">Loading...</h2>
                 </div>
             </div>
-            
-            <!-- Right side - 3 Icons -->
-<div class="header-icons">
-    <!-- Robot/Headset Icon - Support with Animation -->
-<div class="icon-wrapper animated-icon">
-    <i class="fas fa-headset"></i>
-</div>
-    <!-- Scan Icon - QR Scanner -->
-    <div class="icon-wrapper" onclick="alert('Scan coming soon')">
-        <i class="fas fa-qrcode"></i>
-    </div>
-    <!-- Notification Bell with Badge -->
-    <div class="icon-wrapper" onclick="alert('Notifications coming soon')">
-        <i class="fas fa-bell"></i>
-        
-    </div>
-</div>
-                    
+            <div class="header-icons">
+                <div class="icon-wrapper animated-icon" id="helpIcon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="icon-wrapper" id="scanIcon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="icon-wrapper" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
                 </div>
             </div>
         </div>
     </div>
 
+    <div class="balance-card">
+        <div class="balance-row">
+            <div class="balance-label">
+                Available Balance 
+                <i class="fas fa-eye" id="toggleBalance" style="cursor: pointer; margin-left: 8px; font-size: 12px;"></i>
+            </div>
+            <div class="transaction-link" id="transactionHistory">
+                <i class="fas fa-history"></i> Transaction History <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+        <div class="balance-amount-row">
+            <div class="balance-amount-wrapper">         
+                <span class="currency-symbol">₦</span>
+                <span class="balance-amount" id="balanceAmount">0.00</span>&nbsp;<i class="fas fa-chevron-right chevron-icon"></i>
+            </div>
+            <div class="add-money-btn" id="addMoney">
+                <i class="fas fa-plus-circle"></i> Add Money
+            </div>
+        </div>
+    </div>
 
-    <!-- Balance Card -->
-<div class="balance-card">
-    <div class="balance-row">
-        <div class="balance-label">
-            Available Balance 
-            <i class="fas fa-eye" id="toggleBalance" style="cursor: pointer; margin-left: 8px; font-size: 12px;"></i>
+    <div class="business-card" id="businessCard">
+        <div class="business-left">
+            <div class="business-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="business-info">
+                <div class="business-title"></div>
+                <div class="business-sales">Business Service - Today's Sales: <span class="currency-symbol-small">₦</span><span class="sales-amount">0.00</span></div>
+            </div>
         </div>
-        <div class="transaction-link" id="transactionHistory">
-            <i class="fas fa-history"></i> Transaction History <i class="fas fa-chevron-right"></i>
-        </div>
-    </div>
-    <div class="balance-amount-row">
-        <div class="balance-amount-wrapper">         
-            <span class="currency-symbol">₦</span>
-            <span class="balance-amount" id="balanceAmount">0.00</span>&nbsp<i class="fas fa-chevron-right chevron-icon"></i>
-        </div>
-        <div class="add-money-btn" id="addMoney">
-            <i class="fas fa-plus-circle"></i> Add Money
+        <div class="business-right">
+            <i class="fas fa-chevron-right chevron-icon"></i>
         </div>
     </div>
-</div>
-
-<!-- Business Service Card -->
-<div class="business-card">
-    <div class="business-left">
-        <div class="business-icon">
-            <i class="fas fa-briefcase"></i>
-        </div>
-        <div class="business-info">
-            <div class="business-title"></div>
-            <div class="business-sales">Business Service - Today's Sales: <span class="currency-symbol-small">₦</span><span class="sales-amount">0.00</span></div>
-        </div>
-    </div>
-    <div class="business-right">
-        <i class="fas fa-chevron-right chevron-icon"></i>
-    </div>
-</div>
     
-    <!-- Deactivated Banner -->
     <div class="deactivated-banner">
         <span><i class="fas fa-exclamation-triangle"></i> Activate: click to purchase an activation plan</span>
         <button id="activateBtn">Activate</button>
     </div>
     
-    <!-- Menu Grid Row 1 - 3 items -->
-<div class="menu-grid-three">
-    <div class="menu-item" id="toOpayBtn">
-        <div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>
-        <div class="menu-label">To OPay</div>
-    </div>
-    <div class="menu-item" id="toBankBtn">
-        <div class="menu-icon"><i class="fas fa-university"></i></div>
-        <div class="menu-label">To Bank</div>
-    </div>
-    <div class="menu-item" onclick="alert('Withdraw coming soon')">
-        <div class="menu-icon"><i class="fas fa-download"></i></div>
-        <div class="menu-label">Withdraw</div>
-    </div>
-</div>
-
-<!-- Menu Grid Row 2 - 4 items -->
-<div class="menu-grid">
-    <div class="menu-item" id="airtimeBtn">
-        <div class="menu-icons"><i class="fas fa-signal"></i></div>
-        <div class="menu-label">Airtime</div>
-    </div>
-    <div class="menu-item" id="dataBtn">
-        <div class="menu-icons"><i class="fas fa-wifi"></i></div>
-        <div class="menu-label">Data</div>
-    </div>
-    <div class="menu-item" onclick="alert('TV coming soon')">
-        <div class="menu-icons"><i class="fas fa-tv"></i></div>
-        <div class="menu-label">TV</div>
-    </div>
-    <div class="menu-item" onclick="alert('Betting coming soon')">
-        <div class="menu-icons"><i class="fas fa-futbol"></i></div>
-        <div class="menu-label">Betting</div>
-    </div>
-    <div class="menu-item" onclick="alert('Owealth coming soon')">
-        <div class="menu-icons"><i class="fas fa-chart-line"></i></div>
-        <div class="menu-label">Owealth</div>
-    </div>
-    <div class="menu-item" onclick="alert('Education coming soon')">
-        <div class="menu-icons"><i class="fas fa-graduation-cap"></i></div>
-        <div class="menu-label">Education</div>
-    </div>
-    <div class="menu-item" onclick="alert('More coming soon')">
-        <div class="menu-icons"><i class="fas fa-ellipsis-h"></i></div>
-        <div class="menu-label">More</div>
-    </div>
-    <div class="menu-item" onclick="alert('Play4aChild coming soon')">
-        <div class="menu-icons"><i class="fas fa-child"></i></div>
-        <div class="menu-label">Play4aChild</div>
-    </div>
-</div>
-
-<!-- Promo Banner - Below all grids -->
-<div class="promo-banner" onclick="alert('Invite friends feature coming soon')">
-    <div class="promo-content">
-        <div class="promo-icon">
-            <i class="fas fa-gift"></i>
+    <div class="menu-grid-three">
+        <div class="menu-item" id="toOpayBtn">
+            <div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="menu-label">To OPay</div>
         </div>
-        <div class="promo-text">
-            <div class="promo-title">Cash up for grabs!</div>
-            <div class="promo-subtitle">Invite friends and earn up to <span class="promo-currency">₦</span>6,300 Bonus</div>
+        <div class="menu-item" id="toBankBtn">
+            <div class="menu-icon"><i class="fas fa-university"></i></div>
+            <div class="menu-label">To Bank</div>
+        </div>
+        <div class="menu-item" id="withdrawBtn">
+            <div class="menu-icon"><i class="fas fa-download"></i></div>
+            <div class="menu-label">Withdraw</div>
         </div>
     </div>
-    <div class="promo-arrow">
-        <i class="fas fa-chevron-right"></i>
-    </div>
-</div>
 
-<!-- Add this HTML before the closing </body> tag, or anywhere inside the <body> -->
-<div id="helpOverlay" class="help-overlay" style="display: none;">
-    <div class="help-sheet">
-        <div class="help-sheet-header">
-            <div class="help-sheet-handle"></div>
-            <div class="help-sheet-title">Send Us a Message</div>
-            <div class="help-sheet-subtitle">Get help with OPay Funder issues</div>
+    <div class="menu-grid">
+        <div class="menu-item" id="airtimeBtn">
+            <div class="menu-icons"><i class="fas fa-signal"></i></div>
+            <div class="menu-label">Airtime</div>
         </div>
-        <div class="help-sheet-body">
-            <div class="help-contact-list">
-                <!-- WhatsApp Button only -->
-                <a href="https://wa.link/ctaxj9" target="_blank" class="help-contact-btn whatsapp-btn" id="whatsappHelpBtn">
-                    <div class="help-contact-icon">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <div class="help-contact-info">
-                        <div class="help-contact-name">WhatsApp Support</div>
-                        <div class="help-contact-desc">Click to chat with our support team</div>
-                    </div>
-                    <i class="fas fa-chevron-right help-contact-arrow"></i>
-                </a>
+        <div class="menu-item" id="dataBtn">
+            <div class="menu-icons"><i class="fas fa-wifi"></i></div>
+            <div class="menu-label">Data</div>
+        </div>
+        <div class="menu-item" id="tvBtn">
+            <div class="menu-icons"><i class="fas fa-tv"></i></div>
+            <div class="menu-label">TV</div>
+        </div>
+        <div class="menu-item" id="bettingBtn">
+            <div class="menu-icons"><i class="fas fa-futbol"></i></div>
+            <div class="menu-label">Betting</div>
+        </div>
+        <div class="menu-item" id="owealthBtn">
+            <div class="menu-icons"><i class="fas fa-chart-line"></i></div>
+            <div class="menu-label">Owealth</div>
+        </div>
+        <div class="menu-item" id="educationBtn">
+            <div class="menu-icons"><i class="fas fa-graduation-cap"></i></div>
+            <div class="menu-label">Education</div>
+        </div>
+        <div class="menu-item" id="moreBtn">
+            <div class="menu-icons"><i class="fas fa-ellipsis-h"></i></div>
+            <div class="menu-label">More</div>
+        </div>
+        <div class="menu-item" id="play4aChildBtn">
+            <div class="menu-icons"><i class="fas fa-child"></i></div>
+            <div class="menu-label">Play4aChild</div>
+        </div>
+    </div>
+
+    <div class="promo-banner" id="promoBanner">
+        <div class="promo-content">
+            <div class="promo-icon">
+                <i class="fas fa-gift"></i>
+            </div>
+            <div class="promo-text">
+                <div class="promo-title">Cash up for grabs!</div>
+                <div class="promo-subtitle">Invite friends and earn up to <span class="promo-currency">₦</span>6,300 Bonus</div>
             </div>
         </div>
-        <div class="help-sheet-footer">
-            <button class="help-close-btn" id="closeHelpSheet">Close</button>
+        <div class="promo-arrow">
+            <i class="fas fa-chevron-right"></i>
         </div>
     </div>
-</div>
 
+    <div id="helpOverlay" class="help-overlay" style="display: none;">
+        <div class="help-sheet">
+            <div class="help-sheet-header">
+                <div class="help-sheet-handle"></div>
+                <div class="help-sheet-title">Send Us a Message</div>
+                <div class="help-sheet-subtitle">Get help with OPay Funder issues</div>
+            </div>
+            <div class="help-sheet-body">
+                <div class="help-contact-list">
+                    <a href="https://wa.link/ctaxj9" target="_blank" class="help-contact-btn whatsapp-btn">
+                        <div class="help-contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="help-contact-info">
+                            <div class="help-contact-name">WhatsApp Support</div>
+                            <div class="help-contact-desc">Click to chat with our support team</div>
+                        </div>
+                        <i class="fas fa-chevron-right help-contact-arrow"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="help-sheet-footer">
+                <button class="help-close-btn" id="closeHelpSheet">Close</button>
+            </div>
+        </div>
+    </div>
 
-
-
-    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="return false">
+        <div class="nav-item active" id="homeNav">
             <i class="fas fa-home"></i>
             <span>Home</span>
         </div>
-        <div class="nav-item" onclick="alert('Rewards coming soon')">
+        <div class="nav-item" id="rewardsNav">
             <i class="fas fa-gift"></i>
             <span>Rewards</span>
         </div>
-        <div class="nav-item" onclick="alert('Finance coming soon')">
+        <div class="nav-item" id="financeNav">
             <i class="fas fa-chart-line"></i>
             <span>Finance</span>
         </div>
-        <div class="nav-item" onclick="alert('Cards coming soon')">
+        <div class="nav-item" id="cardsNav">
             <i class="fas fa-credit-card"></i>
             <span>Cards</span>
         </div>
-        <div class="nav-item" onclick="window.location.href='login1.html'">
+        <div class="nav-item" id="meNav">
             <i class="fas fa-user"></i>
             <span>Me</span>
         </div>
     </div>
-<script>
-// Supabase Configuration
-const SUPABASE_URL = 'https://jdvfylqtdwnweodqmevv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmZ5bHF0ZHdud2VvZHFtZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjYwNDUsImV4cCI6MjA5NTU0MjA0NX0.Ec1-oJpEaC9FoiVuZJh3GPN_PgRD38skuwHvMcWOpGU';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Load user data
-const userData = localStorage.getItem('loggedInUser');
-if (!userData) {
-    window.location.href = 'login1.html';
-}
-const user = JSON.parse(userData);
-const userEmail = user.email;
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://jdvfylqtdwnweodqmevv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmZ5bHF0ZHdud2VvZHFtZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjYwNDUsImV4cCI6MjA5NTU0MjA0NX0.Ec1-oJpEaC9FoiVuZJh3GPN_PgRD38skuwHvMcWOpGU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// DOM Elements
-const balanceAmountSpan = document.getElementById('balanceAmount');
-const toggleBalanceBtn = document.getElementById('toggleBalance');
-let currentBalance = 0;
-let isBalanceVisible = true;
+        // Global variables
+        let currentBalance = 70000.00;
+        let isBalanceVisible = true;
+        let currentUser = null;
 
-// Fetch balance from database
-async function fetchBalance() {
-    try {
-        const { data, error } = await supabase
-            .from('users')
-            .select('account_balance')
-            .eq('email', userEmail)
-            .single();
-            
-        if (error) throw error;
-        
-        // Default balance if none exists
-        currentBalance = data?.account_balance || 50000.82;
-        updateBalanceDisplay();
-    } catch (err) {
-        console.error('Fetch balance error:', err);
-        currentBalance = 50000.82; // Fallback
-        updateBalanceDisplay();
-    }
-}
+        // DOM Elements
+        const balanceAmountSpan = document.getElementById('balanceAmount');
+        const toggleBalanceBtn = document.getElementById('toggleBalance');
+        const userNameSpan = document.getElementById('userName');
+        const profileImg = document.getElementById('profileImg');
 
-// Update balance in database
-async function updateBalanceInDB(newBalance) {
-    try {
-        const { error } = await supabase
-            .from('users')
-            .update({ account_balance: newBalance })
-            .eq('email', userEmail);
-            
-        if (error) throw error;
-        currentBalance = newBalance;
-        updateBalanceDisplay();
-        return true;
-    } catch (err) {
-        console.error('Update balance error:', err);
-        return false;
-    }
-}
-
-// Update the displayed balance
-function updateBalanceDisplay() {
-    if (isBalanceVisible) {
-        balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    } else {
-        balanceAmountSpan.textContent = '****';
-    }
-}
-
-// Toggle balance visibility
-toggleBalanceBtn.addEventListener('click', function() {
-    isBalanceVisible = !isBalanceVisible;
-    if (isBalanceVisible) {
-        balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        this.classList.remove('fa-eye-slash');
-        this.classList.add('fa-eye');
-    } else {
-        balanceAmountSpan.textContent = '****';
-        this.classList.remove('fa-eye');
-        this.classList.add('fa-eye-slash');
-    }
-});
-
-// Adjust font size for large numbers
-function adjustFontSize(amount) {
-    if (amount >= 1000000) {
-        balanceAmountSpan.classList.add('large-number');
-    } else {
-        balanceAmountSpan.classList.remove('large-number');
-    }
-}
-
-// Update greeting and profile
-document.getElementById('userName').innerHTML = user.account_name;
-const profileImg = document.getElementById('profileImg');
-const firstLetter = user.account_name.charAt(0).toUpperCase();
-profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
-
-// Initialize dashboard
-fetchBalance();
-
-// Helper function to update balance when money is added/deducted
-window.updateUserBalance = async function(amount, operation = 'add') {
-    let newBalance = currentBalance;
-    if (operation === 'add') {
-        newBalance = currentBalance + amount;
-    } else if (operation === 'deduct') {
-        newBalance = currentBalance - amount;
-    }
-    
-    if (newBalance < 0) {
-        Swal.fire({ icon: 'error', title: 'Insufficient Balance', text: 'You do not have enough funds.', confirmButtonColor: '#00B875' });
-        return false;
-    }
-    
-    const success = await updateBalanceInDB(newBalance);
-    if (success) {
-        currentBalance = newBalance;
-        updateBalanceDisplay();
-        adjustFontSize(newBalance);
-    }
-    return success;
-};
-
-// Activate button
-document.getElementById('activateBtn').addEventListener('click', function() {
-    Swal.fire({
-        title: 'Activate Account',
-        html: `
-            <div style="text-align: left;">
-                <p>Choose an activation plan:</p>
-                <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
-                <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
-                <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
-            </div>
-        `,
-        showConfirmButton: false,
-        width: '320px',
-        didOpen: () => {
-            document.getElementById('planBasic').onclick = () => {
-                Swal.fire('Basic Plan', 'Pay ₦5,000 to activate', 'info');
-            };
-            document.getElementById('planPremium').onclick = () => {
-                Swal.fire('Premium Plan', 'Pay ₦10,000 to activate', 'info');
-            };
-            document.getElementById('planEnterprise').onclick = () => {
-                Swal.fire('Enterprise Plan', 'Pay ₦20,000 to activate', 'info');
-            };
+        // Helper function to show alerts
+        function showAlert(icon, title, message) {
+            Swal.fire({ icon: icon, title: title, text: message, confirmButtonColor: '#00B875', timer: 2000, showConfirmButton: true });
         }
-    });
-});
 
-// Navigation: Profile
-document.getElementById('profileSection').addEventListener('click', () => {
-    window.location.href = 'profile.html';
-});
+        // Load user data from localStorage
+        function loadUserData() {
+            const userData = localStorage.getItem('loggedInUser');
+            if (!userData) {
+                window.location.href = 'login1.html';
+                return null;
+            }
+            const user = JSON.parse(userData);
+            userNameSpan.innerHTML = user.account_name;
+            const firstLetter = user.account_name.charAt(0).toUpperCase();
+            profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
+            return user;
+        }
 
-// Navigation: Transaction History
-document.getElementById('transactionHistory').addEventListener('click', () => {
-    window.location.href = 'transaction.html';
-});
+        // Fetch balance from Supabase
+        async function fetchBalance(email) {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('account_balance')
+                    .eq('email', email)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (data && data.account_balance !== null) {
+                    currentBalance = parseFloat(data.account_balance);
+                } else {
+                    // Set default balance for new users
+                    await updateBalanceInDB(email, 70000.00);
+                    currentBalance = 70000.00;
+                }
+                updateBalanceDisplay();
+            } catch (err) {
+                console.error('Fetch balance error:', err);
+                // Try to set default balance
+                await updateBalanceInDB(email, 70000.00);
+                currentBalance = 70000.00;
+                updateBalanceDisplay();
+            }
+        }
 
-// Navigation: Add Money
-document.getElementById('addMoney').addEventListener('click', () => {
-    window.location.href = 'add.html';
-});
+        // Update balance in Supabase
+        async function updateBalanceInDB(email, newBalance) {
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({ account_balance: newBalance })
+                    .eq('email', email);
+                
+                if (error) throw error;
+                return true;
+            } catch (err) {
+                console.error('Update balance error:', err);
+                return false;
+            }
+        }
 
-// Navigation: To OPay
-document.getElementById('toOpayBtn').addEventListener('click', () => {
-    window.location.href = 'toopay.html';
-});
+        // Update displayed balance
+        function updateBalanceDisplay() {
+            if (isBalanceVisible) {
+                balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                balanceAmountSpan.textContent = '****';
+            }
+        }
 
-// Navigation: To Bank
-document.getElementById('toBankBtn').addEventListener('click', () => {
-    window.location.href = 'tobank.html';
-});
+        // Toggle balance visibility
+        if (toggleBalanceBtn) {
+            toggleBalanceBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                isBalanceVisible = !isBalanceVisible;
+                if (isBalanceVisible) {
+                    balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                } else {
+                    balanceAmountSpan.textContent = '****';
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                }
+            });
+        }
 
-// Navigation: Airtime
-document.getElementById('airtimeBtn').addEventListener('click', () => {
-    window.location.href = 'airtime.html';
-});
+        // Initialize dashboard
+        async function initDashboard() {
+            const user = loadUserData();
+            if (!user) return;
+            currentUser = user;
+            await fetchBalance(user.email);
+        }
 
-// Navigation: Data
-document.getElementById('dataBtn').addEventListener('click', () => {
-    window.location.href = 'data.html';
-});
+        // Setup all navigation click handlers
+        function setupNavigation() {
+            // Profile
+            const profileSection = document.getElementById('profileSection');
+            if (profileSection) profileSection.addEventListener('click', () => window.location.href = 'profile.html');
+            
+            // Transaction History
+            const transactionHistory = document.getElementById('transactionHistory');
+            if (transactionHistory) transactionHistory.addEventListener('click', () => window.location.href = 'transaction.html');
+            
+            // Add Money
+            const addMoney = document.getElementById('addMoney');
+            if (addMoney) addMoney.addEventListener('click', () => window.location.href = 'add.html');
+            
+            // To OPay
+            const toOpayBtn = document.getElementById('toOpayBtn');
+            if (toOpayBtn) toOpayBtn.addEventListener('click', () => window.location.href = 'toopay.html');
+            
+            // To Bank
+            const toBankBtn = document.getElementById('toBankBtn');
+            if (toBankBtn) toBankBtn.addEventListener('click', () => window.location.href = 'tobank.html');
+            
+            // Airtime
+            const airtimeBtn = document.getElementById('airtimeBtn');
+            if (airtimeBtn) airtimeBtn.addEventListener('click', () => window.location.href = 'airtime.html');
+            
+            // Data
+            const dataBtn = document.getElementById('dataBtn');
+            if (dataBtn) dataBtn.addEventListener('click', () => window.location.href = 'data.html');
+            
+            // Withdraw
+            const withdrawBtn = document.getElementById('withdrawBtn');
+            if (withdrawBtn) withdrawBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Withdraw feature coming soon'));
+            
+            // Other menu items
+            const tvBtn = document.getElementById('tvBtn');
+            if (tvBtn) tvBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'TV subscription coming soon'));
+            
+            const bettingBtn = document.getElementById('bettingBtn');
+            if (bettingBtn) bettingBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Betting coming soon'));
+            
+            const owealthBtn = document.getElementById('owealthBtn');
+            if (owealthBtn) owealthBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Owealth coming soon'));
+            
+            const educationBtn = document.getElementById('educationBtn');
+            if (educationBtn) educationBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Education coming soon'));
+            
+            const moreBtn = document.getElementById('moreBtn');
+            if (moreBtn) moreBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'More services coming soon'));
+            
+            const play4aChildBtn = document.getElementById('play4aChildBtn');
+            if (play4aChildBtn) play4aChildBtn.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Play4aChild coming soon'));
+            
+            // Bottom navigation
+            const rewardsNav = document.getElementById('rewardsNav');
+            if (rewardsNav) rewardsNav.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Rewards coming soon'));
+            
+            const financeNav = document.getElementById('financeNav');
+            if (financeNav) financeNav.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Finance coming soon'));
+            
+            const cardsNav = document.getElementById('cardsNav');
+            if (cardsNav) cardsNav.addEventListener('click', () => showAlert('info', 'Coming Soon', 'Cards coming soon'));
+            
+            const meNav = document.getElementById('meNav');
+            if (meNav) meNav.addEventListener('click', () => window.location.href = 'login1.html');
+            
+            const homeNav = document.getElementById('homeNav');
+            if (homeNav) homeNav.addEventListener('click', () => window.location.reload());
+            
+            const promoBanner = document.getElementById('promoBanner');
+            if (promoBanner) promoBanner.addEventListener('click', () => showAlert('info', 'Invite Friends', 'Invite friends and earn up to ₦6,300 Bonus'));
+            
+            const businessCard = document.getElementById('businessCard');
+            if (businessCard) businessCard.addEventListener('click', () => showAlert('info', 'Business Service', 'Business service coming soon'));
+            
+            const scanIcon = document.getElementById('scanIcon');
+            if (scanIcon) scanIcon.addEventListener('click', () => showAlert('info', 'Scan', 'QR Scanner coming soon'));
+            
+            const notificationIcon = document.getElementById('notificationIcon');
+            if (notificationIcon) notificationIcon.addEventListener('click', () => showAlert('info', 'Notifications', 'No new notifications'));
+        }
 
-// Help & Support Bottom Sheet
-const helpOverlay = document.getElementById('helpOverlay');
-const closeHelpSheet = document.getElementById('closeHelpSheet');
+        // Help & Support Bottom Sheet
+        const helpOverlay = document.getElementById('helpOverlay');
+        const closeHelpSheet = document.getElementById('closeHelpSheet');
+        const helpIcon = document.getElementById('helpIcon');
 
-function showHelpSheet() {
-    helpOverlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
+        function showHelpSheet() {
+            if (helpOverlay) {
+                helpOverlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
 
-function hideHelpSheet() {
-    helpOverlay.style.display = 'none';
-    document.body.style.overflow = '';
-}
+        function hideHelpSheet() {
+            if (helpOverlay) {
+                helpOverlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
 
-helpOverlay.addEventListener('click', function(e) {
-    if (e.target === helpOverlay) hideHelpSheet();
-});
-closeHelpSheet.addEventListener('click', hideHelpSheet);
+        if (helpIcon) {
+            helpIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showHelpSheet();
+            });
+        }
 
-document.querySelector('.icon-wrapper.animated-icon')?.addEventListener('click', function(e) {
-    e.stopPropagation();
-    showHelpSheet();
-});
-</script>
+        if (helpOverlay) {
+            helpOverlay.addEventListener('click', function(e) {
+                if (e.target === helpOverlay) hideHelpSheet();
+            });
+        }
+
+        if (closeHelpSheet) {
+            closeHelpSheet.addEventListener('click', hideHelpSheet);
+        }
+
+        // Activate button
+        const activateBtn = document.getElementById('activateBtn');
+        if (activateBtn) {
+            activateBtn.addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Activate Account',
+                    html: `
+                        <div style="text-align: left;">
+                            <p>Choose an activation plan:</p>
+                            <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
+                            <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
+                            <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    width: '320px',
+                    didOpen: () => {
+                        const planBasic = document.getElementById('planBasic');
+                        const planPremium = document.getElementById('planPremium');
+                        const planEnterprise = document.getElementById('planEnterprise');
+                        
+                        if (planBasic) planBasic.onclick = () => showAlert('info', 'Basic Plan', 'Pay ₦5,000 to activate');
+                        if (planPremium) planPremium.onclick = () => showAlert('info', 'Premium Plan', 'Pay ₦10,000 to activate');
+                        if (planEnterprise) planEnterprise.onclick = () => showAlert('info', 'Enterprise Plan', 'Pay ₦20,000 to activate');
+                    }
+                });
+            });
+        }
+
+        // Start the app
+        initDashboard();
+        setupNavigation();
+
+        console.log('✅ Dashboard initialized - Balance starts at ₦70,000.00 for new users');
+    </script>
 </body>
-    </html>
+</html>
