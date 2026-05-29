@@ -30,6 +30,68 @@ app.get('/', (req, res) => {
     });
 });
 
+// ============ GET BALANCE ============
+app.post('/api/get-balance', async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('account_balance')
+            .eq('email', email)
+            .single();
+        
+        if (error) throw error;
+        
+        res.json({ 
+            success: true, 
+            balance: data?.account_balance || 70000.00 
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ UPDATE BALANCE ============
+app.post('/api/update-balance', async (req, res) => {
+    const { email, amount, operation } = req.body;
+    
+    try {
+        // First get current balance
+        const { data: user, error: fetchError } = await supabase
+            .from('users')
+            .select('account_balance')
+            .eq('email', email)
+            .single();
+        
+        if (fetchError) throw fetchError;
+        
+        let newBalance = user.account_balance || 70000.00;
+        
+        if (operation === 'add') {
+            newBalance += amount;
+        } else if (operation === 'deduct') {
+            newBalance -= amount;
+        }
+        
+        if (newBalance < 0) {
+            return res.json({ success: false, message: 'Insufficient balance' });
+        }
+        
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ account_balance: newBalance })
+            .eq('email', email);
+        
+        if (updateError) throw updateError;
+        
+        res.json({ success: true, balance: newBalance });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+
 // ============ ADMIN LOGIN ============
 app.post('/api/admin/login', async (req, res) => {
     const { password, sessionId } = req.body;
