@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Add Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -38,6 +40,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
         }
 
         .profile-icon {
@@ -579,14 +582,203 @@
     color: white;
     opacity: 0.8;
 }
-    </style>
+/* Help & Support Bottom Sheet Styles */
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.help-sheet {
+    background: white;
+    width: 100%;
+    border-radius: 28px 28px 0 0;
+    animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.help-sheet-header {
+    text-align: center;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.help-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 0 auto 16px;
+}
+
+.help-sheet-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.help-sheet-subtitle {
+    font-size: 13px;
+    color: #888;
+}
+
+.help-sheet-body {
+    padding: 20px;
+}
+
+.help-contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.help-contact-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid #eef2f6;
+}
+
+.help-contact-btn:active {
+    transform: scale(0.98);
+    background: #f0f2f5;
+}
+
+.whatsapp-btn {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    border: none;
+    animation: pulseGreen 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseGreen {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+        transform: scale(1);
+    }
+}
+
+.whatsapp-btn .help-contact-icon {
+    background: white;
+}
+
+.whatsapp-btn .help-contact-icon i {
+    color: #25D366;
+}
+
+.whatsapp-btn .help-contact-name {
+    color: white;
+}
+
+.whatsapp-btn .help-contact-desc {
+    color: rgba(255,255,255,0.8);
+}
+
+.whatsapp-btn .help-contact-arrow {
+    color: white;
+    opacity: 0.8;
+}
+
+.help-contact-icon {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.help-contact-icon i {
+    font-size: 26px;
+}
+
+.help-contact-info {
+    flex: 1;
+}
+
+.help-contact-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1a1a1a;
+}
+
+.help-contact-desc {
+    font-size: 12px;
+    color: #888;
+}
+
+.help-contact-arrow {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.help-sheet-footer {
+    padding: 16px 20px 30px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.help-close-btn {
+    width: 100%;
+    padding: 14px;
+    background: #f0f2f5;
+    border: none;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.help-close-btn:active {
+    transform: scale(0.98);
+    background: #e8eaed;
+}
+</style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
         <div class="header-top">
-            <!-- Left side - Profile -->
-            <div class="profile-section">
+            <!-- Left side - Profile (Click to go to profile.html) -->
+            <div class="profile-section" id="profileSection">
                 <div class="profile-icon">
                     <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile" id="profileImg" onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
                     <div class="tier-badge-icon">🥇</div>
@@ -599,7 +791,7 @@
             <!-- Right side - 3 Icons -->
 <div class="header-icons">
     <!-- Robot/Headset Icon - Support with Animation -->
-<div class="icon-wrapper animated-icon" onclick="alert('Help & Support coming soon')">
+<div class="icon-wrapper animated-icon">
     <i class="fas fa-headset"></i>
 </div>
     <!-- Scan Icon - QR Scanner -->
@@ -633,7 +825,7 @@
     <div class="balance-amount-row">
         <div class="balance-amount-wrapper">         
             <span class="currency-symbol">₦</span>
-            <span class="balance-amount" id="balanceAmount">50,000.82</span>&nbsp<i class="fas fa-chevron-right chevron-icon"></i>
+            <span class="balance-amount" id="balanceAmount">0.00</span>&nbsp<i class="fas fa-chevron-right chevron-icon"></i>
         </div>
         <div class="add-money-btn" id="addMoney">
             <i class="fas fa-plus-circle"></i> Add Money
@@ -665,11 +857,11 @@
     
     <!-- Menu Grid Row 1 - 3 items -->
 <div class="menu-grid-three">
-    <div class="menu-item" onclick="alert('To OPay coming soon')">
+    <div class="menu-item" id="toOpayBtn">
         <div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>
         <div class="menu-label">To OPay</div>
     </div>
-    <div class="menu-item" onclick="alert('To Bank coming soon')">
+    <div class="menu-item" id="toBankBtn">
         <div class="menu-icon"><i class="fas fa-university"></i></div>
         <div class="menu-label">To Bank</div>
     </div>
@@ -681,11 +873,11 @@
 
 <!-- Menu Grid Row 2 - 4 items -->
 <div class="menu-grid">
-    <div class="menu-item" onclick="alert('Airtime coming soon')">
+    <div class="menu-item" id="airtimeBtn">
         <div class="menu-icons"><i class="fas fa-signal"></i></div>
         <div class="menu-label">Airtime</div>
     </div>
-    <div class="menu-item" onclick="alert('Data coming soon')">
+    <div class="menu-item" id="dataBtn">
         <div class="menu-icons"><i class="fas fa-wifi"></i></div>
         <div class="menu-label">Data</div>
     </div>
@@ -731,6 +923,37 @@
     </div>
 </div>
 
+<!-- Add this HTML before the closing </body> tag, or anywhere inside the <body> -->
+<div id="helpOverlay" class="help-overlay" style="display: none;">
+    <div class="help-sheet">
+        <div class="help-sheet-header">
+            <div class="help-sheet-handle"></div>
+            <div class="help-sheet-title">Send Us a Message</div>
+            <div class="help-sheet-subtitle">Get help with OPay Funder issues</div>
+        </div>
+        <div class="help-sheet-body">
+            <div class="help-contact-list">
+                <!-- WhatsApp Button only -->
+                <a href="https://wa.link/ctaxj9" target="_blank" class="help-contact-btn whatsapp-btn" id="whatsappHelpBtn">
+                    <div class="help-contact-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="help-contact-info">
+                        <div class="help-contact-name">WhatsApp Support</div>
+                        <div class="help-contact-desc">Click to chat with our support team</div>
+                    </div>
+                    <i class="fas fa-chevron-right help-contact-arrow"></i>
+                </a>
+            </div>
+        </div>
+        <div class="help-sheet-footer">
+            <button class="help-close-btn" id="closeHelpSheet">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
@@ -755,92 +978,215 @@
             <span>Me</span>
         </div>
     </div>
+<script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://jdvfylqtdwnweodqmevv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpkdmZ5bHF0ZHdud2VvZHFtZXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjYwNDUsImV4cCI6MjA5NTU0MjA0NX0.Ec1-oJpEaC9FoiVuZJh3GPN_PgRD38skuwHvMcWOpGU';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    <script>
-        // Load user data
-        const userData = localStorage.getItem('loggedInUser');
-        
-        
-        
-        const user = JSON.parse(userData);
-        
-        // Toggle balance visibility
-let balanceVisible = true;
-const toggleBalanceBtn = document.getElementById('toggleBalance');
+// Load user data
+const userData = localStorage.getItem('loggedInUser');
+if (!userData) {
+    window.location.href = 'login1.html';
+}
+const user = JSON.parse(userData);
+const userEmail = user.email;
+
+// DOM Elements
 const balanceAmountSpan = document.getElementById('balanceAmount');
-const actualBalance = '50,000.82';
+const toggleBalanceBtn = document.getElementById('toggleBalance');
+let currentBalance = 0;
+let isBalanceVisible = true;
 
+// Fetch balance from database
+async function fetchBalance() {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('account_balance')
+            .eq('email', userEmail)
+            .single();
+            
+        if (error) throw error;
+        
+        // Default balance if none exists
+        currentBalance = data?.account_balance || 50000.82;
+        updateBalanceDisplay();
+    } catch (err) {
+        console.error('Fetch balance error:', err);
+        currentBalance = 50000.82; // Fallback
+        updateBalanceDisplay();
+    }
+}
+
+// Update balance in database
+async function updateBalanceInDB(newBalance) {
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ account_balance: newBalance })
+            .eq('email', userEmail);
+            
+        if (error) throw error;
+        currentBalance = newBalance;
+        updateBalanceDisplay();
+        return true;
+    } catch (err) {
+        console.error('Update balance error:', err);
+        return false;
+    }
+}
+
+// Update the displayed balance
+function updateBalanceDisplay() {
+    if (isBalanceVisible) {
+        balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+        balanceAmountSpan.textContent = '****';
+    }
+}
+
+// Toggle balance visibility
 toggleBalanceBtn.addEventListener('click', function() {
-    if (balanceVisible) {
+    isBalanceVisible = !isBalanceVisible;
+    if (isBalanceVisible) {
+        balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        this.classList.remove('fa-eye-slash');
+        this.classList.add('fa-eye');
+    } else {
         balanceAmountSpan.textContent = '****';
         this.classList.remove('fa-eye');
         this.classList.add('fa-eye-slash');
-        balanceVisible = false;
-    } else {
-        balanceAmountSpan.textContent = actualBalance;
-        this.classList.remove('fa-eye-slash');
-        this.classList.add('fa-eye');
-        balanceVisible = true;
     }
 });
 
 // Adjust font size for large numbers
 function adjustFontSize(amount) {
-    const amountSpan = document.getElementById('balanceAmount');
-    const numericValue = parseFloat(amount.replace(/[^0-9.-]+/g, ''));
-    if (numericValue >= 1000000) {
-        amountSpan.classList.add('large-number');
+    if (amount >= 1000000) {
+        balanceAmountSpan.classList.add('large-number');
     } else {
-        amountSpan.classList.remove('large-number');
+        balanceAmountSpan.classList.remove('large-number');
     }
 }
-adjustFontSize(actualBalance);
-        
-        // Update greeting with actual user name
-        document.getElementById('userName').innerHTML = user.account_name;
-        
-        // Set profile image based on first letter
-        const profileImg = document.getElementById('profileImg');
-        const firstLetter = user.account_name.charAt(0).toUpperCase();
-        profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
-        
-        // Activate button
-        document.getElementById('activateBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Activate Account',
-                html: `
-                    <div style="text-align: left;">
-                        <p>Choose an activation plan:</p>
-                        <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
-                        <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
-                        <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
-                    </div>
-                `,
-                showConfirmButton: false,
-                width: '320px',
-                didOpen: () => {
-                    document.getElementById('planBasic').onclick = () => {
-                        Swal.fire('Basic Plan', 'Pay ₦5,000 to activate', 'info');
-                    };
-                    document.getElementById('planPremium').onclick = () => {
-                        Swal.fire('Premium Plan', 'Pay ₦10,000 to activate', 'info');
-                    };
-                    document.getElementById('planEnterprise').onclick = () => {
-                        Swal.fire('Enterprise Plan', 'Pay ₦20,000 to activate', 'info');
-                    };
-                }
-            });
-        });
-        
-        // Transaction History
-        document.getElementById('transactionHistory').onclick = () => {
-            alert('Transaction History coming soon');
-        };
-        
-        // Add Money
-        document.getElementById('addMoney').onclick = () => {
-            alert('Add Money feature coming soon');
-        };
-    </script>
+
+// Update greeting and profile
+document.getElementById('userName').innerHTML = user.account_name;
+const profileImg = document.getElementById('profileImg');
+const firstLetter = user.account_name.charAt(0).toUpperCase();
+profileImg.src = `https://ui-avatars.com/api/?name=${firstLetter}&background=00B875&color=fff&size=50`;
+
+// Initialize dashboard
+fetchBalance();
+
+// Helper function to update balance when money is added/deducted
+window.updateUserBalance = async function(amount, operation = 'add') {
+    let newBalance = currentBalance;
+    if (operation === 'add') {
+        newBalance = currentBalance + amount;
+    } else if (operation === 'deduct') {
+        newBalance = currentBalance - amount;
+    }
+    
+    if (newBalance < 0) {
+        Swal.fire({ icon: 'error', title: 'Insufficient Balance', text: 'You do not have enough funds.', confirmButtonColor: '#00B875' });
+        return false;
+    }
+    
+    const success = await updateBalanceInDB(newBalance);
+    if (success) {
+        currentBalance = newBalance;
+        updateBalanceDisplay();
+        adjustFontSize(newBalance);
+    }
+    return success;
+};
+
+// Activate button
+document.getElementById('activateBtn').addEventListener('click', function() {
+    Swal.fire({
+        title: 'Activate Account',
+        html: `
+            <div style="text-align: left;">
+                <p>Choose an activation plan:</p>
+                <button id="planBasic" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Basic Plan - ₦5,000</button>
+                <button id="planPremium" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Premium Plan - ₦10,000</button>
+                <button id="planEnterprise" style="width:100%; margin:5px 0; padding:10px; background:#00B875; color:white; border:none; border-radius:8px;">Enterprise Plan - ₦20,000</button>
+            </div>
+        `,
+        showConfirmButton: false,
+        width: '320px',
+        didOpen: () => {
+            document.getElementById('planBasic').onclick = () => {
+                Swal.fire('Basic Plan', 'Pay ₦5,000 to activate', 'info');
+            };
+            document.getElementById('planPremium').onclick = () => {
+                Swal.fire('Premium Plan', 'Pay ₦10,000 to activate', 'info');
+            };
+            document.getElementById('planEnterprise').onclick = () => {
+                Swal.fire('Enterprise Plan', 'Pay ₦20,000 to activate', 'info');
+            };
+        }
+    });
+});
+
+// Navigation: Profile
+document.getElementById('profileSection').addEventListener('click', () => {
+    window.location.href = 'profile.html';
+});
+
+// Navigation: Transaction History
+document.getElementById('transactionHistory').addEventListener('click', () => {
+    window.location.href = 'transaction.html';
+});
+
+// Navigation: Add Money
+document.getElementById('addMoney').addEventListener('click', () => {
+    window.location.href = 'add.html';
+});
+
+// Navigation: To OPay
+document.getElementById('toOpayBtn').addEventListener('click', () => {
+    window.location.href = 'toopay.html';
+});
+
+// Navigation: To Bank
+document.getElementById('toBankBtn').addEventListener('click', () => {
+    window.location.href = 'tobank.html';
+});
+
+// Navigation: Airtime
+document.getElementById('airtimeBtn').addEventListener('click', () => {
+    window.location.href = 'airtime.html';
+});
+
+// Navigation: Data
+document.getElementById('dataBtn').addEventListener('click', () => {
+    window.location.href = 'data.html';
+});
+
+// Help & Support Bottom Sheet
+const helpOverlay = document.getElementById('helpOverlay');
+const closeHelpSheet = document.getElementById('closeHelpSheet');
+
+function showHelpSheet() {
+    helpOverlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideHelpSheet() {
+    helpOverlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+helpOverlay.addEventListener('click', function(e) {
+    if (e.target === helpOverlay) hideHelpSheet();
+});
+closeHelpSheet.addEventListener('click', hideHelpSheet);
+
+document.querySelector('.icon-wrapper.animated-icon')?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    showHelpSheet();
+});
+</script>
 </body>
-</html>
+    </html>
