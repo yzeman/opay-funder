@@ -57,7 +57,6 @@ app.post('/api/update-balance', async (req, res) => {
     const { email, amount, operation } = req.body;
     
     try {
-        // First get current balance
         const { data: user, error: fetchError } = await supabase
             .from('users')
             .select('account_balance')
@@ -176,10 +175,147 @@ app.post('/api/get-user-by-account', async (req, res) => {
     }
 });
 
+// ============ RESOLVE ACCOUNT NAME FOR ANY BANK (UPDATED) ============
+app.post('/api/resolve-account', async (req, res) => {
+    console.log('📞 Resolve account:', req.body.account_number, 'Bank:', req.body.bank_code);
+    const { account_number, bank_code } = req.body;
+    
+    // If no bank_code provided or bank_code is 'opay', use OPay's code
+    let bankCode = bank_code;
+    if (!bankCode || bankCode === 'opay' || bankCode === 'OPay') {
+        bankCode = '999992'; // OPay bank code
+    }
+    
+    try {
+        const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bankCode}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        console.log('Paystack response:', data.status ? 'Success' : 'Failed');
+        
+        if (data.status) {
+            res.json({
+                success: true,
+                account_name: data.data.account_name,
+                account_number: data.data.account_number,
+                bank_name: data.data.bank_name
+            });
+        } else {
+            res.json({
+                success: false,
+                message: data.message || 'Account not found'
+            });
+        }
+    } catch (error) {
+        console.error('API Error:', error);
+        res.json({ success: false, message: 'Network error' });
+    }
+});
 
-// ============ ADMIN LOGIN ============
+// ============ GET ALL BANKS FROM PAYSTACK ============
+app.get('/api/banks', async (req, res) => {
+    try {
+        const response = await fetch('https://api.paystack.co/bank', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status) {
+            // Filter only Nigerian banks and format for frontend
+            const banks = data.data
+                .filter(bank => bank.country === 'Nigeria')
+                .map(bank => ({
+                    code: bank.code,
+                    name: bank.name,
+                    slug: bank.slug
+                }));
+            
+            res.json({ success: true, banks: banks });
+        } else {
+            res.json({ success: false, message: data.message });
+        }
+    } catch (error) {
+        res.json({ success: false, message: 'Network error' });
+    }
+});
+
+// ============ GET BANKS WITH LOGOS (FALLBACK) ============
+app.get('/api/banks-with-logos', async (req, res) => {
+    // Bank logos mapping
+    const bankLogos = {
+        'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png',
+        'Citibank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Citibank_logo.svg/200px-Citibank_logo.svg.png',
+        'Ecobank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Ecobank_Logo.svg/200px-Ecobank_Logo.svg.png',
+        'Fidelity Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Fidelity_Bank_Nigeria_logo.svg/200px-Fidelity_Bank_Nigeria_logo.svg.png',
+        'First Bank of Nigeria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
+        'FCMB': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/FCMB_logo.svg/200px-FCMB_logo.svg.png',
+        'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
+        'Polaris Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
+        'Stanbic IBTC Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Stanbic_IBTC_Bank_logo.svg/200px-Stanbic_IBTC_Bank_logo.svg.png',
+        'Sterling Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Sterling_Bank_logo.svg/200px-Sterling_Bank_logo.svg.png',
+        'Union Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Union_Bank_of_Nigeria_logo.svg/200px-Union_Bank_of_Nigeria_logo.svg.png',
+        'United Bank for Africa': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
+        'Unity Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Wema Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Wema_Bank_logo.svg/200px-Wema_Bank_logo.svg.png',
+        'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
+        'OPay': 'https://opay-cdn.s3.us-east-2.amazonaws.com/opay-logo.png',
+        'Moniepoint': 'https://moniepoint.com/images/logo.svg',
+        'PalmPay': 'https://palmpay.com/images/logo.png',
+        'Paga': 'https://www.paga.com/images/logo.png'
+    };
+    
+    try {
+        const response = await fetch('https://api.paystack.co/bank', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status) {
+            const banks = data.data
+                .filter(bank => bank.country === 'Nigeria')
+                .map(bank => ({
+                    code: bank.code,
+                    name: bank.name,
+                    logo: bankLogos[bank.name] || 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png'
+                }));
+            
+            // Add digital banks/wallets
+            const digitalBanks = [
+                { code: '999992', name: 'OPay', logo: bankLogos['OPay'] },
+                { code: '999991', name: 'Moniepoint', logo: bankLogos['Moniepoint'] },
+                { code: '999993', name: 'PalmPay', logo: bankLogos['PalmPay'] },
+                { code: '999994', name: 'Paga', logo: bankLogos['Paga'] }
+            ];
+            
+            const allBanks = [...banks, ...digitalBanks];
+            
+            res.json({ success: true, banks: allBanks });
+        } else {
+            res.json({ success: false, message: data.message });
+        }
+    } catch (error) {
+        res.json({ success: false, message: 'Network error' });
+    }
+});
+
+// ============ ADMIN FUNCTIONS ============
 app.post('/api/admin/login', async (req, res) => {
-    const { password, sessionId } = req.body;
+    const { password } = req.body;
     
     if (password === ADMIN_PASSWORD) {
         const sessionToken = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
@@ -198,7 +334,6 @@ app.post('/api/admin/login', async (req, res) => {
     }
 });
 
-// ============ VERIFY ADMIN SESSION ============
 function verifyAdminSession(req, res, next) {
     const sessionToken = req.headers['x-admin-token'];
     
@@ -220,7 +355,6 @@ function verifyAdminSession(req, res, next) {
     next();
 }
 
-// ============ ADMIN DASHBOARD DATA ============
 app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
     try {
         const { data: users, error: usersError } = await supabase
@@ -234,21 +368,16 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
         const activeUsers = users ? users.filter(u => u.is_active === true).length : 0;
         const inactiveUsers = totalUsers - activeUsers;
         
-        // Get database size
         let databaseSize = 'Calculating...';
-        let databaseSizeBytes = 0;
         
         try {
-            const { data: dbSizeData, error: dbError } = await supabase
-                .rpc('get_database_size');
+            const { data: dbSizeData, error: dbError } = await supabase.rpc('get_database_size');
             
             if (dbSizeData && !dbError) {
-                databaseSizeBytes = dbSizeData;
                 const sizeInMB = (dbSizeData / (1024 * 1024)).toFixed(2);
                 databaseSize = `${sizeInMB} MB`;
             } else {
-                // Fallback calculation based on user count
-                const estimatedBytes = totalUsers * 2048; // ~2KB per user
+                const estimatedBytes = totalUsers * 2048;
                 const sizeInKB = (estimatedBytes / 1024).toFixed(2);
                 databaseSize = `${sizeInKB} KB (estimated)`;
             }
@@ -265,24 +394,20 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
                 activeUsers: activeUsers,
                 inactiveUsers: inactiveUsers,
                 databaseSize: databaseSize,
-                databaseSizeBytes: databaseSizeBytes,
                 lastUpdated: new Date().toISOString()
             },
             users: users || []
         });
-        
     } catch (error) {
         console.error('Admin dashboard error:', error);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ DELETE USER (ADMIN ONLY) ============
 app.delete('/api/admin/delete-user/:userId', verifyAdminSession, async (req, res) => {
     const { userId } = req.params;
     
     try {
-        // First, get user info for logging
         const { data: user, error: fetchError } = await supabase
             .from('users')
             .select('account_number, email, account_name')
@@ -291,7 +416,6 @@ app.delete('/api/admin/delete-user/:userId', verifyAdminSession, async (req, res
         
         if (fetchError) throw fetchError;
         
-        // Delete the user
         const { error: deleteError } = await supabase
             .from('users')
             .delete()
@@ -306,14 +430,12 @@ app.delete('/api/admin/delete-user/:userId', verifyAdminSession, async (req, res
             message: `User ${user.account_name} has been deleted successfully`,
             deletedUser: user
         });
-        
     } catch (error) {
         console.error('Delete user error:', error);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ DELETE MULTIPLE USERS (ADMIN ONLY) ============
 app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
     const { userIds } = req.body;
     
@@ -322,7 +444,6 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
     }
     
     try {
-        // Get user info for logging
         const { data: users, error: fetchError } = await supabase
             .from('users')
             .select('id, account_name, email')
@@ -330,7 +451,6 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
         
         if (fetchError) throw fetchError;
         
-        // Delete all selected users
         const { error: deleteError } = await supabase
             .from('users')
             .delete()
@@ -345,21 +465,18 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
             message: `${users.length} user(s) deleted successfully`,
             deletedCount: users.length
         });
-        
     } catch (error) {
         console.error('Delete users error:', error);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ ADMIN LOGOUT ============
 app.post('/api/admin/logout', verifyAdminSession, (req, res) => {
     const sessionToken = req.headers['x-admin-token'];
     activeSessions.delete(sessionToken);
     res.json({ success: true, message: 'Logged out successfully' });
 });
 
-// ============ CHECK SESSION ============
 app.get('/api/admin/check-session', (req, res) => {
     const sessionToken = req.headers['x-admin-token'];
     const session = activeSessions.get(sessionToken);
@@ -369,39 +486,6 @@ app.get('/api/admin/check-session', (req, res) => {
     } else {
         if (session) activeSessions.delete(sessionToken);
         res.json({ success: false, valid: false });
-    }
-});
-
-// ============ RESOLVE ACCOUNT NAME (Paystack) ============
-app.post('/api/resolve-account', async (req, res) => {
-    console.log('📞 Resolve account:', req.body.account_number);
-    const { account_number } = req.body;
-    
-    try {
-        const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=999992`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.status) {
-            res.json({
-                success: true,
-                account_name: data.data.account_name,
-                account_number: data.data.account_number
-            });
-        } else {
-            res.json({
-                success: false,
-                message: data.message || 'Account not found'
-            });
-        }
-    } catch (error) {
-        res.json({ success: false, message: 'Network error' });
     }
 });
 
@@ -489,14 +573,13 @@ app.post('/api/create-user', async (req, res) => {
             success: true, 
             message: 'Account created! Payment required for activation.'
         });
-        
     } catch (error) {
         console.error('Error:', error.message);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ LOGIN (NO ACTIVATION CHECK) ============
+// ============ LOGIN ============
 app.post('/api/login', async (req, res) => {
     console.log('🔑 Login:', req.body.account_number);
     const { account_number, password_code } = req.body;
@@ -510,7 +593,6 @@ app.post('/api/login', async (req, res) => {
             .maybeSingle();
         
         if (data) {
-            // NO activation check - just login
             res.json({ 
                 success: true, 
                 user: {
