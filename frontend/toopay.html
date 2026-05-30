@@ -515,6 +515,59 @@
             font-weight: 600;
             cursor: pointer;
         }
+
+        /* Upgrade Modal Styles */
+        .upgrade-plan-container {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .plan-option {
+            padding: 16px;
+            margin: 0 16px 12px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plan-option:hover {
+            border-color: #00B875;
+            background: #f0fdf4;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .plan-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00B875;
+        }
+
+        .plan-features {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .plan-features i {
+            color: #00B875;
+            margin-right: 6px;
+            font-size: 10px;
+        }
     </style>
 </head>
 <body>
@@ -525,7 +578,7 @@
                 <i class="fas fa-arrow-left"></i>
             </button>
             <h1 class="header-title">Transfer to OPay Account</h1>
-            <a href="transaction.html" class="history-link" id="historyLink">History</a>
+            <a href="#" class="history-link" id="historyLink">History</a>
         </div>
     </div>
 
@@ -536,8 +589,7 @@
 
     <!-- Info Banner -->
     <div class="info-banner">
-        <span class="info-text">Instant, Zero Issues, Free</span>
-        <i class="fas fa-check-circle info-icon"></i>
+        <span class="info-text"><i class="fas fa-check-circle info-icon"></i> Instant, Zero Issues, Free</span>
     </div>
 
     <!-- Recipient Account Section -->
@@ -616,39 +668,201 @@ const messageIndicator = document.getElementById('messageIndicator');
 let currentFoundName = null;
 let currentFoundAccount = null;
 let currentUserAccount = null;
+let currentUserTier = '1';
 
-// Get current logged-in user's account number
-function getCurrentUserAccount() {
-    // Try to get from loggedInUser
+// Get current logged-in user's tier
+function getCurrentUserTier() {
     const userData = localStorage.getItem('loggedInUser');
-    console.log('📝 User data from localStorage:', userData);
-    
     if (userData) {
         try {
             const user = JSON.parse(userData);
-            console.log('👤 Parsed user:', user);
+            const savedTier = localStorage.getItem(`user_tier_${user.email}`);
+            currentUserTier = savedTier || '1';
+            console.log('Current user tier:', currentUserTier);
+        } catch(e) {
+            console.error('Error getting user tier:', e);
+        }
+    }
+}
+
+// Show upgrade modal with beautiful layout (matching profile page style)
+function showUpgradeModal() {
+    let currentTier = currentUserTier || '1';
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: flex-end;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+            <div style="text-align: center; padding: 20px;">
+                <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
+            </div>
+            
+            <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                    ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                </span>
+            </div>
+            
+            <!-- Basic Plan (Tier 2) -->
+            <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">🥈</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    • Transfer to OPay only<br>
+                    • Add money unlock<br>                            
+                    • View receipt<br>
+                    • View history<br>
+                    • payment proof - no watermark added<br>
+                    • Activate banner removed<br>
+                    • 10 times transfer daily<br>
+                    • Add Money limit ₦100,000
+                </div>
+                <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
+                    ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic >'}
+                </button>
+            </div>
+            
+            <!-- Premium Plan (Tier 3) -->
+            <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">🥉</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    Everything in Basic plus:<br>
+                    • History access, recent recipients history<br>
+                    • OPay and bank transfer<br>
+                    • Custom sender name<br>
+                    • Custom transaction status (failed, success, pending)<br>
+                    • Unlimited transfer<br>
+                    • Add Money limit ₦1,000,000
+                </div>
+                <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
+                    ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
+                </button>
+            </div>
+            
+            <!-- VIP Plan -->
+            <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 28px;">👑</span>
+                        <div>
+                            <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
+                            <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                </div>
+                <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                    Everything in Basic and Premium plus:<br>
+                    • OPay Funder in-app transfers<br>
+                    • Statement of account generation<br>
+                    • Receivers receive alert<br>
+                    • Money add up to receiver balance<br>
+                    • Expire in user balance after 24hrs<br>
+                    • Airtime access purchase<br>
+                    • Data access purchase<br>
+                    • Add money unlimited<br>
+                    • No transaction limit
+                </div>
+                <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
+                    ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
+                </button>
+            </div>
+            
+            <div style="padding: 16px 20px 30px;">
+                <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
+        overlay.remove();
+        document.body.style.overflow = '';
+    });
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = '';
+        }
+    });
+    
+    overlay.querySelectorAll('.plan-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (btn.disabled) return;
+            const plan = btn.getAttribute('data-plan');
+            const tier = btn.getAttribute('data-tier');
+            localStorage.setItem('selected_plan', JSON.stringify({
+                plan: plan,
+                tier: tier,
+                price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+            }));
+            window.location.href = 'plan.html';
+        });
+    });
+}
+
+// Get current logged-in user's account number
+function getCurrentUserAccount() {
+    const userData = localStorage.getItem('loggedInUser');
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
             currentUserAccount = user.account_number;
-            console.log('✅ Current user account number:', currentUserAccount);
+            console.log('Current user account number:', currentUserAccount);
             return;
         } catch(e) {
             console.error('Error parsing loggedInUser:', e);
         }
     }
     
-    // If not found, try to get from currentUser
     const currentUser = localStorage.getItem('currentUser');
     if (currentUser) {
         try {
             const user = JSON.parse(currentUser);
             currentUserAccount = user.accountNumber || user.account_number;
-            console.log('✅ User account from currentUser:', currentUserAccount);
+            console.log('User account from currentUser:', currentUserAccount);
             return;
         } catch(e) {
             console.error('Error parsing currentUser:', e);
         }
     }
-    
-    console.warn('❌ Could not find user account number');
 }
 
 // Check if sending to self using backend verification
@@ -660,15 +874,12 @@ async function checkIfSendingToSelf(accountNumber) {
             body: JSON.stringify({ account_number: accountNumber })
         });
         const data = await response.json();
-        console.log('Backend check result:', data);
         
         if (data.exists && data.user) {
-            // Check if this user is the logged-in user by comparing emails or account numbers
             const currentUserData = localStorage.getItem('loggedInUser');
             if (currentUserData) {
                 const currentUser = JSON.parse(currentUserData);
                 const isSelf = currentUser.email === data.user.email || currentUser.account_number === accountNumber;
-                console.log('Is sending to self?', isSelf);
                 return isSelf;
             }
         }
@@ -796,7 +1007,6 @@ function loadRecents() {
 
 // Save to recents
 function saveToRecents(name, account) {
-    console.log('💾 Saving to recents:', name, account);
     let recents = JSON.parse(localStorage.getItem('opayRecents') || '[]');
     recents = recents.filter(r => r.account !== account);
     recents.unshift({ name, account });
@@ -842,6 +1052,30 @@ function goToAmountPage() {
     }
 }
 
+// Handle history link click
+function handleHistoryClick(e) {
+    e.preventDefault();
+    
+    // Get current user tier
+    const userData = localStorage.getItem('loggedInUser');
+    let userTier = '1';
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+        } catch(e) {}
+    }
+    
+    // Tier 3 (Premium) or VIP can access history
+    const canAccessHistory = userTier === '3' || userTier === 3 || userTier === 'VIP';
+    
+    if (canAccessHistory) {
+        window.location.href = 'transaction.html';
+    } else {
+        showUpgradeModal();
+    }
+}
+
 // Account input handler
 let debounceTimer;
 accountInput.addEventListener('input', async function(e) {
@@ -851,12 +1085,8 @@ accountInput.addEventListener('input', async function(e) {
     clearTimeout(debounceTimer);
     
     if (val.length === 10) {
-        console.log('🔍 Checking account:', val);
-        console.log('Current user account:', currentUserAccount);
-        
-        // Check if sending to self - use backend verification
+        // Check if sending to self
         const isSelf = await checkIfSendingToSelf(val);
-        console.log('Is sending to self?', isSelf);
         
         if (isSelf) {
             showMessage('❌ You cannot send money to your own account', 'error');
@@ -907,7 +1137,7 @@ accountInput.addEventListener('input', async function(e) {
     }
 });
 
-// Click on verified name card - go directly to amount page
+// Click on verified name card
 accountNameDisplay.addEventListener('click', () => {
     if (currentFoundName && currentFoundAccount) {
         goToAmountPage();
@@ -926,11 +1156,8 @@ document.getElementById('askLink').addEventListener('click', (e) => {
     showMessage('💡 Ask recipient to share their OPay account number from the profile section', 'info');
 });
 
-// History link
-document.getElementById('historyLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.href = 'transaction.html';
-});
+// History link with tier restriction
+document.getElementById('historyLink').addEventListener('click', handleHistoryClick);
 
 // Footer contact card
 document.getElementById('contactsCard').addEventListener('click', () => {
@@ -947,27 +1174,11 @@ window.saveToRecents = saveToRecents;
 
 // Initialize
 getCurrentUserAccount();
+getCurrentUserTier();
 loadRecents();
 
-// Also try to get user account from backend
-async function verifyUserAccount() {
-    const userData = localStorage.getItem('loggedInUser');
-    if (userData) {
-        try {
-            const user = JSON.parse(userData);
-            const response = await fetch(`${BACKEND_URL}/api/get-user-by-account`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ account_number: user.account_number })
-            });
-            const data = await response.json();
-            console.log('Backend user verification:', data);
-        } catch(e) {}
-    }
-}
-verifyUserAccount();
-
 console.log('✅ Page initialized. Current user account:', currentUserAccount);
+console.log('✅ Current user tier:', currentUserTier);
 </script>
 </body>
 </html>
