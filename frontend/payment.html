@@ -21,9 +21,9 @@
             padding-bottom: 30px;
             position: relative;
             user-select: none;
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE/Edge */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         /* Watermark for Free Users */
@@ -404,11 +404,6 @@
         <img src="images/card.jpg" alt="Promotion" class="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Claim+15+Discounts+with+₦99+on+any+Bill'">
     </div>
 
-    <!-- Watermark for Free Users -->
-    <div class="watermark" id="watermark" style="display: none;">
-        <span>⚡ Powered by OPay Funder | <a id="upgradeLink" style="pointer-events: auto;">Upgrade to remove watermark</a></span>
-    </div>
-
     <script>
     // Get user tier
     let currentUser = null;
@@ -576,39 +571,90 @@
     const isFreeUser = userTierValue === '1' || userTierValue === 1;
     
     if (isFreeUser) {
-        document.getElementById('watermark').style.display = 'block';
+        const watermark = document.getElementById('watermark');
+        if (watermark) watermark.style.display = 'block';
     }
     
-    // ========== FIXED: Load transaction amount from multiple sources ==========
-    let transactionData = localStorage.getItem('transactionData');
+    // ========== SAVE TRANSACTION TO HISTORY ==========
     let pendingTransaction = localStorage.getItem('pendingTransaction');
+    let transactionSaved = localStorage.getItem('transactionSaved');
     let amount = 0;
+    let savedTransactionData = null;
     
-    if (transactionData) {
-        try {
-            const tx = JSON.parse(transactionData);
-            amount = tx.amount;
-            console.log('Amount from transactionData:', amount);
-        } catch(e) {}
-    } 
-    else if (pendingTransaction) {
+    // If there's a pending transaction and not yet saved, save it to history
+    if (pendingTransaction && !transactionSaved) {
         try {
             const pending = JSON.parse(pendingTransaction);
             amount = pending.amount;
-            console.log('Amount from pendingTransaction:', amount);
-        } catch(e) {}
-    }
-    else {
-        const urlParams = new URLSearchParams(window.location.search);
-        const amountParam = urlParams.get('amount');
-        if (amountParam) {
-            amount = parseFloat(amountParam);
-            console.log('Amount from URL:', amount);
+            
+            // Create full transaction object
+            const transactionRef = '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
+            
+            savedTransactionData = {
+                type: 'debit',
+                title: `Transfer to ${pending.recipientName}`,
+                amount: pending.amount,
+                date: new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                status: 'success',
+                category: 'Transfer to',
+                ref: transactionRef,
+                paymentMethod: 'OWealth',
+                fromTo: pending.recipientName,
+                bank: pending.recipientBank || 'OPay',
+                accountNumber: pending.recipientAccount,
+                note: pending.note || (pending.tag === 'Purchase' ? 'Purchase payment' : (pending.tag === 'Personal' ? 'Personal transfer' : 'Transfer')),
+                tag: pending.tag,
+                dateObj: new Date()
+            };
+            
+            // Save to transactions array
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.unshift(savedTransactionData);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // Also save as transactionData for receipt
+            localStorage.setItem('transactionData', JSON.stringify(savedTransactionData));
+            
+            // Mark as saved
+            localStorage.setItem('transactionSaved', 'true');
+            
+            console.log('✅ Transaction saved to history:', savedTransactionData);
+            
+        } catch(e) {
+            console.error('Error saving transaction:', e);
+            // Try to get amount from pending
+            try {
+                const pending = JSON.parse(pendingTransaction);
+                amount = pending.amount;
+            } catch(e2) {}
+        }
+    } else if (transactionSaved) {
+        // Transaction already saved, just load it
+        const existingData = localStorage.getItem('transactionData');
+        if (existingData) {
+            try {
+                const tx = JSON.parse(existingData);
+                amount = tx.amount;
+                savedTransactionData = tx;
+            } catch(e) {}
+        }
+    } else if (!pendingTransaction) {
+        // No pending transaction, try to get from transactionData
+        const existingData = localStorage.getItem('transactionData');
+        if (existingData) {
+            try {
+                const tx = JSON.parse(existingData);
+                amount = tx.amount;
+                savedTransactionData = tx;
+            } catch(e) {}
         }
     }
     
     // Display amount without currency symbol
-    document.getElementById('successAmount').textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const successAmountElement = document.getElementById('successAmount');
+    if (successAmountElement) {
+        successAmountElement.textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
     // ========================================================================
     
     // Helper function to check access
@@ -621,48 +667,61 @@
     }
     
     // Share Receipt button - goes to receipt page
-    document.getElementById('shareReceiptBtn').addEventListener('click', () => {
-        checkAccessAndExecute('share', () => {
-            if (transactionData) {
-                const tx = JSON.parse(transactionData);
-                window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(tx));
-            } else if (pendingTransaction) {
-                const pending = JSON.parse(pendingTransaction);
-                window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(pending));
-            }
+    const shareReceiptBtn = document.getElementById('shareReceiptBtn');
+    if (shareReceiptBtn) {
+        shareReceiptBtn.addEventListener('click', () => {
+            checkAccessAndExecute('share', () => {
+                if (savedTransactionData) {
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(savedTransactionData));
+                } else if (localStorage.getItem('transactionData')) {
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(localStorage.getItem('transactionData'));
+                }
+            });
         });
-    });
+    }
     
     // Add Money button - only tier 2,3 and VIP
-    document.getElementById('addMoneyBtn').addEventListener('click', () => {
-        checkAccessAndExecute('addMoney', () => {
-            window.location.href = 'add.html';
+    const addMoneyBtn = document.getElementById('addMoneyBtn');
+    if (addMoneyBtn) {
+        addMoneyBtn.addEventListener('click', () => {
+            checkAccessAndExecute('addMoney', () => {
+                window.location.href = 'add.html';
+            });
         });
-    });
+    }
     
     // Add to favourites - does nothing
-    document.getElementById('addFavouritesBtn').addEventListener('click', () => {
-        // Does nothing
-    });
+    const addFavouritesBtn = document.getElementById('addFavouritesBtn');
+    if (addFavouritesBtn) {
+        addFavouritesBtn.addEventListener('click', () => {
+            // Does nothing
+        });
+    }
     
     // View Details button - goes to receipt page
-    document.getElementById('viewDetailsBtn').addEventListener('click', () => {
-        checkAccessAndExecute('viewDetails', () => {
-            if (transactionData) {
-                const tx = JSON.parse(transactionData);
-                window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(tx));
-            } else if (pendingTransaction) {
-                const pending = JSON.parse(pendingTransaction);
-                window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(pending));
-            }
+    const viewDetailsBtn = document.getElementById('viewDetailsBtn');
+    if (viewDetailsBtn) {
+        viewDetailsBtn.addEventListener('click', () => {
+            checkAccessAndExecute('viewDetails', () => {
+                if (savedTransactionData) {
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(savedTransactionData));
+                } else if (localStorage.getItem('transactionData')) {
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(localStorage.getItem('transactionData'));
+                }
+            });
         });
-    });
+    }
     
     // Upgrade link in watermark
-    document.getElementById('upgradeLink')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        showUpgradeModal();
-    });
-</script>
+    const upgradeLink = document.getElementById('upgradeLink');
+    if (upgradeLink) {
+        upgradeLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showUpgradeModal();
+        });
+    }
+    
+    console.log('✅ Payment page loaded - Transaction saved to history');
+    </script>
 </body>
 </html>
