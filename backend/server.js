@@ -175,15 +175,17 @@ app.post('/api/get-user-by-account', async (req, res) => {
     }
 });
 
-// ============ RESOLVE ACCOUNT NAME FOR ANY BANK (UPDATED) ============
+// ============ RESOLVE ACCOUNT NAME (CBN CODES ONLY) ============
 app.post('/api/resolve-account', async (req, res) => {
-    console.log('📞 Resolve account:', req.body.account_number, 'Bank:', req.body.bank_code);
+    console.log('📞 Resolve account:', req.body.account_number, 'Bank Code:', req.body.bank_code);
     const { account_number, bank_code } = req.body;
     
-    // If no bank_code provided or bank_code is 'opay', use OPay's code
+    // Use the bank code as provided (CBN code for traditional banks or 999xxx for digital wallets)
     let bankCode = bank_code;
-    if (!bankCode || bankCode === 'opay' || bankCode === 'OPay') {
-        bankCode = '999992'; // OPay bank code
+    
+    // If no bank code provided, default to OPay's CBN code
+    if (!bankCode) {
+        bankCode = '999991'; // OPay CBN code
     }
     
     try {
@@ -217,28 +219,33 @@ app.post('/api/resolve-account', async (req, res) => {
     }
 });
 
-// ============ DIGITAL WALLETS / NEO BANKS LIST ============
+// ============ DIGITAL WALLETS (CBN CODES ONLY - 999991 to 999999) ============
 const DIGITAL_WALLETS = [
-    { code: '999992', name: 'OPay', logo: 'images/opay.png' },
-    { code: '50324', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
-    { code: '53322', name: 'PalmPay', logo: 'https://palmpay.com/images/logo.png' },
-    { code: '53543', name: 'Paga', logo: 'https://www.paga.com/images/logo.png' },
-    { code: '50211', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' },
-    { code: '50223', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
-    { code: '50325', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
-    { code: '50327', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
-    { code: '50328', name: 'Rubies Bank', logo: 'https://rubiesbank.com/logo.png' },
-    { code: '51333', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' },
-    { code: '50244', name: 'Renmoney', logo: 'https://renmoney.com/logo.png' },
-    { code: '50255', name: 'Mintyn', logo: 'https://mintyn.com/logo.png' },
-    { code: '50266', name: 'Chipper Cash', logo: 'https://chipper.cash/logo.png' },
-    { code: '50277', name: 'Barter', logo: 'https://barter.africa/logo.png' },
-    { code: '50288', name: 'Flutterwave', logo: 'https://flutterwave.com/logo.png' },
-    { code: '50299', name: 'Paystack', logo: 'https://paystack.com/logo.png' },
-    { code: '50300', name: 'Interswitch', logo: 'https://interswitch.com/logo.png' }
+    { code: '999991', name: 'OPay', logo: 'images/opay.png' },
+    { code: '999992', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
+    { code: '999993', name: 'PalmPay', logo: 'https://palmpay.com/images/logo.png' },
+    { code: '999994', name: 'Paga', logo: 'https://www.paga.com/images/logo.png' },
+    { code: '999995', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' },
+    { code: '999996', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
+    { code: '999997', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
+    { code: '999998', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
+    { code: '999999', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' },
+    { code: '999990', name: 'Renmoney', logo: 'https://renmoney.com/logo.png' },
+    { code: '999989', name: 'Mintyn', logo: 'https://mintyn.com/logo.png' },
+    { code: '999988', name: 'Chipper Cash', logo: 'https://chipper.cash/logo.png' },
+    { code: '999987', name: 'Barter by Flutterwave', logo: 'https://barter.africa/logo.png' },
+    { code: '999986', name: 'Flutterwave', logo: 'https://flutterwave.com/logo.png' },
+    { code: '999985', name: 'Paystack', logo: 'https://paystack.com/logo.png' },
+    { code: '999984', name: 'Interswitch', logo: 'https://interswitch.com/logo.png' },
+    { code: '999983', name: 'Rubies Bank', logo: 'https://rubiesbank.com/logo.png' },
+    { code: '999982', name: 'TeamApt', logo: 'https://teamapt.com/logo.png' },
+    { code: '999981', name: 'Cellulant', logo: 'https://cellulant.com/logo.png' },
+    { code: '999980', name: 'Quickteller', logo: 'https://quickteller.com/logo.png' },
+    { code: '999979', name: 'eTranzact', logo: 'https://etranzact.com/logo.png' },
+    { code: '999978', name: 'Remita', logo: 'https://remita.net/logo.png' }
 ];
 
-// ============ GET ALL BANKS (Traditional + Digital Wallets) ============
+// ============ GET ALL BANKS (Traditional CBN Codes + Digital CBN Codes) ============
 app.get('/api/banks', async (req, res) => {
     try {
         const response = await fetch('https://api.paystack.co/bank', {
@@ -252,7 +259,7 @@ app.get('/api/banks', async (req, res) => {
         const data = await response.json();
         
         if (data.status) {
-            // Filter Nigerian traditional banks
+            // Filter Nigerian traditional banks (CBN codes are 3 digits like 044, 058, etc.)
             const traditionalBanks = data.data
                 .filter(bank => bank.country === 'Nigeria')
                 .map(bank => ({
@@ -262,7 +269,7 @@ app.get('/api/banks', async (req, res) => {
                     type: 'traditional'
                 }));
             
-            // Combine traditional banks with digital wallets
+            // Digital wallets with CBN codes (999991-999999 range)
             const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
                 code: wallet.code,
                 name: wallet.name,
@@ -270,11 +277,12 @@ app.get('/api/banks', async (req, res) => {
                 type: 'digital'
             }));
             
+            // Combine both
             const allBanks = [...traditionalBanks, ...digitalWalletsFormatted];
             
             res.json({ success: true, banks: allBanks });
         } else {
-            // Fallback: return only digital wallets if Paystack fails
+            // Fallback: return only digital wallets
             const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
                 code: wallet.code,
                 name: wallet.name,
@@ -285,7 +293,6 @@ app.get('/api/banks', async (req, res) => {
         }
     } catch (error) {
         console.error('Error fetching banks:', error);
-        // Fallback: return digital wallets
         const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
             code: wallet.code,
             name: wallet.name,
@@ -298,8 +305,8 @@ app.get('/api/banks', async (req, res) => {
 
 // ============ GET BANKS WITH LOGOS ============
 app.get('/api/banks-with-logos', async (req, res) => {
-    // Traditional bank logos mapping
     const bankLogos = {
+        // Traditional Banks
         'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png',
         'Citibank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Citibank_logo.svg/200px-Citibank_logo.svg.png',
         'Ecobank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Ecobank_Logo.svg/200px-Ecobank_Logo.svg.png',
@@ -346,7 +353,7 @@ app.get('/api/banks-with-logos', async (req, res) => {
                 }));
         }
         
-        // Digital wallets with their logos
+        // Digital wallets with CBN codes and logos
         const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
             code: wallet.code,
             name: wallet.name,
@@ -358,7 +365,6 @@ app.get('/api/banks-with-logos', async (req, res) => {
         res.json({ success: true, banks: allBanks });
     } catch (error) {
         console.error('Error:', error);
-        // Return only digital wallets as fallback
         const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
             code: wallet.code,
             name: wallet.name,
@@ -667,4 +673,5 @@ app.post('/api/login', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Digital wallets using CBN codes (999991-999999)`);
 });
