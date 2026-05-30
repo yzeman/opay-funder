@@ -670,6 +670,94 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// ============ PAYSTACK PAYMENT INITIALIZATION ============
+app.post('/api/initialize-payment', async (req, res) => {
+    const { email, amount, plan, tier } = req.body;
+    
+    try {
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                amount: amount * 100, // Paystack uses kobo (multiply by 100)
+                currency: 'NGN',
+                metadata: {
+                    plan: plan,
+                    tier: tier,
+                    custom_fields: [
+                        { display_name: "Plan", variable_name: "plan", value: plan },
+                        { display_name: "Tier", variable_name: "tier", value: tier }
+                    ]
+                },
+                callback_url: 'https://opay-funder.onrender.com/payment-callback.html'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status) {
+            res.json({
+                success: true,
+                authorization_url: data.data.authorization_url,
+                reference: data.data.reference
+            });
+        } else {
+            res.json({ success: false, message: data.message });
+        }
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ VERIFY PAYMENT & UPDATE TIER ============
+app.post('/api/verify-payment', async (req, res) => {
+    const { reference, email } = req.body;
+    
+    try {
+        // Verify payment with Paystack
+        const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status && data.data.status === 'success') {
+            const tier = data.data.metadata.tier;
+            const plan = data.data.metadata.plan;
+            
+            // Update user's tier in database
+            const { error } = await supabase
+                .from('users')
+                .update({ 
+                    tier: tier,
+                    plan: plan,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('email', email);
+            
+            if (error) throw error;
+            
+            res.json({
+                success: true,
+                message: `Successfully upgraded to ${plan} plan!`,
+                tier: tier
+            });
+        } else {
+            res.json({ success: false, message: 'Payment verification failed' });
+        }
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
