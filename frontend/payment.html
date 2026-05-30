@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Payment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #fafdfb;
+            min-height: 100vh;
+            padding-bottom: 30px;
+            position: relative;
+            user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
+        }
+
+        /* Watermark for Free Users */
+        .watermark {
+            position: fixed;
+            top: 160px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: red;
+            z-index: 1000;
+            pointer-events: none;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .watermark a {
+            color: rgba(0,184,117,0.3);
+            text-decoration: none;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 16px 10px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .done-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 400;
+            color: #00B875;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: -16px;
+        }
+
+        /* Success Card */
+        .success-card {
+            margin: 16px;
+            margin-top: -30px;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .success-icon i {
+            font-size: 50px;
+            color: #00B875;
+        }
+
+        .success-title {
+            font-size: 16px;
+            color: black;
+            margin-top: -10px;
+        }
+
+        .success-amount {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-top: 4px;
+        }
+
+      /* Action Buttons - 2x2 Grid */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px;
+    margin-top: -40px;
+}
+
+.action-btn {
+    background: white;
+    padding: 14px 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    
+}
+
+.action-btn:active {
+    transform: scale(0.98);
+    background: #f8f9fc;
+}
+
+.action-btn i {
+    width: 32px;
+    height: 32px;
+    background: #f5fbf6;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #00B875;
+}
+
+.action-btn span {
+    font-size: 10px;
+    color: #1a1a1a;
+}
+
+        /* Special Bonus Section */
+        .bonus-section {
+            margin: 20px 16px;
+            padding:1px 0px 0px 0px;
+            background: #f5fbf6;
+            border-radius: 16px;
+        }
+
+        .bonus-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: -50px;
+            margin: 20px
+        }
+
+        .bonus-card {
+            background: none;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top:-20;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bonus-card:active {
+            transform: scale(0.98);
+        }
+
+        .bonus-icon {
+            width: 40px;
+            height: 40px;
+            background: #ffff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .bonus-icon i {
+            font-size: 20px;
+            color: #00B875;
+        }
+
+        .bonus-info {
+            flex: 1;
+        }
+
+        .bonus-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .bonus-desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .bonus-go {
+            background: #00B875;
+            border: 1px solid #e0e4e8;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            padding:5px 30px 5px 30px;
+            margin:-10px;
+        }
+
+        /* Hot Deal Section */
+        .hot-deal-card {
+            background: white;
+            margin: 16px;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .hot-deal-info {
+            flex: 1;
+        }
+
+        .hot-deal-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .hot-deal-desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .hot-deal-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff9800;
+            margin-right: 12px;
+        }
+
+        .voucher-btn {
+            background: #ff9800;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+        }
+
+        .click-here {
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: #ff9800;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        /* Promo Card */
+        .promo-card {
+            margin: 16px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .promo-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Success Card -->
+    <div class="success-card">
+    	<div class="header-top">
+            <button class="done-btn" onclick="window.location.href='dashboard.html'">Done</button>
+        </div>
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="success-title">Transfer successful</div>
+        <div class="success-amount" id="successAmount">0.00</div>
+    </div>
+<!-- Watermark for Free Users -->
+    <div class="watermark" id="watermark" style="display: none;">
+        <span>⚡ Powered by OPay Funder | <a id="upgradeLink" style="pointer-events: auto;">Upgrade to remove watermark</a></span>
+    </div>
+    <!-- Action Buttons - 2x2 Grid -->
+<div class="action-grid">
+    <button class="action-btn" id="shareReceiptBtn">
+        <i class="fas fa-share-alt"></i>
+        <span>Share Receipt</span>
+    </button>
+    <button class="action-btn" id="addMoneyBtn">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Money</span>
+    </button>
+    <button class="action-btn" id="addFavouritesBtn">
+        <i class="fas fa-star"></i>
+        <span>Add to favourites</span>
+    </button>
+    <button class="action-btn" id="viewDetailsBtn">
+        <i class="fas fa-eye"></i>
+        <span>View Details</span>
+    </button>
+</div>
+
+    <!-- Special Bonus Section -->
+    <div class="bonus-section">
+        <div class="bonus-title">Special Bonus For You</div>
+        
+        <div class="bonus-card">
+            <div class="bonus-icon">
+                <i class="fas fa-wifi"></i>
+            </div>
+            <div class="bonus-info">
+                <div class="bonus-name">Top up mobileData</div>
+                <div class="bonus-desc">Get up to 6% cashback!</div>
+            </div>
+            <button class="bonus-go">GO</button>
+        </div>
+        
+        <div class="bonus-card">
+            <div class="bonus-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="bonus-info">
+                <div class="bonus-name">Don't Miss Out</div>
+                <div class="bonus-desc">Balance with Daily Interest</div>
+            </div>
+            <button class="bonus-go">GO</button>
+        </div>
+        
+        <div class="bonus-card">
+            <div class="bonus-icon">
+                <i class="fas fa-futbol"></i>
+            </div>
+            <div class="bonus-info">
+                <div class="bonus-name">40 Betting Voucher</div>
+                <div class="bonus-desc">40 off on Orders over ₹600</div>
+            </div>
+            <button class="bonus-go">Use</button>
+        </div>
+        
+        <div class="bonus-card">
+            <div class="bonus-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="bonus-info">
+                <div class="bonus-name">Enjoy online payment</div>
+                <div class="bonus-desc">Using OPay Verve Card now</div>
+            </div>
+            <button class="bonus-go">GO</button>
+        </div>
+    </div>
+
+    <!-- Promo Card -->
+    <div class="promo-card">
+        <img src="images/card.jpg" alt="Promotion" class="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Claim+15+Discounts+with+₦99+on+any+Bill'">
+    </div>
+
+    <!-- Watermark for Free Users -->
+    <div class="watermark" id="watermark" style="display: none;">
+        <span>⚡ Powered by OPay Funder | <a id="upgradeLink" style="pointer-events: auto;">Upgrade to remove watermark</a></span>
+    </div>
+
+    <script>
+        // Get user tier
+        let currentUser = null;
+        let userTier = '1';
+        
+        function getUserTier() {
+            const userData = localStorage.getItem('loggedInUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+            }
+            return userTier;
+        }
+        
+        function canAccessPaidFeatures() {
+            const tier = getUserTier();
+            return tier === '2' || tier === '2' || tier === '3' || tier === 3 || tier === 'VIP';
+        }
+        
+        function showUpgradeModal() {
+            let currentTier = userTier || '1';
+            
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 2000;
+                display: flex;
+                align-items: flex-end;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                        <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                        <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
+                    </div>
+                    
+                    <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                        <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                        <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                            ${currentTier === '1' || currentTier === 1 ? '⭐ Free Tier (2 transfers/day)' : 
+                              currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic - 10 transfers/day)' : 
+                              currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium - Unlimited)' : '👑 VIP Tier (Unlimited)'}
+                        </span>
+                    </div>
+                    
+                    <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 28px;">🥈</span>
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
+                                    <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
+                        </div>
+                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                            • Transfer to OPay only<br>
+                            • Add money unlock<br>                            
+                            • View receipt<br>
+                            • View history<br>
+                            • payment proof - no watermark added<br>
+                            • Activate banner removed<br>
+                            • 10 times transfer daily<br>
+                            • Add Money limit ₦300,000
+                        </div>
+                        <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer;">Upgrade to Basic ></button>
+                    </div>
+                    
+                    <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 28px;">🥉</span>
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
+                                    <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
+                        </div>
+                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                            Everything in Basic plus:<br>
+                            • History access, recent recipients history<br>
+                            • OPay and bank transfer<br>
+                            • Custom sender name<br>
+                            • Edit receipt<br>
+                            • Custom transaction status (failed, success, pending)<br>
+                            • Unlimited transfer<br>
+                            • Add Money limit ₦1,000,000
+                        </div>
+                        <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer;">Upgrade to Premium ></button>
+                    </div>
+                    
+                    <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 28px;">👑</span>
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
+                                    <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                        </div>
+                        <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
+                            Everything in Basic and Premium plus:<br>
+                            • OPay Funder in-app transfers<br>
+                            • Statement of account generation<br>
+                            • Receivers receive alert<br>
+                            • Money add up to receiver balance<br>
+                            • Expire in user balance after 24hrs<br>
+                            • Airtime access purchase<br>
+                            • Data access purchase<br>
+                            • Add money unlimited<br>
+                            • No transaction limit
+                        </div>
+                        <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer;">Upgrade to VIP ></button>
+                    </div>
+                    
+                    <div style="padding: 16px 20px 30px;">
+                        <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
+                overlay.remove();
+                document.body.style.overflow = '';
+            });
+            
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            overlay.querySelectorAll('.plan-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const plan = btn.getAttribute('data-plan');
+                    const tier = btn.getAttribute('data-tier');
+                    localStorage.setItem('selected_plan', JSON.stringify({
+                        plan: plan,
+                        tier: tier,
+                        price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+                    }));
+                    window.location.href = 'plan.html';
+                });
+            });
+        }
+        
+        // Check user tier and show watermark for free users
+        const userTierValue = getUserTier();
+        const isFreeUser = userTierValue === '1' || userTierValue === 1;
+        
+        if (isFreeUser) {
+            document.getElementById('watermark').style.display = 'block';
+        }
+        
+        // Load transaction data from localStorage
+        const transactionData = localStorage.getItem('transactionData');
+        if (transactionData) {
+            const tx = JSON.parse(transactionData);
+            // Show amount without currency symbol
+            document.getElementById('successAmount').textContent = tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        } else {
+            document.getElementById('successAmount').textContent = '0.00';
+        }
+        
+        // Helper function to check access
+        function checkAccessAndExecute(action, callback) {
+            if (canAccessPaidFeatures()) {
+                callback();
+            } else {
+                showUpgradeModal();
+            }
+        }
+        
+        // Share Receipt button - goes to receipt page
+        document.getElementById('shareReceiptBtn').addEventListener('click', () => {
+            checkAccessAndExecute('share', () => {
+                if (transactionData) {
+                    const tx = JSON.parse(transactionData);
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(tx));
+                }
+            });
+        });
+        
+        // Add Money button - only tier 2,3 and VIP
+        document.getElementById('addMoneyBtn').addEventListener('click', () => {
+            checkAccessAndExecute('addMoney', () => {
+                window.location.href = 'add.html';
+            });
+        });
+        
+        // Add to favourites - does nothing
+        document.getElementById('addFavouritesBtn').addEventListener('click', () => {
+            // Does nothing
+        });
+        
+        // View Details button - goes to receipt page
+        document.getElementById('viewDetailsBtn').addEventListener('click', () => {
+            checkAccessAndExecute('viewDetails', () => {
+                if (transactionData) {
+                    const tx = JSON.parse(transactionData);
+                    window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(tx));
+                }
+            });
+        });
+        
+        // Upgrade link in watermark
+        document.getElementById('upgradeLink')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            showUpgradeModal();
+        });
+    </script>
+</body>
+</html>
