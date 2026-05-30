@@ -499,9 +499,10 @@
     // Show/hide loading overlay
     function showLoading(show, text = 'Generating receipt image...') {
         const overlay = document.getElementById('loadingOverlay');
+        if (!overlay) return;
         const loadingText = overlay.querySelector('.loading-text');
         if (show) {
-            loadingText.textContent = text;
+            if (loadingText) loadingText.textContent = text;
             overlay.classList.add('active');
         } else {
             overlay.classList.remove('active');
@@ -546,7 +547,7 @@
         return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
     }
 
-    // Share receipt as image with loading screen
+    // Share receipt as image with loading screen - FIXED VERSION
     async function shareReceiptAsImage() {
         const receiptContainer = document.querySelector('.content-card');
         if (!receiptContainer) {
@@ -554,41 +555,73 @@
             return;
         }
         
-        // Show loading overlay
-        showLoading(true, 'Generating receipt image...');
+        showLoading(true, 'Preparing receipt image...');
         
         try {
-            // Add a temporary white background for better screenshot
-            const originalBg = receiptContainer.style.background;
-            receiptContainer.style.background = 'white';
+            // Create a clone of the receipt to avoid affecting the original
+            const clone = receiptContainer.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.top = '-9999px';
+            clone.style.left = '-9999px';
+            clone.style.width = '380px';
+            clone.style.background = 'white';
+            clone.style.borderRadius = '24px';
+            clone.style.padding = '50px 20px 20px 20px';
+            clone.style.boxShadow = 'none';
             
-            const canvas = await html2canvas(receiptContainer, {
-                scale: 2.5,
-                backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true,
-                allowTaint: false
+            // Replace all external images with local fallback to avoid CORS
+            const images = clone.querySelectorAll('img');
+            images.forEach(img => {
+                if (img.src && (img.src.includes('wikimedia') || img.src.includes('flaticon') || img.src.includes('upload'))) {
+                    img.src = 'images/opay.png';
+                }
             });
             
-            // Restore original background
-            receiptContainer.style.background = originalBg;
+            document.body.appendChild(clone);
+            
+            // Wait a bit for any rendering
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: false,
+                allowTaint: true
+            });
+            
+            // Remove clone
+            document.body.removeChild(clone);
             
             const imageData = canvas.toDataURL('image/png');
             
-            // Hide loading before share dialog
             showLoading(false);
             
+            // Try to share using Web Share API
             if (navigator.share) {
-                const blob = await (await fetch(imageData)).blob();
-                const file = new File([blob], 'receipt.png', { type: 'image/png' });
-                
-                await navigator.share({
-                    title: 'Transaction Receipt',
-                    text: 'Here is my transaction receipt from OPay Funder',
-                    files: [file]
-                });
-                showTextIndicator('✓ Receipt shared!');
+                try {
+                    const blob = await (await fetch(imageData)).blob();
+                    const file = new File([blob], 'receipt.png', { type: 'image/png' });
+                    
+                    await navigator.share({
+                        title: 'Transaction Receipt',
+                        text: 'Here is my transaction receipt from OPay Funder',
+                        files: [file]
+                    });
+                    showTextIndicator('✓ Receipt shared!');
+                } catch (shareError) {
+                    // User cancelled share or share failed
+                    if (shareError.name !== 'AbortError') {
+                        // Fallback to download
+                        const link = document.createElement('a');
+                        link.download = 'receipt.png';
+                        link.href = imageData;
+                        link.click();
+                        showTextIndicator('✓ Receipt saved');
+                    }
+                }
             } else {
+                // Fallback for desktop
                 const link = document.createElement('a');
                 link.download = 'receipt.png';
                 link.href = imageData;
@@ -598,7 +631,7 @@
         } catch (error) {
             console.error('Error sharing receipt:', error);
             showLoading(false);
-            showTextIndicator('❌ Failed to share');
+            showTextIndicator('❌ Failed to share. Try taking a screenshot manually.');
         }
     }
 
