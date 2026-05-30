@@ -537,17 +537,33 @@
         return `${monthNum}-${dayNum} ${timePart}`;
     }
 
-    // Generate Session ID
-    function generateSessionId() {
-        return '10000' + Date.now().toString() + Math.random().toString(36).substring(2, 15).toUpperCase();
-    }
-
-    // Generate Transaction Number
+    // Generate Transaction Number - Professional format (no "BANK" prefix)
     function generateTransactionNumber() {
-        return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const random = Math.random().toString(36).substring(2, 15).toUpperCase();
+        const timestamp = date.getTime().toString().slice(-6);
+        return `${year}${month}${day}${timestamp}${random}`;
     }
 
-    // Share receipt as image with loading screen - FIXED VERSION
+    // Generate Session ID - 30 digits exactly
+    function generateSessionId() {
+        const timestamp = Date.now().toString();
+        const random = Math.random().toString(36).substring(2, 20).toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const randomNumbers = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+        let sessionId = timestamp + random + randomNumbers;
+        // Ensure exactly 30 characters
+        if (sessionId.length > 30) {
+            sessionId = sessionId.substring(0, 30);
+        } else if (sessionId.length < 30) {
+            sessionId = sessionId + randomNumbers.substring(0, 30 - sessionId.length);
+        }
+        return sessionId;
+    }
+
+    // Share receipt as image with loading screen
     async function shareReceiptAsImage() {
         const receiptContainer = document.querySelector('.content-card');
         if (!receiptContainer) {
@@ -558,7 +574,6 @@
         showLoading(true, 'Preparing receipt image...');
         
         try {
-            // Create a clone of the receipt to avoid affecting the original
             const clone = receiptContainer.cloneNode(true);
             clone.style.position = 'absolute';
             clone.style.top = '-9999px';
@@ -569,7 +584,6 @@
             clone.style.padding = '50px 20px 20px 20px';
             clone.style.boxShadow = 'none';
             
-            // Replace all external images with local fallback to avoid CORS
             const images = clone.querySelectorAll('img');
             images.forEach(img => {
                 if (img.src && (img.src.includes('wikimedia') || img.src.includes('flaticon') || img.src.includes('upload'))) {
@@ -578,8 +592,6 @@
             });
             
             document.body.appendChild(clone);
-            
-            // Wait a bit for any rendering
             await new Promise(resolve => setTimeout(resolve, 100));
             
             const canvas = await html2canvas(clone, {
@@ -590,19 +602,14 @@
                 allowTaint: true
             });
             
-            // Remove clone
             document.body.removeChild(clone);
-            
             const imageData = canvas.toDataURL('image/png');
-            
             showLoading(false);
             
-            // Try to share using Web Share API
             if (navigator.share) {
                 try {
                     const blob = await (await fetch(imageData)).blob();
                     const file = new File([blob], 'receipt.png', { type: 'image/png' });
-                    
                     await navigator.share({
                         title: 'Transaction Receipt',
                         text: 'Here is my transaction receipt from OPay Funder',
@@ -610,9 +617,7 @@
                     });
                     showTextIndicator('✓ Receipt shared!');
                 } catch (shareError) {
-                    // User cancelled share or share failed
                     if (shareError.name !== 'AbortError') {
-                        // Fallback to download
                         const link = document.createElement('a');
                         link.download = 'receipt.png';
                         link.href = imageData;
@@ -621,7 +626,6 @@
                     }
                 }
             } else {
-                // Fallback for desktop
                 const link = document.createElement('a');
                 link.download = 'receipt.png';
                 link.href = imageData;
@@ -751,6 +755,7 @@
         const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
         
         const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
+        const isBankTransfer = tx.category === 'Transfer to' && tx.bank && tx.bank !== 'OPay';
         
         const bankLogos = {
             'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
@@ -769,7 +774,21 @@
             bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
         }
         
-        const transactionRef = tx.ref || generateTransactionNumber();
+        // Use existing ref or generate new one
+        let transactionRef = tx.ref;
+        let sessionId = tx.sessionId;
+        
+        // For bank transfers, generate proper IDs if not present
+        if (isBankTransfer) {
+            if (!transactionRef || transactionRef.startsWith('BANK')) {
+                transactionRef = generateTransactionNumber();
+            }
+            if (!sessionId) {
+                sessionId = generateSessionId();
+            }
+        } else if (!transactionRef) {
+            transactionRef = generateTransactionNumber();
+        }
         
         let html = `
             <div class="logo-wrapper">
@@ -786,6 +805,7 @@
                 </div>
         `;
         
+        // Show timeline ONLY for Bank transfers (not OPay)
         if (!isOPayTransfer) {
             html += `
                 <div class="timeline-row">
@@ -836,7 +856,7 @@
                         
                         <div class="detail-row">
                             <span class="detail-label">Payment Method</span>
-                            <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
+                            <span class="detail-value">${tx.paymentMethod || (isBankTransfer ? 'Bank Transfer' : 'OWealth')} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
                         </div>
                         
                         <div class="detail-row">
@@ -844,12 +864,12 @@
                             <span class="detail-value">${tx.date}</span>
                         </div>
                         
-                        ${tx.sessionId ? `
+                        ${sessionId && isBankTransfer ? `
                         <div class="detail-row">
                             <span class="detail-label">Session ID</span>
                             <span class="detail-value">
-                                ${tx.sessionId}
-                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
+                                ${sessionId}
+                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${sessionId}')"></i>
                             </span>
                         </div>
                         ` : ''}
@@ -896,12 +916,10 @@
         window.open('https://wa.link/ctaxj9', '_blank');
     });
 
-    // Report Issue button - no action, no alert
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        // No action
-    });
+    // Report Issue button - no action
+    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {});
 
-    // Share Receipt button - share as image with loading screen
+    // Share Receipt button - share as image
     document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
         shareReceiptAsImage();
     });
