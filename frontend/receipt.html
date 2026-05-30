@@ -380,6 +380,49 @@
         .text-indicator.show {
             opacity: 1;
         }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #00B875;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -414,6 +457,12 @@
     <!-- Text Indicator -->
     <div id="textIndicator" class="text-indicator"></div>
 
+    <!-- Loading Overlay for Screenshot -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Generating receipt image...</div>
+    </div>
+
     <script>
     // ========== USER TIER CHECK FOR EDIT PERMISSIONS ==========
     let currentUserTier = null;
@@ -445,6 +494,18 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text);
         showTextIndicator('✓ Copied to clipboard');
+    }
+
+    // Show/hide loading overlay
+    function showLoading(show, text = 'Generating receipt image...') {
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingText = overlay.querySelector('.loading-text');
+        if (show) {
+            loadingText.textContent = text;
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
     }
 
     // Format date function
@@ -485,7 +546,7 @@
         return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
     }
 
-    // Share receipt as image
+    // Share receipt as image with loading screen
     async function shareReceiptAsImage() {
         const receiptContainer = document.querySelector('.content-card');
         if (!receiptContainer) {
@@ -493,10 +554,11 @@
             return;
         }
         
-        showTextIndicator('📸 Preparing receipt...');
+        // Show loading overlay
+        showLoading(true, 'Generating receipt image...');
         
         try {
-            // Add a temporary white background container for better screenshot
+            // Add a temporary white background for better screenshot
             const originalBg = receiptContainer.style.background;
             receiptContainer.style.background = 'white';
             
@@ -512,6 +574,9 @@
             receiptContainer.style.background = originalBg;
             
             const imageData = canvas.toDataURL('image/png');
+            
+            // Hide loading before share dialog
+            showLoading(false);
             
             if (navigator.share) {
                 const blob = await (await fetch(imageData)).blob();
@@ -532,6 +597,7 @@
             }
         } catch (error) {
             console.error('Error sharing receipt:', error);
+            showLoading(false);
             showTextIndicator('❌ Failed to share');
         }
     }
@@ -802,7 +868,7 @@
         // No action
     });
 
-    // Share Receipt button - share as image
+    // Share Receipt button - share as image with loading screen
     document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
         shareReceiptAsImage();
     });
