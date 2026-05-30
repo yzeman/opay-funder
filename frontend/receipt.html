@@ -162,6 +162,16 @@
             color: #00B875;
         }
 
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #ff9800;
+        }
+
+        .status-badge.failed {
+            background: #ffebee;
+            color: #dc3545;
+        }
+
         /* Horizontal Timeline Row */
         .timeline-row {
             display: flex;
@@ -695,7 +705,6 @@
         });
     }
 
-    // EDIT RECIPIENT NAME - Updates both the title and details section
     function editRecipientName(element, currentValue, tx) {
         if (!canEdit) return;
         
@@ -712,19 +721,14 @@
         input.addEventListener('blur', () => {
             const newValue = input.value.trim();
             if (newValue && newValue !== currentValue) {
-                // Update the clicked element
                 element.innerHTML = newValue;
-                
-                // Update tx object
                 tx.fromTo = newValue;
                 
-                // Update the Transfer Title (top of receipt)
                 const titleElement = document.getElementById('recipientNameTitle');
                 if (titleElement) {
                     titleElement.innerHTML = newValue;
                 }
                 
-                // Update the other instance of recipient name in details section
                 const nameDetail = document.getElementById('recipientNameDetail');
                 if (nameDetail) {
                     nameDetail.innerHTML = newValue;
@@ -799,15 +803,21 @@
         });
     }
 
+    // EDIT STATUS - With proper colors for Pending (Orange) and Failed (Red)
     function editStatus(element, currentStatus, tx) {
         if (!canEdit) return;
+        
+        // Map current status text to value
+        let currentStatusValue = 'success';
+        if (currentStatus === 'Pending') currentStatusValue = 'pending';
+        if (currentStatus === 'Failed') currentStatusValue = 'failed';
         
         Swal.fire({
             title: 'Change Status',
             html: `
-                <div class="status-badge success" style="margin: 8px auto; cursor: pointer; display: block; width: 80%;" data-status="success">Successful</div>
-                <div class="status-badge pending" style="margin: 8px auto; cursor: pointer; display: block; width: 80%;" data-status="pending">Pending</div>
-                <div class="status-badge failed" style="margin: 8px auto; cursor: pointer; display: block; width: 80%;" data-status="failed">Failed</div>
+                <div class="status-badge success" style="margin: 8px auto; cursor: pointer; display: block; width: 80%; background: #e8f5e9; color: #00B875;" data-status="success">Successful</div>
+                <div class="status-badge pending" style="margin: 8px auto; cursor: pointer; display: block; width: 80%; background: #fff3cd; color: #ff9800;" data-status="pending">Pending</div>
+                <div class="status-badge failed" style="margin: 8px auto; cursor: pointer; display: block; width: 80%; background: #ffebee; color: #dc3545;" data-status="failed">Failed</div>
             `,
             showConfirmButton: false,
             showCloseButton: true,
@@ -817,10 +827,26 @@
                     badge.addEventListener('click', () => {
                         const newStatus = badge.getAttribute('data-status');
                         const newLabel = badge.innerText;
-                        const newClass = newStatus;
+                        
+                        // Update tx object
                         tx.status = newStatus;
+                        
+                        // Update the displayed status badge with proper class
                         element.textContent = newLabel;
-                        element.className = `status-badge ${newClass}`;
+                        element.className = `status-badge ${newStatus}`;
+                        
+                        // Apply proper styling for pending/failed
+                        if (newStatus === 'pending') {
+                            element.style.background = '#fff3cd';
+                            element.style.color = '#ff9800';
+                        } else if (newStatus === 'failed') {
+                            element.style.background = '#ffebee';
+                            element.style.color = '#dc3545';
+                        } else {
+                            element.style.background = '#e8f5e9';
+                            element.style.color = '#00B875';
+                        }
+                        
                         Swal.close();
                         showTextIndicator(`✓ Status changed to ${newLabel}`);
                     });
@@ -936,7 +962,7 @@
                         <div class="detail-row">
                             <span class="detail-label">Recipient Details</span>
                             <div class="detail-value recipient-info">
-                                <div class="recipient-name" id="recipientNameDetail">${tx.fromTo || 'Recipient Name'}</div>
+                                <div class="recipient-name" id="recipientNameDetail" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient Name'}</div>
                                 <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
                             </div>
                         </div>
@@ -989,7 +1015,7 @@
                 statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
             }
             
-            // EDIT RECIPIENT NAME - Click on Recipient Name in Details section
+            // Edit Recipient Name
             const recipientNameDetail = document.getElementById('recipientNameDetail');
             if (recipientNameDetail) {
                 recipientNameDetail.addEventListener('click', () => {
