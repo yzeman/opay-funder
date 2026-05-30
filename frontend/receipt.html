@@ -137,7 +137,6 @@
             font-size: 28px;
             font-weight: 750;
             color: #1a1a1a;
-            transform: scaleY(1.1); 
             margin-bottom: 8px;
         }
 
@@ -230,7 +229,7 @@
             color: #00B875;
         }
 
-        /* Transaction Details Section */
+        /* Transaction Details Section - FIXED for no line breaks */
         .details-section {
             margin-top: 24px;
         }
@@ -245,26 +244,42 @@
         .detail-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             padding: 12px 0;
+            flex-wrap: nowrap;
         }
 
         .detail-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #888;
+            flex-shrink: 0;
+            width: 30%;
         }
 
         .detail-value {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: #1a1a1a;
             text-align: right;
-            max-width: 60%;
+            width: 70%;
             word-break: break-word;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .detail-value .copy-icon {
+            flex-shrink: 0;
+            margin-left: 4px;
         }
 
         .recipient-info {
             text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .recipient-name {
@@ -273,12 +288,12 @@
         }
 
         .recipient-bank {
-            font-size: 13px;
+            font-size: 11px;
             color: #888;
         }
 
         .copy-icon {
-            margin-left: 8px;
+            margin-left: 6px;
             color: #00B875;
             cursor: pointer;
             font-size: 12px;
@@ -314,7 +329,7 @@
             background: #f0fdf4;
             border: none;
             text-align: right;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             color: #1a1a1a;
             padding: 4px 8px;
@@ -491,7 +506,6 @@
 
     // Share receipt as image
     async function shareReceiptAsImage(element) {
-        // Show loading
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'screenshot-loading';
         loadingDiv.innerHTML = `
@@ -501,7 +515,6 @@
         document.body.appendChild(loadingDiv);
         
         try {
-            // Capture the receipt element as image
             const canvas = await html2canvas(element, {
                 scale: 2,
                 backgroundColor: '#ffffff',
@@ -509,13 +522,9 @@
                 useCORS: true
             });
             
-            // Convert canvas to blob
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            
-            // Create file object
             const file = new File([blob], 'receipt.png', { type: 'image/png' });
             
-            // Check if Web Share API is supported
             if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     title: 'Transaction Receipt',
@@ -524,7 +533,6 @@
                 });
                 showTextIndicator('✓ Receipt shared successfully');
             } else {
-                // Fallback: download the image
                 const link = document.createElement('a');
                 link.download = 'receipt.png';
                 link.href = canvas.toDataURL();
@@ -535,7 +543,6 @@
             console.error('Error sharing receipt:', error);
             showTextIndicator('✗ Unable to share receipt');
         } finally {
-            // Remove loading overlay
             loadingDiv.remove();
         }
     }
@@ -693,7 +700,6 @@
         const statusText = tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed';
         const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
         
-        // Check if this is an OPay transfer (no timeline) or Bank transfer (with timeline)
         const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
         
         const bankLogos = {
@@ -707,14 +713,12 @@
             'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
         };
         
-        // Get bank logo with fallback
         let bankLogo = bankLogos[tx.bank];
         if (!bankLogo) {
             const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
             bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
         }
         
-        // Generate transaction number if not present
         const transactionRef = tx.ref || generateTransactionNumber();
         
         let html = `
@@ -733,7 +737,6 @@
                     </div>
         `;
         
-        // Show timeline ONLY for Bank transfers (not OPay)
         if (!isOPayTransfer) {
             html += `
                 <div class="timeline-row">
@@ -762,7 +765,6 @@
             `;
         }
         
-        // Transaction Details section
         html += `
                     <div class="details-section">
                         <div class="section-title">Transaction Details</div>
@@ -777,7 +779,7 @@
                         
                         <div class="detail-row">
                             <span class="detail-label">Transaction No.</span>
-                            <span class="detail-value">
+                            <span class="detail-value" style="word-break: break-word;">
                                 ${transactionRef}
                                 <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${transactionRef}')"></i>
                             </span>
@@ -796,7 +798,7 @@
                         ${tx.sessionId ? `
                         <div class="detail-row">
                             <span class="detail-label">Session ID</span>
-                            <span class="detail-value">
+                            <span class="detail-value" style="word-break: break-word;">
                                 ${tx.sessionId}
                                 <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
                             </span>
@@ -809,7 +811,6 @@
         
         document.getElementById('receiptContent').innerHTML = html;
         
-        // Add edit listeners ONLY if user can edit (Tier 3 or VIP)
         if (canEdit) {
             const amountElement = document.getElementById('amountDisplay');
             if (amountElement) {
@@ -847,9 +848,7 @@
     });
 
     // Report Issue button - no action
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        // No action, no alert
-    });
+    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {});
 
     // Share Receipt button - share as image
     document.getElementById('shareReceiptBtn')?.addEventListener('click', async () => {
