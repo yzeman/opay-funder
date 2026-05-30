@@ -153,6 +153,29 @@ app.post('/api/update-profile-picture', async (req, res) => {
     }
 });
 
+// ============ GET USER BY ACCOUNT NUMBER ============
+app.post('/api/get-user-by-account', async (req, res) => {
+    const { account_number } = req.body;
+    
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('account_number, account_name, email')
+            .eq('account_number', account_number)
+            .maybeSingle();
+        
+        if (error) throw error;
+        
+        res.json({ 
+            success: true, 
+            exists: !!data,
+            user: data
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 
 // ============ ADMIN LOGIN ============
 app.post('/api/admin/login', async (req, res) => {
