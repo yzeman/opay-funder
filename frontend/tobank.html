@@ -21,7 +21,6 @@
             padding-bottom: 30px;
         }
 
-        /* Header */
         .header {
             background: white;
             padding: 16px 16px 10px;
@@ -65,7 +64,6 @@
             cursor: pointer;
         }
 
-        /* Promotion Card */
         .promo-card {
             margin: 16px;
             border-radius: 20px;
@@ -79,7 +77,6 @@
             display: block;
         }
 
-        /* Info Banner */
         .info-banner {
             background: #e8f5e9;
             margin: 0 16px 16px;
@@ -115,57 +112,81 @@
             margin: 1px 0px 8px;
         }
 
-        /* Input Box */
         .input-container {
             background: white;
             margin: 0 16px;
             border-radius: 16px;
-            padding: 16px;
+            padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .phone-input-wrapper {
-            display: flex;
-            align-items: center;
-            border: 1px solid #e0e4e8;
-            border-radius: 12px;
-            background: #f8f9fc;
+        .input-group {
+            margin-bottom: 20px;
         }
 
-        .phone-input-wrapper:focus-within {
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #f8f9fc;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00B875;
+            background: white;
+        }
+
+        .bank-select-btn {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #f8f9fc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bank-select-btn:hover {
             border-color: #00B875;
         }
 
-        .phone-input {
-            flex: 1;
-            border: none;
-            padding: 14px 12px;
-            font-size: 15px;
-            background: transparent;
-            border-radius: 12px;
+        .bank-select-btn span {
+            font-size: 14px;
+            color: #333;
         }
 
-        .phone-input:focus {
-            outline: none;
+        .bank-select-btn .placeholder {
+            color: #aaa;
         }
 
-        .ask-link {
-            text-align: right;
-            margin: 8px 16px 0;
-            font-size: 10px;
-        }
-
-        .ask-link a {
+        .bank-select-btn i {
             color: #00B875;
-            text-decoration: none;
         }
 
-        /* Account Name Display - Clickable Card */
         .account-name-display {
             background: #f0fdf4;
             border-radius: 12px;
             padding: 12px;
-            margin-top: 12px;
+            margin-top: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -209,10 +230,20 @@
             color: #888;
         }
 
-        /* Message Indicator - Text Only */
+        .ask-link {
+            text-align: right;
+            margin-top: 12px;
+        }
+
+        .ask-link a {
+            font-size: 11px;
+            color: #00B875;
+            text-decoration: none;
+        }
+
         .message-indicator {
-            margin-top: 8px;
-            padding: 8px 12px;
+            margin-top: 12px;
+            padding: 10px 12px;
             border-radius: 8px;
             font-size: 12px;
             text-align: center;
@@ -238,7 +269,130 @@
             color: #2196f3;
         }
 
-        /* Recents Section */
+        .bank-sheet {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-end;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .bank-sheet.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .bank-sheet-content {
+            background: white;
+            width: 100%;
+            border-radius: 28px 28px 0 0;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .bank-sheet.active .bank-sheet-content {
+            transform: translateY(0);
+        }
+
+        .bank-sheet-header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .bank-sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
+
+        .bank-sheet-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .bank-search {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .bank-search input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e4e8;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .bank-list {
+            padding: 8px 0;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .bank-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .bank-item:active {
+            background: #f0fdf4;
+        }
+
+        .bank-item img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .bank-item-name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .bank-item-code {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .bank-sheet-footer {
+            padding: 16px 20px 30px;
+        }
+
+        .close-bank-sheet {
+            width: 100%;
+            padding: 14px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+
         .recents-container {
             background: white;
             margin: 16px;
@@ -317,7 +471,6 @@
             cursor: pointer;
         }
 
-        /* Footer Contact Card */
         .footer-links {
             margin: 2px 16px;
         }
@@ -376,7 +529,6 @@
             font-size: 14px;
         }
 
-        /* More Events Section */
         .more-events-title {
             font-size: 18px;
             font-weight: 600;
@@ -445,80 +597,9 @@
             color: #ccc;
             font-size: 14px;
         }
-
-        /* Bottom Sheet for View All */
-        .bottom-sheet {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            display: flex;
-            align-items: flex-end;
-        }
-
-        .sheet-content {
-            background: white;
-            width: 100%;
-            border-radius: 28px 28px 0 0;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-
-        .sheet-header {
-            text-align: center;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            background: white;
-        }
-
-        .sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: #ddd;
-            border-radius: 2px;
-            margin: 0 auto 12px;
-        }
-
-        .sheet-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .recent-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .recent-list-item:last-child {
-            border-bottom: none;
-        }
-
-        .sheet-footer {
-            padding: 16px 20px 30px;
-        }
-
-        .close-sheet-btn {
-            width: 100%;
-            padding: 14px;
-            background: #f0f2f5;
-            border: none;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
             <button class="back-btn" onclick="window.location.href='dashboard.html'">
@@ -529,27 +610,28 @@
         </div>
     </div>
 
-    <!-- Promotion Card with Image -->
     <div class="promo-card">
         <img src="images/card.jpg" alt="Promotion" class="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Super+Voucher+Package'">
     </div>
 
-    <!-- Info Banner -->
     <div class="info-banner">
         <span class="info-text"><i class="fas fa-check-circle info-icon"></i> Instant, Zero Issues, Free</span>
     </div>
 
-    <!-- Recipient Account Section -->
     <div class="input-container">
-        <div class="section-titles">Recipient Account</div>
-        <div class="phone-input-wrapper">
-            <input type="tel" class="phone-input" id="accountInput" placeholder="Bank Account No." inputmode="numeric">
+        <div class="input-group">
+            <label class="input-label">Account Number</label>
+            <input type="tel" class="input-field" id="accountInput" placeholder="Enter 10-digit account number" inputmode="numeric" maxlength="10">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Select Bank</label>
+            <div class="bank-select-btn" id="bankSelectBtn">
+                <span id="selectedBankText" class="placeholder">Select Bank</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
         </div>
         
-        <!-- Message Indicator - Text only -->
-        <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
-        
-        <!-- Account Name Display (Clickable card) -->
         <div class="account-name-display" id="accountNameDisplay" style="display: none;">
             <div class="name-icon">
                 <i class="fas fa-user-circle"></i>
@@ -559,13 +641,32 @@
                 <div class="verified-account" id="verifiedAccount"></div>
             </div>
         </div>
+
+        <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
         
         <div class="ask-link">
             <a href="#" id="askLink">Don't know the recipient's bank account? Ask them ></a>
         </div>
     </div>
 
-    <!-- Recents Section -->
+    <div id="bankSheet" class="bank-sheet">
+        <div class="bank-sheet-content">
+            <div class="bank-sheet-header">
+                <div class="bank-sheet-handle"></div>
+                <div class="bank-sheet-title">Select Bank</div>
+            </div>
+            <div class="bank-search">
+                <input type="text" id="bankSearchInput" placeholder="Search bank...">
+            </div>
+            <div class="bank-list" id="bankList">
+                <div style="padding: 20px; text-align: center;">Loading banks...</div>
+            </div>
+            <div class="bank-sheet-footer">
+                <button class="close-bank-sheet" id="closeBankSheet">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div class="recents-container" id="recentsContainer">
         <div class="section-title">Recents</div>
         <div id="recentsList">
@@ -576,7 +677,6 @@
         </div>
     </div>
 
-    <!-- Footer Links -->
     <div class="footer-links">
         <div class="footer-contact-card" id="contactsCard">
             <div class="footer-icon">
@@ -590,7 +690,6 @@
         </div>
     </div>
 
-    <!-- More Events Section -->
     <div class="more-events-title">More Events</div>
     <div class="event-card" id="eventCard">
         <div class="event-icon">
@@ -606,7 +705,18 @@
 
     <script>
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    
+    // Global banks array
+    let globalBanks = [];
+    
+    // DOM Elements
     const accountInput = document.getElementById('accountInput');
+    const bankSelectBtn = document.getElementById('bankSelectBtn');
+    const selectedBankText = document.getElementById('selectedBankText');
+    const bankSheet = document.getElementById('bankSheet');
+    const closeBankSheet = document.getElementById('closeBankSheet');
+    const bankList = document.getElementById('bankList');
+    const bankSearchInput = document.getElementById('bankSearchInput');
     const accountNameDisplay = document.getElementById('accountNameDisplay');
     const verifiedNameSpan = document.getElementById('verifiedName');
     const verifiedAccountSpan = document.getElementById('verifiedAccount');
@@ -614,10 +724,246 @@
 
     let currentFoundName = null;
     let currentFoundAccount = null;
-    let currentUserAccount = null;
+    let selectedBank = null;
+    let selectedBankName = null;
     let currentUserTier = '1';
 
-    // Get current logged-in user's tier
+    // ========== ALL BANKS (COMMERCIAL + DIGITAL WALLETS) ==========
+    // Digital Wallets with CBN codes (999991 - 999999)
+    const digitalWallets = [
+        { code: '999991', name: 'OPay', logo: 'images/opay.png' },
+        { code: '999992', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
+        { code: '999993', name: 'PalmPay', logo: 'https://palmpay.com/images/logo.png' },
+        { code: '999994', name: 'Paga', logo: 'https://www.paga.com/images/logo.png' },
+        { code: '999995', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' },
+        { code: '999996', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
+        { code: '999997', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
+        { code: '999998', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
+        { code: '999999', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' },
+        { code: '999990', name: 'Renmoney', logo: 'https://renmoney.com/logo.png' },
+        { code: '999989', name: 'Mintyn', logo: 'https://mintyn.com/logo.png' },
+        { code: '999988', name: 'Chipper Cash', logo: 'https://chipper.cash/logo.png' },
+        { code: '999987', name: 'Barter', logo: 'https://barter.africa/logo.png' },
+        { code: '999986', name: 'Flutterwave', logo: 'https://flutterwave.com/logo.png' },
+        { code: '999985', name: 'Paystack', logo: 'https://paystack.com/logo.png' },
+        { code: '999984', name: 'Interswitch', logo: 'https://interswitch.com/logo.png' },
+        { code: '999983', name: 'TeamApt', logo: 'https://teamapt.com/logo.png' },
+        { code: '999982', name: 'Cellulant', logo: 'https://cellulant.com/logo.png' },
+        { code: '999981', name: 'Quickteller', logo: 'https://quickteller.com/logo.png' },
+        { code: '999980', name: 'eTranzact', logo: 'https://etranzact.com/logo.png' },
+        { code: '999979', name: 'Remita', logo: 'https://remita.net/logo.png' }
+    ];
+
+    // Commercial Banks (alphabetical order with CBN codes)
+    const commercialBanks = [
+        { code: '044', name: 'Access Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png' },
+        { code: '023', name: 'Citibank Nigeria', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Citibank_logo.svg/200px-Citibank_logo.svg.png' },
+        { code: '050', name: 'Ecobank Nigeria', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Ecobank_Logo.svg/200px-Ecobank_Logo.svg.png' },
+        { code: '214', name: 'FCMB (First City Monument Bank)', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/FCMB_logo.svg/200px-FCMB_logo.svg.png' },
+        { code: '070', name: 'Fidelity Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Fidelity_Bank_Nigeria_logo.svg/200px-Fidelity_Bank_Nigeria_logo.svg.png' },
+        { code: '011', name: 'First Bank of Nigeria', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png' },
+        { code: '00103', name: 'Globus Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '058', name: 'GTBank (Guaranty Trust Bank)', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png' },
+        { code: '030', name: 'Heritage Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '301', name: 'Jaiz Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '082', name: 'Keystone Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '076', name: 'Polaris Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png' },
+        { code: '101', name: 'Providus Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '068', name: 'Stanbic IBTC Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Stanbic_IBTC_Bank_logo.svg/200px-Stanbic_IBTC_Bank_logo.svg.png' },
+        { code: '090', name: 'Standard Chartered Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Standard_Chartered_logo.svg/200px-Standard_Chartered_logo.svg.png' },
+        { code: '232', name: 'Sterling Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Sterling_Bank_logo.svg/200px-Sterling_Bank_logo.svg.png' },
+        { code: '100', name: 'SunTrust Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '00102', name: 'Titan Trust Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '033', name: 'UBA (United Bank for Africa)', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png' },
+        { code: '032', name: 'Union Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Union_Bank_of_Nigeria_logo.svg/200px-Union_Bank_of_Nigeria_logo.svg.png' },
+        { code: '215', name: 'Unity Bank', logo: 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png' },
+        { code: '035', name: 'Wema Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Wema_Bank_logo.svg/200px-Wema_Bank_logo.svg.png' },
+        { code: '057', name: 'Zenith Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png' }
+    ];
+
+    // Sort commercial banks alphabetically
+    commercialBanks.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Digital wallets sorted alphabetically
+    digitalWallets.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Combine all banks
+    const ALL_BANKS = [...commercialBanks, ...digitalWallets];
+
+    // ========== TIER CHECK - ONLY TIER 3 AND VIP ==========
+    function canAccessToBank() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const savedTier = localStorage.getItem(`user_tier_${user.email}`);
+                currentUserTier = savedTier || '1';
+                return currentUserTier === '3' || currentUserTier === 3 || currentUserTier === 'VIP';
+            } catch(e) {}
+        }
+        return false;
+    }
+
+    // Check access on page load
+    if (!canAccessToBank()) {
+        // Show upgrade modal and prevent access
+        setTimeout(() => {
+            showUpgradeModalAndRedirect();
+        }, 100);
+    }
+
+    function showUpgradeModalAndRedirect() {
+        let currentTier = currentUserTier || '1';
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; width: 320px; border-radius: 28px; padding: 30px 20px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Access Restricted</div>
+                <div style="font-size: 13px; color: #888; margin-bottom: 20px;">
+                    Bank transfers are only available for Tier 3 (Premium) and VIP users.
+                    <br><br>
+                    Your current tier: ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                </div>
+                <button id="upgradeNowBtn" style="width: 100%; padding: 14px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer;">Upgrade Now</button>
+                <button id="goBackBtn" style="width: 100%; margin-top: 10px; padding: 12px; background: #f0f2f5; color: #666; border: none; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer;">Go Back</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        document.getElementById('upgradeNowBtn')?.addEventListener('click', () => {
+            window.location.href = 'plan.html';
+        });
+        
+        document.getElementById('goBackBtn')?.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    }
+
+    // Populate bank list
+    function populateBanks(searchTerm = '') {
+        const filteredBanks = ALL_BANKS.filter(bank => 
+            bank.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        if (filteredBanks.length === 0) {
+            bankList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No banks found</div>';
+            return;
+        }
+        
+        bankList.innerHTML = filteredBanks.map(bank => `
+            <div class="bank-item" data-bank-code="${bank.code}" data-bank-name="${bank.name}">
+                <img src="${bank.logo}" alt="${bank.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                <div class="bank-item-name">${bank.name}</div>
+                <div class="bank-item-code">${bank.code}</div>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.bank-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const bankCode = item.getAttribute('data-bank-code');
+                const bankName = item.getAttribute('data-bank-name');
+                selectedBank = bankCode;
+                selectedBankName = bankName;
+                selectedBankText.textContent = bankName;
+                selectedBankText.classList.remove('placeholder');
+                closeBankSheetFunc();
+                if (accountInput.value.length === 10) {
+                    verifyAccount();
+                }
+            });
+        });
+    }
+
+    function openBankSheet() {
+        bankSheet.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        populateBanks(bankSearchInput.value);
+    }
+
+    function closeBankSheetFunc() {
+        bankSheet.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function showMessage(text, type) {
+        messageIndicator.textContent = text;
+        messageIndicator.className = `message-indicator ${type}`;
+        messageIndicator.style.display = 'block';
+        setTimeout(() => {
+            messageIndicator.style.display = 'none';
+        }, 3000);
+    }
+
+    async function verifyAccount() {
+        const accountNumber = accountInput.value;
+        
+        if (accountNumber.length !== 10) {
+            accountNameDisplay.style.display = 'none';
+            return;
+        }
+        
+        if (!selectedBank) {
+            showMessage('Please select a bank first', 'warning');
+            return;
+        }
+        
+        accountNameDisplay.style.display = 'flex';
+        verifiedNameSpan.textContent = 'Verifying...';
+        verifiedAccountSpan.textContent = accountNumber;
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/resolve-account`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    account_number: accountNumber, 
+                    bank_code: selectedBank 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                currentFoundName = data.account_name;
+                currentFoundAccount = accountNumber;
+                verifiedNameSpan.textContent = data.account_name;
+                verifiedAccountSpan.textContent = accountNumber;
+                showMessage('✓ Account verified successfully', 'success');
+            } else {
+                currentFoundName = null;
+                currentFoundAccount = null;
+                verifiedNameSpan.textContent = 'Account not found';
+                verifiedAccountSpan.textContent = accountNumber;
+                showMessage('❌ Account not found. Please check the account number.', 'error');
+            }
+        } catch (error) {
+            console.error('Verification error:', error);
+            currentFoundName = null;
+            currentFoundAccount = null;
+            verifiedNameSpan.textContent = 'Verification failed';
+            verifiedAccountSpan.textContent = accountNumber;
+            showMessage('❌ Network error. Please try again.', 'error');
+        }
+    }
+
     function getCurrentUserTier() {
         const userData = localStorage.getItem('loggedInUser');
         if (userData) {
@@ -625,12 +971,158 @@
                 const user = JSON.parse(userData);
                 const savedTier = localStorage.getItem(`user_tier_${user.email}`);
                 currentUserTier = savedTier || '1';
-                console.log('Current user tier:', currentUserTier);
-            } catch(e) {
-                console.error('Error getting user tier:', e);
-            }
+            } catch(e) {}
         }
     }
+
+    function goToAmountPage() {
+        if (currentFoundName && currentFoundAccount && selectedBank) {
+            const selectedRecipient = {
+                name: currentFoundName,
+                accountNumber: currentFoundAccount,
+                bank: selectedBankName,
+                bankCode: selectedBank,
+                bankLogo: getBankLogo(selectedBankName)
+            };
+            localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
+            window.location.href = 'tobank-amount.html';
+        } else if (!selectedBank) {
+            showMessage('Please select a bank first', 'warning');
+        } else if (!currentFoundName) {
+            showMessage('Please verify account number first', 'warning');
+        }
+    }
+
+    function getBankLogo(bankName) {
+        const bank = ALL_BANKS.find(b => b.name === bankName);
+        return bank ? bank.logo : 'images/opay.png';
+    }
+
+    let debounceTimer;
+    accountInput.addEventListener('input', function(e) {
+        let val = this.value.replace(/\D/g, '').slice(0, 10);
+        this.value = val;
+        
+        clearTimeout(debounceTimer);
+        
+        if (val.length === 10) {
+            if (selectedBank) {
+                debounceTimer = setTimeout(() => {
+                    verifyAccount();
+                }, 500);
+            } else {
+                accountNameDisplay.style.display = 'none';
+                showMessage('Please select a bank first', 'warning');
+            }
+        } else {
+            accountNameDisplay.style.display = 'none';
+            currentFoundName = null;
+            currentFoundAccount = null;
+        }
+    });
+
+    bankSelectBtn.addEventListener('click', openBankSheet);
+    closeBankSheet.addEventListener('click', closeBankSheetFunc);
+    
+    bankSheet.addEventListener('click', (e) => {
+        if (e.target === bankSheet) {
+            closeBankSheetFunc();
+        }
+    });
+    
+    bankSearchInput.addEventListener('input', (e) => {
+        populateBanks(e.target.value);
+    });
+
+    accountNameDisplay.addEventListener('click', () => {
+        if (currentFoundName && currentFoundAccount && selectedBank) {
+            goToAmountPage();
+        }
+    });
+
+    function loadRecents() {
+        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+        const recentsList = document.getElementById('recentsList');
+        
+        const displayRecents = recents.slice(0, 3);
+        
+        if (displayRecents.length === 0) {
+            recentsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No recent transfers</div>';
+        } else {
+            recentsList.innerHTML = displayRecents.map(recent => `
+                <div class="recent-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
+                    <div class="recent-info">
+                        <div class="recent-avatar">
+                            <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                        </div>
+                        <div class="recent-details">
+                            <div class="recent-name">${recent.name}</div>
+                            <div class="recent-phone">${recent.account} | ${recent.bank}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #ccc; font-size: 14px;"></i>
+                </div>
+            `).join('');
+        }
+        
+        document.querySelectorAll('.recent-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.getAttribute('data-name');
+                const account = item.getAttribute('data-account');
+                const bank = item.getAttribute('data-bank');
+                const selectedRecipient = { name, accountNumber: account, bank: bank };
+                localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
+                window.location.href = 'tobank-amount.html';
+            });
+        });
+    }
+
+    document.getElementById('viewAllLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+        if (recents.length === 0) {
+            showMessage('No recent transfers available', 'warning');
+            return;
+        }
+        
+        Swal.fire({
+            title: 'Recent Transfers',
+            html: recents.map(r => `
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                    <div style="text-align: left;">
+                        <strong>${r.name}</strong><br>
+                        <span style="font-size: 11px; color: #888;">${r.account} | ${r.bank}</span>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #00B875;"></i>
+                </div>
+            `).join(''),
+            confirmButtonColor: '#00B875',
+            confirmButtonText: 'Close'
+        });
+    });
+
+    document.getElementById('askLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        showMessage('💡 Ask recipient to share their bank account number and bank name', 'info');
+    });
+
+    document.getElementById('historyLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        const canAccessHistory = currentUserTier === '3' || currentUserTier === 3 || currentUserTier === 'VIP';
+        if (canAccessHistory) {
+            window.location.href = 'transaction.html';
+        } else {
+            showUpgradeModal();
+        }
+    });
+
+    document.getElementById('contactsCard').addEventListener('click', () => {
+        showMessage('ℹ️ See contacts using OPay feature coming soon', 'info');
+    });
+    
+    document.getElementById('eventCard').addEventListener('click', () => {
+        showMessage('🎫 Super Voucher Package: Claim 15 Discounts with ₦99 on any Bill', 'info');
+    });
 
     // Show upgrade modal
     function showUpgradeModal() {
@@ -726,264 +1218,15 @@
         });
     }
 
-    // Get current logged-in user's account number
-    function getCurrentUserAccount() {
-        const userData = localStorage.getItem('loggedInUser');
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                currentUserAccount = user.account_number;
-                console.log('Current user account number:', currentUserAccount);
-                return;
-            } catch(e) {
-                console.error('Error parsing loggedInUser:', e);
-            }
-        }
-        
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            try {
-                const user = JSON.parse(currentUser);
-                currentUserAccount = user.accountNumber || user.account_number;
-                console.log('User account from currentUser:', currentUserAccount);
-                return;
-            } catch(e) {
-                console.error('Error parsing currentUser:', e);
-            }
-        }
-    }
-
-    // Show message indicator
-    function showMessage(text, type) {
-        messageIndicator.textContent = text;
-        messageIndicator.className = `message-indicator ${type}`;
-        messageIndicator.style.display = 'block';
-        setTimeout(() => {
-            messageIndicator.style.display = 'none';
-        }, 3000);
-    }
-
-    // Show bottom sheet with all recents
-    function showAllRecents() {
-        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
-        
-        if (recents.length === 0) {
-            showMessage('No recent transfers available', 'warning');
-            return;
-        }
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'bottom-sheet';
-        overlay.innerHTML = `
-            <div class="sheet-content">
-                <div class="sheet-header">
-                    <div class="sheet-handle"></div>
-                    <div class="sheet-title">All Recent Transfers</div>
-                </div>
-                <div id="allRecentsList">
-                    ${recents.map(recent => `
-                        <div class="recent-list-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
-                            <div class="recent-info">
-                                <div class="recent-avatar">
-                                    <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
-                                </div>
-                                <div class="recent-details">
-                                    <div class="recent-name">${recent.name}</div>
-                                    <div class="recent-phone">${recent.account} | ${recent.bank}</div>
-                                </div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color: #ccc; font-size: 14px;"></i>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="sheet-footer">
-                    <button class="close-sheet-btn">Close</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        overlay.querySelectorAll('.recent-list-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const name = item.getAttribute('data-name');
-                const account = item.getAttribute('data-account');
-                const bank = item.getAttribute('data-bank');
-                const selectedRecipient = { name, accountNumber: account, bank: bank };
-                localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
-                overlay.remove();
-                document.body.style.overflow = '';
-                window.location.href = 'tobank-amount.html';
-            });
-        });
-        
-        overlay.querySelector('.close-sheet-btn').addEventListener('click', () => {
-            overlay.remove();
-            document.body.style.overflow = '';
-        });
-        
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                document.body.style.overflow = '';
-            }
-        });
-    }
-
-    // Load recents from localStorage
-    function loadRecents() {
-        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
-        const recentsList = document.getElementById('recentsList');
-        
-        const displayRecents = recents.slice(0, 3);
-        
-        if (displayRecents.length === 0) {
-            recentsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No recent transfers</div>';
-        } else {
-            recentsList.innerHTML = displayRecents.map(recent => `
-                <div class="recent-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
-                    <div class="recent-info">
-                        <div class="recent-avatar">
-                            <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
-                        </div>
-                        <div class="recent-details">
-                            <div class="recent-name">${recent.name}</div>
-                            <div class="recent-phone">${recent.account} | ${recent.bank}</div>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right" style="color: #ccc; font-size: 14px;"></i>
-                </div>
-            `).join('');
-        }
-        
-        document.querySelectorAll('.recent-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const name = item.getAttribute('data-name');
-                const account = item.getAttribute('data-account');
-                const bank = item.getAttribute('data-bank');
-                const selectedRecipient = { name, accountNumber: account, bank: bank };
-                localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
-                window.location.href = 'tobank-amount.html';
-            });
-        });
-    }
-
-    // Save to recents
-    function saveToRecents(name, account, bank) {
-        let recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
-        recents = recents.filter(r => r.account !== account);
-        recents.unshift({ name, account, bank });
-        recents = recents.slice(0, 10);
-        localStorage.setItem('bankRecents', JSON.stringify(recents));
-        loadRecents();
-    }
-
-    // Go to amount page
-    function goToAmountPage() {
-        if (currentFoundName && currentFoundAccount) {
-            const selectedRecipient = {
-                name: currentFoundName,
-                accountNumber: currentFoundAccount,
-                bank: 'Other Bank'
-            };
-            localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
-            window.location.href = 'tobank-amount.html';
-        }
-    }
-
-    // Handle history link click
-    function handleHistoryClick(e) {
-        e.preventDefault();
-        
-        const userData = localStorage.getItem('loggedInUser');
-        let userTier = '1';
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
-            } catch(e) {}
-        }
-        
-        const canAccessHistory = userTier === '3' || userTier === 3 || userTier === 'VIP';
-        
-        if (canAccessHistory) {
-            window.location.href = 'transaction.html';
-        } else {
-            showUpgradeModal();
-        }
-    }
-
-    // Account input handler
-    let debounceTimer;
-    accountInput.addEventListener('input', async function(e) {
-        let val = this.value.replace(/\D/g, '').slice(0, 10);
-        this.value = val;
-        
-        clearTimeout(debounceTimer);
-        
-        if (val.length === 10) {
-            // Demo account name fetch - in production, call actual bank API
-            debounceTimer = setTimeout(() => {
-                currentFoundName = `Bank Account Holder ${val.slice(-4)}`;
-                currentFoundAccount = val;
-                verifiedNameSpan.textContent = currentFoundName;
-                verifiedAccountSpan.textContent = val.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-                accountNameDisplay.style.display = 'flex';
-            }, 500);
-        } else if (val.length > 0 && val.length < 10) {
-            accountNameDisplay.style.display = 'none';
-            currentFoundName = null;
-            currentFoundAccount = null;
-        } else {
-            accountNameDisplay.style.display = 'none';
-            currentFoundName = null;
-            currentFoundAccount = null;
-        }
-    });
-
-    // Click on verified name card
-    accountNameDisplay.addEventListener('click', () => {
-        if (currentFoundName && currentFoundAccount) {
-            goToAmountPage();
-        }
-    });
-
-    // View All link
-    document.getElementById('viewAllLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        showAllRecents();
-    });
-
-    // Ask link
-    document.getElementById('askLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        showMessage('💡 Ask recipient to share their bank account number', 'info');
-    });
-
-    // History link with tier restriction
-    document.getElementById('historyLink').addEventListener('click', handleHistoryClick);
-
-    // Footer contact card
-    document.getElementById('contactsCard').addEventListener('click', () => {
-        showMessage('ℹ️ See contacts using OPay feature coming soon', 'info');
-    });
-
-    // Event card click
-    document.getElementById('eventCard').addEventListener('click', () => {
-        showMessage('🎫 Super Voucher Package: Claim 15 Discounts with ₦99 on any Bill', 'info');
-    });
-
-    // Expose saveToRecents
-    window.saveToRecents = saveToRecents;
-
     // Initialize
-    getCurrentUserAccount();
-    getCurrentUserTier();
-    loadRecents();
-
-    console.log('✅ To Bank page initialized');
+    function init() {
+        getCurrentUserTier();
+        loadRecents();
+        populateBanks();
+        console.log('✅ To Bank page initialized with', ALL_BANKS.length, 'banks');
+    }
+    
+    init();
     </script>
 </body>
 </html>
