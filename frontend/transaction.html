@@ -18,6 +18,10 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f8f9fc;
             padding-bottom: 30px;
+            user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
         }
 
         /* Header */
@@ -105,20 +109,20 @@
             color: #00B875;
         }
 
-        /* Month Section */
+        /* Month Section - Static HTML */
         .month-section {
             background: white;
             margin: 16px;
             border-radius: 20px;
             padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            
         }
 
         .month-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: -1px;
         }
 
         .month-title {
@@ -142,30 +146,31 @@
             font-weight: 400;
         }
 
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+       .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2px;
+}
 
-        .summary-item {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-        }
+.summary-item {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
 
-        .summary-label {
-            font-size: 13px;
-            color: #555;
-        }
+.summary-label {
+    font-size: 13px;
+    color: #555;
+}
 
-        .summary-amount {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
+.summary-amount {
+    font-size: 14px;
+    font-weight: 400;
+    color: #1a1a1a;
+}
 
-        /* Smaller Transaction Icons */
+        /* Transaction Icons */
         .transaction-icon {
             width: 36px;
             height: 36px;
@@ -182,7 +187,7 @@
             color: #00B875;
         }
 
-        /* Transaction Amount - BLACK color */
+        /* Transaction Amount */
         .amount-value {
             font-size: 14px;
             font-weight: 600;
@@ -436,146 +441,20 @@
             padding: 50px;
             color: #888;
         }
+        .analysis-btn {
+    background: #00B875;
+    border: none;
+    border-radius: 20px;
+    font-size: 10px;
+    color: #fff;
+    font-weight: 400;
+    padding: 5px 10px 5px 10px;
+    cursor: default;
+}
 
-        /* Receipt Modal */
-        .receipt-modal .swal2-popup {
-            padding: 20px;
-            border-radius: 28px;
-            max-width: 380px;
-        }
-        
-        .receipt-content {
-            text-align: left;
-        }
-        
-        .receipt-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .receipt-label {
-            color: #888;
-            font-size: 13px;
-        }
-        
-        .receipt-value {
-            font-weight: 600;
-            color: #1a1a1a;
-            font-size: 13px;
-            text-align: right;
-            max-width: 60%;
-            word-break: break-word;
-        }
-        
-        .receipt-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-        
-        .receipt-status.success {
-            background: #e8f5e9;
-            color: #00B875;
-        }
-        
-        .receipt-status.pending {
-            background: #fff3cd;
-            color: #ffc107;
-        }
-        
-        .receipt-status.failed {
-            background: #ffebee;
-            color: #dc3545;
-        }
-        
-        .receipt-section {
-            margin-bottom: 20px;
-        }
-        
-        .receipt-section-title {
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #1a1a1a;
-            font-size: 15px;
-        }
-        
-        .receipt-timeline {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-        
-        .timeline-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .timeline-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .timeline-label {
-            font-size: 12px;
-            color: #888;
-        }
-        
-        .timeline-value {
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        
-        .action-btn.primary {
-            background: #f0fdf4;
-            color: #00B875;
-        }
-        
-        .action-btn.secondary {
-            background: #f0f2f5;
-            color: #666;
-        }
-        
-        .footer-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            padding-top: 16px;
-            border-top: 1px solid #eee;
-        }
-        
-        .footer-action-btn {
-            background: none;
-            border: none;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        
-        .footer-action-btn.report {
-            color: #dc3545;
-        }
-        
-        .footer-action-btn.share {
-            color: #00B875;
-        }
+.analysis-btn:active {
+    transform: none;
+}
     </style>
 </head>
 <body>
@@ -601,7 +480,26 @@
         </div>
     </div>
 
-    <div id="transactionsContent">
+    <!-- Month Section - Static HTML (values updated by JavaScript) -->
+    <div class="month-section">
+    <div class="month-header-row">
+        <div class="month-title" id="monthSelector">
+            May <i class="fas fa-chevron-down"></i>
+        </div>
+        <button class="analysis-btn" id="analysisBtn">Analysis</button>
+    </div>
+    <div class="summary-row">
+        <div class="summary-item">
+            <span class="summary-label">In</span>
+            <span class="summary-amount" id="totalInAmount">₦0.00</span>&ensp;
+            <span class="summary-label">Out</span>
+            <span class="summary-amount" id="totalOutAmount">₦0.00</span>
+        </div>
+    </div>
+</div>
+
+    <!-- Transaction List Container -->
+    <div id="transactionsList" class="transaction-list">
         <div class="loading">
             <i class="fas fa-spinner fa-spin"></i> Loading transactions...
         </div>
@@ -720,31 +618,20 @@
     function loadUserFromLocalStorage() {
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
-            window.location.href = 'login1.html';
+            window.location.href = '#.html';
             return null;
         }
         currentUser = JSON.parse(userData);
         return currentUser;
     }
 
-    // Full transaction data with categories and receipt details
+    // Get transactions from localStorage (only real transactions made through the app)
     function getTransactions() {
-        return [
-            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.09, date: 'May 29th, 01:37:59', dateObj: new Date(2026, 4, 29), status: 'success', category: 'OWealth', ref: '260529010100760988978001', paymentMethod: 'OWealth' },
-            { type: 'credit', title: 'Bonus from Data Purchase', amount: 30.00, date: 'May 28th, 12:37:29', dateObj: new Date(2026, 4, 28), status: 'success', category: 'Airtime', ref: '260528010100760988978002', paymentMethod: 'OPay' },
-            { type: 'debit', title: 'Mobile Data', amount: 3000.00, date: 'May 28th, 12:37:20', dateObj: new Date(2026, 4, 28), status: 'success', category: 'Mobile Data', ref: '260528010100760988978003', paymentMethod: 'OPay' },
-            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.13, date: 'May 28th, 02:57:54', dateObj: new Date(2026, 4, 28), status: 'success', category: 'OWealth', ref: '260528010100760988978004', paymentMethod: 'OWealth' },
-            { type: 'debit', title: 'Transfer to MOBOLADE HELLEN OLA...', amount: 900.00, date: 'May 27th, 20:12:21', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978005', paymentMethod: 'OWealth', fromTo: 'Mobolade Hellen', bank: 'OPay', recipientPhone: '816 977 2140' },
-            { type: 'credit', title: 'Transfer from JOY OLUWAPELUMI T...', amount: 300.00, date: 'May 27th, 19:41:34', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer from', ref: '260527010100760988978006', paymentMethod: 'Paga', fromTo: 'Joy Oluwapelumi', platform: 'paga', senderPlatform: 'Paga', senderAccount: '252****174', remark: 'Sent from my Paga NGN account', transactionType: 'Bank Deposit', sessionId: '100002260527123716001485093768' },
-            { type: 'debit', title: 'Transfer to JOY OLUWAPELUMI THOMAS', amount: 300.00, date: 'May 27th, 18:48:04', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978007', paymentMethod: 'OWealth', fromTo: 'JOY OLUWAPELUMI THOMAS', bank: 'OPay', recipientPhone: '816 977 2140' },
-            { type: 'debit', title: 'Transfer to JOY OLUWAPELUMI T...', amount: 1500.00, date: 'May 27th, 12:39:46', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer to', ref: '260527010100760988978008', paymentMethod: 'OWealth', fromTo: 'Joy Oluwapelumi', bank: 'OPay' },
-            { type: 'credit', title: 'Transfer from ALABA', amount: 5100.00, date: 'May 27th, 12:37:15', dateObj: new Date(2026, 4, 27), status: 'success', category: 'Transfer from', ref: '260527060100748454039159', paymentMethod: 'Paga', fromTo: 'ALABA', platform: 'paga', senderPlatform: 'Paga', senderAccount: '252****174', remark: 'Sent from my Paga NGN account', transactionType: 'Bank Deposit', sessionId: '100002260527123716001485093768' },
-            { type: 'credit', title: 'OWealth Interest Earned', amount: 0.13, date: 'May 27th, 01:26:42', dateObj: new Date(2026, 4, 27), status: 'success', category: 'OWealth', ref: '260527010100760988978010', paymentMethod: 'OWealth' },
-            { type: 'debit', title: 'Airtime Purchase', amount: 500.00, date: 'May 26th, 15:30:00', dateObj: new Date(2026, 4, 26), status: 'success', category: 'Airtime', ref: '260526010100760988978011', paymentMethod: 'OPay' },
-            { type: 'debit', title: 'Betting Deposit', amount: 2000.00, date: 'May 25th, 20:00:00', dateObj: new Date(2026, 4, 25), status: 'pending', category: 'Betting', ref: '260525010100760988978012', paymentMethod: 'OPay' },
-            { type: 'debit', title: 'Transfer to FAROTIMI ADEBAYO MICHAEL', amount: 3000.00, date: 'May 24th, 14:09:47', dateObj: new Date(2026, 4, 24), status: 'success', category: 'Transfer to', ref: '260524020100634623822917', paymentMethod: 'OWealth', fromTo: 'FAROTIMI ADEBAYO MICHAEL', bank: 'Polaris Bank Plc', accountNumber: '3018594412', receivedDate: 'May 24th, 14:10:13', sessionId: '100004260524130953160735541017' },
-            { type: 'credit', title: 'Add Money', amount: 10000.00, date: 'May 24th, 10:00:00', dateObj: new Date(2026, 4, 24), status: 'success', category: 'Add Money', ref: '260524010100760988978014', paymentMethod: 'Bank Transfer' }
-        ];
+        const storedTransactions = localStorage.getItem('transactions');
+        if (storedTransactions) {
+            return JSON.parse(storedTransactions);
+        }
+        return [];
     }
 
     // Filter transactions by month/year, category, and status
@@ -759,8 +646,10 @@
         const selectedMonthIndex = monthMap[currentMonth];
         
         transactions = transactions.filter(tx => {
-            return tx.dateObj.getMonth() === selectedMonthIndex && 
-                   tx.dateObj.getFullYear() === currentYear;
+            if (!tx.dateObj) return false;
+            const txDate = new Date(tx.dateObj);
+            return txDate.getMonth() === selectedMonthIndex && 
+                   txDate.getFullYear() === currentYear;
         });
         
         // Filter by category
@@ -819,54 +708,58 @@
         window.location.href = `receipt.html?data=${encodedData}`;
     }
 
+    // Update the static HTML elements with filtered data
     function renderTransactions() {
-        const container = document.getElementById('transactionsContent');
         const filteredTransactions = getFilteredTransactions();
         const { totalIn, totalOut } = calculateTotals(filteredTransactions);
         
-        container.innerHTML = `
-            <div class="month-section">
-                <div class="month-header-row">
-                    <div class="month-title" id="monthSelector">
-                        ${currentMonth} <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="analysis-text">Analysis</div>
+        // Update the month display
+        const monthSelector = document.getElementById('monthSelector');
+        if (monthSelector) {
+            monthSelector.innerHTML = `${currentMonth} <i class="fas fa-chevron-down"></i>`;
+        }
+        
+        // Update the In/Out amounts in the static HTML
+        const totalInElement = document.getElementById('totalInAmount');
+        const totalOutElement = document.getElementById('totalOutAmount');
+        if (totalInElement) {
+            totalInElement.textContent = `₦${totalIn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+        if (totalOutElement) {
+            totalOutElement.textContent = `₦${totalOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+        
+        // Update the transaction list
+        const transactionsList = document.getElementById('transactionsList');
+        
+        if (filteredTransactions.length === 0) {
+            transactionsList.innerHTML = `
+                <div class="empty-state" style="padding: 60px 20px; text-align: center;">
+                    <i class="fas fa-inbox" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></i>
+                    <div>No transactions found</div>
+                    <div style="font-size: 12px; color: #aaa; margin-top: 8px;">Your transaction history will appear here</div>
                 </div>
-                <div class="summary-row">
-                    <div class="summary-item">
-                        <span class="summary-label">In</span>
-                        <span class="summary-amount">₦${totalIn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Out</span>
-                        <span class="summary-amount">₦${totalOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            `;
+            return;
+        }
+        
+        transactionsList.innerHTML = filteredTransactions.map((tx, index) => `
+            <div class="transaction-item" data-index="${index}">
+                <div class="transaction-icon">
+                    ${getTransactionIcon(tx.category)}
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-title">${tx.title}</div>
+                    <div class="transaction-date">${tx.date}</div>
+                </div>
+                <div class="transaction-amount">
+                    <div class="amount-value">${formatAmount(tx.amount, tx.type)}</div>
+                    <div class="transaction-status status-${tx.status}">
+                        ${tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed'}
                     </div>
                 </div>
             </div>
-            
-            <div class="transaction-list">
-                ${filteredTransactions.length === 0 ? 
-                    `<div class="empty-state"><i class="fas fa-inbox"></i><div>No transactions found</div></div>` :
-                    filteredTransactions.map((tx, index) => `
-                        <div class="transaction-item" data-index="${index}">
-                            <div class="transaction-icon">
-                                ${getTransactionIcon(tx.category)}
-                            </div>
-                            <div class="transaction-details">
-                                <div class="transaction-title">${tx.title}</div>
-                                <div class="transaction-date">${tx.date}</div>
-                            </div>
-                            <div class="transaction-amount">
-                                <div class="amount-value">${formatAmount(tx.amount, tx.type)}</div>
-                                <div class="transaction-status status-${tx.status}">
-                                    ${tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed'}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')
-                }
-            </div>
-        `;
+        `).join('');
         
         // Add click handlers for each transaction
         document.querySelectorAll('.transaction-item').forEach((item, idx) => {
@@ -875,8 +768,6 @@
                 if (tx) showReceipt(tx);
             });
         });
-        
-        document.getElementById('monthSelector')?.addEventListener('click', () => showSheet(monthSheet));
     }
 
     // Sheet functions
@@ -915,6 +806,9 @@
         });
     });
 
+    // Month selector click
+    document.getElementById('monthSelector')?.addEventListener('click', () => showSheet(monthSheet));
+
     // Close buttons for sheets
     document.querySelectorAll('.close-sheet-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -924,11 +818,11 @@
         });
     });
 
-    // Month selector
+    // Month selector functions
     function generateYears() {
         const yearList = document.getElementById('yearList');
         let yearsHtml = '';
-        for (let year = 2020; year <= 2028; year++) {
+        for (let year = 2024; year <= 2028; year++) {
             yearsHtml += `<div class="year-item ${year === currentYear ? 'selected' : ''}" data-year="${year}">${year}</div>`;
         }
         yearList.innerHTML = yearsHtml;
@@ -970,7 +864,7 @@
     loadUserFromLocalStorage();
     renderTransactions();
     
-    console.log('✅ Transaction page loaded - clicking transaction opens receipt.html');
-</script>
+    console.log('✅ Transaction page loaded - Month and Amount in static HTML');
+    </script>
 </body>
 </html>
