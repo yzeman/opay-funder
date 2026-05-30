@@ -51,7 +51,7 @@
         }
 
         .instant-text {
-            font-size:18px;
+            font-size: 18px;
             font-weight: 600;
             color: #00B875;
             line-height: 1.2;
@@ -61,7 +61,7 @@
             color: #000000;
         }
 
-        /* Login Image - MUCH BIGGER */
+        /* Login Image */
         .login-image {
             margin: 20px 0;
         }
@@ -156,6 +156,17 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Auto-login indicator */
+        .auto-login-message {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #00B875;
+            display: none;
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -217,7 +228,7 @@
             </div>
         </div>
         
-        <!-- Login Image - NOW MUCH BIGGER -->
+        <!-- Login Image -->
         <div class="login-image">
             <img src="images/loginimg1.png" alt="Login Illustration">
         </div>
@@ -227,23 +238,88 @@
             <p>Bill Payment</p>
         </div>
         
-        <!-- Create Account Button -->
-        <button class="create-account-btn" id="createAccountBtn">
+        <!-- Create Account Button (shown when user has no account) -->
+        <button class="create-account-btn" id="createAccountBtn" style="display: none;">
             Create a new account
         </button>
         
-        <!-- Login Button -->
-        <button class="login-btn" id="loginBtn">
+        <!-- Login Button (shown when user has account) -->
+        <button class="login-btn" id="loginBtn" style="display: none;">
             Login
         </button>
+        
+        <!-- Auto-login message -->
+        <div id="autoLoginMessage" class="auto-login-message">
+            <i class="fas fa-spinner fa-spin"></i> Auto-login in progress...
+        </div>
     </div>
 
     <script>
         // Get elements
         const loginBtn = document.getElementById('loginBtn');
         const createAccountBtn = document.getElementById('createAccountBtn');
+        const autoLoginMessage = document.getElementById('autoLoginMessage');
         
-        // Login button click handler - DIRECTS TO login1.html
+        // Check if user has an account
+        function hasUserAccount() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            const currentUser = localStorage.getItem('currentUser');
+            const users = localStorage.getItem('opayUsers');
+            
+            // Check if any user data exists
+            if (loggedInUser || currentUser) {
+                return true;
+            }
+            
+            if (users) {
+                const parsedUsers = JSON.parse(users);
+                if (parsedUsers && parsedUsers.length > 0) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Check if user is already logged in (session persists)
+        function isUserLoggedIn() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            return loggedInUser !== null;
+        }
+        
+        // Auto-login to dashboard
+        async function autoLoginToDashboard() {
+            autoLoginMessage.style.display = 'block';
+            autoLoginMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Welcome back! Redirecting to dashboard...';
+            
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+        
+        // Show appropriate button based on account status
+        function showAppropriateButton() {
+            const userHasAccount = hasUserAccount();
+            const userLoggedIn = isUserLoggedIn();
+            
+            // If user is already logged in, auto-login to dashboard
+            if (userLoggedIn) {
+                autoLoginToDashboard();
+                return;
+            }
+            
+            // If user has an account, show login button
+            if (userHasAccount) {
+                loginBtn.style.display = 'block';
+                createAccountBtn.style.display = 'none';
+            } else {
+                // No account found, show create account button
+                loginBtn.style.display = 'none';
+                createAccountBtn.style.display = 'block';
+            }
+        }
+        
+        // Login button click handler
         loginBtn.addEventListener('click', function(e) {
             this.style.transform = 'scale(0.97)';
             setTimeout(() => {
@@ -259,7 +335,7 @@
             }, 1000);
         });
         
-        // Create account button handler - DIRECTS TO create.html
+        // Create account button click handler
         createAccountBtn.addEventListener('click', function(e) {
             this.style.transform = 'scale(0.97)';
             setTimeout(() => {
@@ -292,8 +368,12 @@
             this.style.opacity = '1';
         });
         
+        // Initialize page
         window.addEventListener('load', function() {
-            console.log('✓ OPay Login Page - Login image made much bigger (400px)');
+            showAppropriateButton();
+            console.log('✓ OPay Login Page - Smart button display active');
+            console.log('✓ Has account:', hasUserAccount());
+            console.log('✓ Is logged in:', isUserLoggedIn());
         });
     </script>
 </body>
