@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Enter Amount</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 16px 10px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Recipient Card */
+        .recipient-card {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .bank-icon {
+            width: 50px;
+            height: 50px;
+            background: #f0fdf4;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bank-icon img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .recipient-info {
+            flex: 1;
+        }
+
+        .recipient-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .recipient-account {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .recipient-bank {
+            font-size: 12px;
+            color: #00B875;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Amount Section */
+        .amount-section {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .amount-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .amount-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .no-fee-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #00B875;
+        }
+
+        .amount-input-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .currency-symbol {
+            font-size: 25px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-right: 5px;
+        }
+
+        .amount-input {
+            font-size: 25px;
+            font-weight: 500;
+            color: #1a1a1a;
+            border: none;
+            border-bottom: 2px solid #00B875;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+            background: transparent;
+            padding: 0;
+        }
+
+        .amount-input:focus {
+            outline: none;
+        }
+
+        .amount-range {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Quick Amount Buttons */
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .quick-amount-btn {
+            background: #f8f9fc;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            border: 1px solid #e0e4e8;
+        }
+
+        .quick-amount-btn:active {
+            transform: scale(0.98);
+            background: #e8f5e9;
+            border-color: #00B875;
+        }
+
+        /* Remark Section */
+        .remark-section {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .remark-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .remark-input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-bottom: 1px solid #e0e4e8;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .remark-input:focus {
+            outline: none;
+            border-color: #00B875;
+        }
+
+        /* Tag Section */
+        .tag-section {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .tag-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            border: 1px solid #e0e4e8;
+        }
+
+        .tag-btn.active {
+            background: #00B875;
+            border-color: #00B875;
+            color: white;
+        }
+
+        .tag-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Confirm Button */
+        .confirm-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 30px;
+            margin: 20px 16px;
+            width: calc(100% - 32px);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .confirm-btn:active {
+            transform: scale(0.98);
+            background: #009a62;
+        }
+
+        .confirm-btn:disabled {
+            background: #bbf7d0;
+            cursor: not-allowed;
+        }
+
+        /* Message Indicator */
+        .message-indicator {
+            margin: 8px 16px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .message-indicator.error {
+            background: #ffebee;
+            color: #dc3545;
+        }
+
+        .message-indicator.success {
+            background: #e8f5e9;
+            color: #00B875;
+        }
+
+        .message-indicator.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="window.location.href='tobank.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Enter Amount</h1>
+            <div style="width: 40px;"></div>
+        </div>
+    </div>
+
+    <!-- Recipient Card -->
+    <div class="recipient-card" id="recipientCard">
+        <div class="bank-icon">
+            <img src="images/opay.png" alt="Bank" id="bankIcon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+        </div>
+        <div class="recipient-info">
+            <div class="recipient-name" id="recipientName">Loading...</div>
+            <div class="recipient-account" id="recipientAccount">---</div>
+            <div class="recipient-bank" id="recipientBank">---</div>
+        </div>
+    </div>
+
+    <!-- Amount Section -->
+    <div class="amount-section">
+        <div class="amount-header">
+            <div class="amount-label">Amount</div>
+            <div class="no-fee-label">No Transaction Fees</div>
+        </div>
+        <div class="amount-input-wrapper">
+            <span class="currency-symbol">₦</span>
+            <input type="tel" class="amount-input" id="amountInput" placeholder="0.00" inputmode="numeric">
+        </div>
+        <div class="amount-range" id="amountRange">₦10.00 - 5,000,000.00</div>
+        
+        <!-- Quick Amount Buttons -->
+        <div class="quick-amounts">
+            <div class="quick-amount-btn" data-amount="500">₦500</div>
+            <div class="quick-amount-btn" data-amount="1000">₦1,000</div>
+            <div class="quick-amount-btn" data-amount="2000">₦2,000</div>
+            <div class="quick-amount-btn" data-amount="5000">₦5,000</div>
+            <div class="quick-amount-btn" data-amount="9999">₦9,999</div>
+            <div class="quick-amount-btn" data-amount="10000">₦10,000</div>
+        </div>
+    </div>
+
+    <!-- Remark Section -->
+    <div class="remark-section">
+        <div class="remark-title">Remark</div>
+        <input type="text" class="remark-input" id="remarkInput" placeholder="What's this for? (Optional)">
+        
+        <!-- Purchase / Personal Tags -->
+        <div class="tag-section">
+            <div class="tag-btn" id="purchaseTag">Purchase</div>
+            <div class="tag-btn" id="personalTag">Personal</div>
+        </div>
+    </div>
+
+    <!-- Confirm Button -->
+    <button class="confirm-btn" id="confirmBtn">Confirm</button>
+
+    <!-- Message Indicator -->
+    <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    
+    // Load recipient info
+    const recipientData = localStorage.getItem('bankRecipientInfo');
+    if (!recipientData) {
+        window.location.href = 'tobank.html';
+    }
+    
+    const recipient = JSON.parse(recipientData);
+    
+    // Display recipient info
+    document.getElementById('recipientName').textContent = recipient.name;
+    document.getElementById('recipientAccount').textContent = recipient.accountNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    document.getElementById('recipientBank').textContent = recipient.bank;
+    
+    // Set bank logo
+    const bankIcon = document.getElementById('bankIcon');
+    if (recipient.bankLogo) {
+        bankIcon.src = recipient.bankLogo;
+    } else if (recipient.bank === 'OPay') {
+        bankIcon.src = 'images/opay.png';
+    }
+    
+    // DOM Elements
+    const amountInput = document.getElementById('amountInput');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const remarkInput = document.getElementById('remarkInput');
+    const purchaseTag = document.getElementById('purchaseTag');
+    const personalTag = document.getElementById('personalTag');
+    const amountRange = document.getElementById('amountRange');
+    
+    let currentAmount = 0;
+    let selectedTag = null;
+    
+    // User data
+    let currentUser = null;
+    let userBalance = 0;
+    
+    // Show message indicator
+    function showMessage(text, type) {
+        const msgDiv = document.getElementById('messageIndicator');
+        msgDiv.textContent = text;
+        msgDiv.className = `message-indicator ${type}`;
+        msgDiv.style.display = 'block';
+        setTimeout(() => {
+            msgDiv.style.display = 'none';
+        }, 3000);
+    }
+    
+    // Get current user
+    async function getCurrentUser() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (userData) {
+            currentUser = JSON.parse(userData);
+            await fetchUserBalance();
+        }
+    }
+    
+    // Fetch user balance
+    async function fetchUserBalance() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/get-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email })
+            });
+            const data = await response.json();
+            if (data.success) {
+                userBalance = data.balance;
+                console.log('User balance:', userBalance);
+            }
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+            userBalance = 0;
+        }
+    }
+    
+    // Format amount input
+    amountInput.addEventListener('input', function(e) {
+        let val = this.value.replace(/[^0-9]/g, '');
+        if (val === '') {
+            this.value = '';
+            currentAmount = 0;
+            validateAmount();
+            return;
+        }
+        
+        let num = parseFloat(val) / 100;
+        currentAmount = num;
+        
+        this.value = currentAmount.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        validateAmount();
+    });
+    
+    // Quick amount buttons
+    document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            let amount = parseInt(btn.getAttribute('data-amount'));
+            currentAmount = amount;
+            
+            amountInput.value = currentAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            validateAmount();
+        });
+    });
+    
+    // Tag buttons - NOT auto active, just set text when clicked
+    purchaseTag.addEventListener('click', () => {
+        if (purchaseTag.classList.contains('active')) {
+            purchaseTag.classList.remove('active');
+            if (remarkInput.value === 'Purchase payment') {
+                remarkInput.value = '';
+            }
+            selectedTag = null;
+        } else {
+            purchaseTag.classList.add('active');
+            personalTag.classList.remove('active');
+            remarkInput.value = 'Purchase payment';
+            selectedTag = 'Purchase';
+        }
+    });
+    
+    personalTag.addEventListener('click', () => {
+        if (personalTag.classList.contains('active')) {
+            personalTag.classList.remove('active');
+            if (remarkInput.value === 'Personal transfer') {
+                remarkInput.value = '';
+            }
+            selectedTag = null;
+        } else {
+            personalTag.classList.add('active');
+            purchaseTag.classList.remove('active');
+            remarkInput.value = 'Personal transfer';
+            selectedTag = 'Personal';
+        }
+    });
+    
+    // Validate amount - only check minimum and balance (no daily limits for Tier 3/VIP)
+    function validateAmount() {
+        if (currentAmount < 10) {
+            confirmBtn.disabled = true;
+            amountRange.textContent = '₦10.00 - 5,000,000.00';
+            return false;
+        }
+        
+        if (currentAmount > userBalance) {
+            confirmBtn.disabled = true;
+            amountRange.innerHTML = `⚠️ Insufficient balance! Your balance: ₦${userBalance.toLocaleString()}`;
+            return false;
+        }
+        
+        amountRange.innerHTML = `Your balance: ₦${userBalance.toLocaleString()} | New balance: ₦${(userBalance - currentAmount).toLocaleString()}`;
+        confirmBtn.disabled = false;
+        return true;
+    }
+    
+    // Process transaction
+    async function processTransaction() {
+        if (!validateAmount()) return;
+        
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        const transactionRef = 'BANK' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
+        const note = remarkInput.value.trim();
+        const finalNote = note ? note : (selectedTag === 'Purchase' ? 'Purchase payment' : (selectedTag === 'Personal' ? 'Personal transfer' : 'Bank transfer'));
+        
+        const transactionData = {
+            type: 'debit',
+            title: `Transfer to ${recipient.name}`,
+            amount: currentAmount,
+            date: new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            status: 'success',
+            category: 'Transfer to',
+            ref: transactionRef,
+            paymentMethod: 'Bank Transfer',
+            fromTo: recipient.name,
+            bank: recipient.bank,
+            bankCode: recipient.bankCode,
+            accountNumber: recipient.accountNumber,
+            note: finalNote,
+            tag: selectedTag,
+            dateObj: new Date()
+        };
+        
+        try {
+            // Update balance in backend
+            const balanceResponse = await fetch(`${BACKEND_URL}/api/update-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: currentUser.email, 
+                    amount: currentAmount,
+                    operation: 'deduct'
+                })
+            });
+            
+            const balanceData = await balanceResponse.json();
+            
+            if (balanceData.success) {
+                // Save to recents
+                let recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+                recents = recents.filter(r => r.account !== recipient.accountNumber);
+                recents.unshift({ name: recipient.name, account: recipient.accountNumber, bank: recipient.bank });
+                recents = recents.slice(0, 10);
+                localStorage.setItem('bankRecents', JSON.stringify(recents));
+                
+                // Save transaction
+                let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                transactions.unshift(transactionData);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                localStorage.setItem('transactionData', JSON.stringify(transactionData));
+                
+                showMessage(`✓ Transfer successful! ₦${currentAmount.toLocaleString()} sent to ${recipient.name}`, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'payment.html';
+                }, 1500);
+            } else {
+                throw new Error(balanceData.message || 'Transaction failed');
+            }
+        } catch (error) {
+            console.error('Transaction error:', error);
+            showMessage(`Transfer failed: ${error.message || 'Something went wrong'}`, 'error');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = 'Confirm';
+        }
+    }
+    
+    // Confirm button click
+    confirmBtn.addEventListener('click', async () => {
+        if (currentAmount < 10) {
+            showMessage('Minimum amount is ₦10.00', 'error');
+            return;
+        }
+        
+        if (currentAmount > userBalance) {
+            showMessage(`Insufficient balance! Your available balance is ₦${userBalance.toLocaleString()}`, 'error');
+            return;
+        }
+        
+        // Show confirmation popup
+        Swal.fire({
+            title: 'Confirm Transfer',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>To:</strong> ${recipient.name}</p>
+                    <p><strong>Account:</strong> ${recipient.accountNumber}</p>
+                    <p><strong>Bank:</strong> ${recipient.bank}</p>
+                    <p><strong>Amount:</strong> ₦${currentAmount.toLocaleString()}</p>
+                    <p><strong>Note:</strong> ${remarkInput.value.trim() || 'No note'}</p>
+                    <p><strong>Fee:</strong> ₦0.00</p>
+                    <p><strong>Total:</strong> ₦${currentAmount.toLocaleString()}</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#00B875',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Send Now',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                processTransaction();
+            }
+        });
+    });
+    
+    // Initialize
+    getCurrentUser();
+    
+    console.log('✅ Bank Amount page loaded - No daily limits (Tier 3/VIP only)');
+    </script>
+</body>
+</html>
