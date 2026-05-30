@@ -238,12 +238,12 @@
             <p>Bill Payment</p>
         </div>
         
-        <!-- Create Account Button (shown when user has no account) -->
+        <!-- Create Account Button -->
         <button class="create-account-btn" id="createAccountBtn" style="display: none;">
             Create a new account
         </button>
         
-        <!-- Login Button (shown when user has account) -->
+        <!-- Login Button -->
         <button class="login-btn" id="loginBtn" style="display: none;">
             Login
         </button>
@@ -260,20 +260,23 @@
         const createAccountBtn = document.getElementById('createAccountBtn');
         const autoLoginMessage = document.getElementById('autoLoginMessage');
         
-        // Check if user has an account
+        // Check if user has an account (from localStorage that persists after logout)
         function hasUserAccount() {
-            const loggedInUser = localStorage.getItem('loggedInUser');
-            const currentUser = localStorage.getItem('currentUser');
-            const users = localStorage.getItem('opayUsers');
+            // Check for persistent account flag that doesn't get cleared on logout
+            const hasRegistered = localStorage.getItem('opay_has_account');
             
-            // Check if any user data exists
-            if (loggedInUser || currentUser) {
+            if (hasRegistered === 'true') {
                 return true;
             }
             
+            // Also check for existing users in database (via backend)
+            // For now, check if there are any saved users
+            const users = localStorage.getItem('opayUsers');
             if (users) {
                 const parsedUsers = JSON.parse(users);
                 if (parsedUsers && parsedUsers.length > 0) {
+                    // Set the persistent flag for future
+                    localStorage.setItem('opay_has_account', 'true');
                     return true;
                 }
             }
@@ -281,14 +284,14 @@
             return false;
         }
         
-        // Check if user is already logged in (session persists)
+        // Check if user is currently logged in
         function isUserLoggedIn() {
             const loggedInUser = localStorage.getItem('loggedInUser');
             return loggedInUser !== null;
         }
         
         // Auto-login to dashboard
-        async function autoLoginToDashboard() {
+        function autoLoginToDashboard() {
             autoLoginMessage.style.display = 'block';
             autoLoginMessage.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Welcome back! Redirecting to dashboard...';
             
@@ -299,7 +302,6 @@
         
         // Show appropriate button based on account status
         function showAppropriateButton() {
-            const userHasAccount = hasUserAccount();
             const userLoggedIn = isUserLoggedIn();
             
             // If user is already logged in, auto-login to dashboard
@@ -308,16 +310,27 @@
                 return;
             }
             
+            // Check if user has an account (persistent check)
+            const userHasAccount = hasUserAccount();
+            
             // If user has an account, show login button
             if (userHasAccount) {
                 loginBtn.style.display = 'block';
                 createAccountBtn.style.display = 'none';
+                console.log('✓ User has account - showing Login button');
             } else {
                 // No account found, show create account button
                 loginBtn.style.display = 'none';
                 createAccountBtn.style.display = 'block';
+                console.log('✓ No account found - showing Create Account button');
             }
         }
+        
+        // When user successfully creates an account, set the persistent flag
+        // This function should be called from create.html after successful registration
+        window.setUserHasAccount = function() {
+            localStorage.setItem('opay_has_account', 'true');
+        };
         
         // Login button click handler
         loginBtn.addEventListener('click', function(e) {
@@ -372,8 +385,6 @@
         window.addEventListener('load', function() {
             showAppropriateButton();
             console.log('✓ OPay Login Page - Smart button display active');
-            console.log('✓ Has account:', hasUserAccount());
-            console.log('✓ Is logged in:', isUserLoggedIn());
         });
     </script>
 </body>
