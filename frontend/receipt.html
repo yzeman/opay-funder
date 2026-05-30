@@ -487,9 +487,9 @@
 
     // Share receipt function - capture as image and share
     async function shareReceiptAsImage() {
-        // Get the content card element
-        const contentCard = document.querySelector('.content-card');
-        if (!contentCard) {
+        // Get the receipt container
+        const receiptContainer = document.querySelector('.content-card');
+        if (!receiptContainer) {
             showTextIndicator('Receipt not ready');
             return;
         }
@@ -497,38 +497,14 @@
         showTextIndicator('📸 Preparing receipt...');
         
         try {
-            // Clone the card to avoid affecting the original
-            const cloneCard = contentCard.cloneNode(true);
-            cloneCard.style.position = 'absolute';
-            cloneCard.style.top = '-9999px';
-            cloneCard.style.left = '-9999px';
-            cloneCard.style.width = '380px';
-            cloneCard.style.padding = '50px 20px 20px 20px';
-            cloneCard.style.background = 'white';
-            cloneCard.style.borderRadius = '24px';
-            document.body.appendChild(cloneCard);
-            
-            // Wait for images to load
-            const images = cloneCard.querySelectorAll('img');
-            await Promise.all([...images].map(img => {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => {
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                });
-            }));
-            
-            // Capture the clone
-            const canvas = await html2canvas(cloneCard, {
+            // Capture the receipt element as image
+            const canvas = await html2canvas(receiptContainer, {
                 scale: 2.5,
                 backgroundColor: '#ffffff',
                 logging: false,
                 useCORS: true,
                 allowTaint: false
             });
-            
-            // Remove the clone
-            document.body.removeChild(cloneCard);
             
             const imageData = canvas.toDataURL('image/png');
             
@@ -553,7 +529,7 @@
             }
         } catch (error) {
             console.error('Error sharing receipt:', error);
-            showTextIndicator('Failed to share receipt');
+            showTextIndicator('❌ Failed to share receipt');
         }
     }
 
