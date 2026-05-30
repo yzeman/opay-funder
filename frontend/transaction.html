@@ -19,9 +19,9 @@
             background: #f8f9fc;
             padding-bottom: 30px;
             user-select: none;
-  -webkit-user-select: none; /* Safari */
-  -moz-user-select: none;    /* Firefox */
-  -ms-user-select: none;     /* IE/Edge */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         /* Header */
@@ -115,7 +115,6 @@
             margin: 16px;
             border-radius: 20px;
             padding: 16px;
-            
         }
 
         .month-header-row {
@@ -146,29 +145,29 @@
             font-weight: 400;
         }
 
-       .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2px;
-}
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2px;
+        }
 
-.summary-item {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
+        .summary-item {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
 
-.summary-label {
-    font-size: 13px;
-    color: #555;
-}
+        .summary-label {
+            font-size: 13px;
+            color: #555;
+        }
 
-.summary-amount {
-    font-size: 14px;
-    font-weight: 400;
-    color: #1a1a1a;
-}
+        .summary-amount {
+            font-size: 14px;
+            font-weight: 400;
+            color: #1a1a1a;
+        }
 
         /* Transaction Icons */
         .transaction-icon {
@@ -441,20 +440,78 @@
             padding: 50px;
             color: #888;
         }
+        
         .analysis-btn {
-    background: #00B875;
-    border: none;
-    border-radius: 20px;
-    font-size: 10px;
-    color: #fff;
-    font-weight: 400;
-    padding: 5px 10px 5px 10px;
-    cursor: default;
-}
+            background: #00B875;
+            border: none;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #fff;
+            font-weight: 400;
+            padding: 5px 10px 5px 10px;
+            cursor: default;
+        }
 
-.analysis-btn:active {
-    transform: none;
-}
+        .analysis-btn:active {
+            transform: none;
+        }
+
+        /* Access Denied Overlay */
+        .access-denied {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .denied-card {
+            background: white;
+            width: 320px;
+            border-radius: 28px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .denied-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .denied-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .denied-text {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .denied-btn {
+            width: 100%;
+            padding: 14px;
+            background: #00B875;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .denied-btn.secondary {
+            background: #f0f2f5;
+            color: #666;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -482,21 +539,21 @@
 
     <!-- Month Section - Static HTML (values updated by JavaScript) -->
     <div class="month-section">
-    <div class="month-header-row">
-        <div class="month-title" id="monthSelector">
-            May <i class="fas fa-chevron-down"></i>
+        <div class="month-header-row">
+            <div class="month-title" id="monthSelector">
+                May <i class="fas fa-chevron-down"></i>
+            </div>
+            <button class="analysis-btn" id="analysisBtn">Analysis</button>
         </div>
-        <button class="analysis-btn" id="analysisBtn">Analysis</button>
-    </div>
-    <div class="summary-row">
-        <div class="summary-item">
-            <span class="summary-label">In</span>
-            <span class="summary-amount" id="totalInAmount">₦0.00</span>&ensp;
-            <span class="summary-label">Out</span>
-            <span class="summary-amount" id="totalOutAmount">₦0.00</span>
+        <div class="summary-row">
+            <div class="summary-item">
+                <span class="summary-label">In</span>
+                <span class="summary-amount" id="totalInAmount">₦0.00</span>&ensp;
+                <span class="summary-label">Out</span>
+                <span class="summary-amount" id="totalOutAmount">₦0.00</span>
+            </div>
         </div>
     </div>
-</div>
 
     <!-- Transaction List Container -->
     <div id="transactionsList" class="transaction-list">
@@ -610,22 +667,95 @@
     <script>
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
     let currentUser = null;
+    let currentUserTier = '1';
     let currentMonth = 'May';
     let currentYear = 2026;
     let currentCategory = 'All Categories';
     let currentStatus = 'All Status';
 
+    // ========== TIER CHECK - ONLY TIER 3 AND VIP CAN ACCESS ==========
+    function getUserTier() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const savedTier = localStorage.getItem(`user_tier_${user.email}`);
+                currentUserTier = savedTier || '1';
+                return currentUserTier;
+            } catch(e) {}
+        }
+        return '1';
+    }
+
+    function canAccessTransactions() {
+        const tier = getUserTier();
+        return tier === '3' || tier === 3 || tier === 'VIP';
+    }
+
+    // Show upgrade modal for tier 1 and tier 2 users
+    function showUpgradeModal() {
+        let currentTier = currentUserTier || '1';
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; width: 320px; border-radius: 28px; padding: 30px 20px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Access Restricted</div>
+                <div style="font-size: 13px; color: #888; margin-bottom: 20px;">
+                    Transaction history is only available for Premium and VIP users.
+                    <br><br>
+                    Your current tier: ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                </div>
+                <button id="upgradeNowBtn" style="width: 100%; padding: 14px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer;">Upgrade Now</button>
+                <button id="goBackBtn" style="width: 100%; margin-top: 10px; padding: 12px; background: #f0f2f5; color: #666; border: none; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer;">Go Back</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        document.getElementById('upgradeNowBtn')?.addEventListener('click', () => {
+            window.location.href = 'plan.html';
+        });
+        
+        document.getElementById('goBackBtn')?.addEventListener('click', () => {
+            window.location.href = 'dashboard.html';
+        });
+    }
+
+    // Check access on page load
+    if (!canAccessTransactions()) {
+        showUpgradeModal();
+        // Prevent further execution
+        throw new Error('Access denied');
+    }
+
     function loadUserFromLocalStorage() {
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
-            window.location.href = '#.html';
+            window.location.href = 'login1.html';
             return null;
         }
         currentUser = JSON.parse(userData);
         return currentUser;
     }
 
-    // Get transactions from localStorage (only real transactions made through the app)
+    // Get transactions from localStorage
     function getTransactions() {
         const storedTransactions = localStorage.getItem('transactions');
         if (storedTransactions) {
@@ -638,7 +768,6 @@
     function getFilteredTransactions() {
         let transactions = getTransactions();
         
-        // Filter by month and year
         const monthMap = {
             'January': 0, 'February': 1, 'March': 2, 'April': 3, 'May': 4, 'June': 5,
             'July': 6, 'August': 7, 'September': 8, 'October': 9, 'November': 10, 'December': 11
@@ -652,12 +781,10 @@
                    txDate.getFullYear() === currentYear;
         });
         
-        // Filter by category
         if (currentCategory !== 'All Categories') {
             transactions = transactions.filter(tx => tx.category === currentCategory);
         }
         
-        // Filter by status
         if (currentStatus !== 'All Status') {
             const statusMap = {
                 'Successful': 'success',
@@ -702,24 +829,20 @@
         return type === 'credit' ? `+${formatted}` : `-${formatted}`;
     }
 
-    // Navigate to receipt page with transaction data
     function showReceipt(tx) {
         const encodedData = encodeURIComponent(JSON.stringify(tx));
         window.location.href = `receipt.html?data=${encodedData}`;
     }
 
-    // Update the static HTML elements with filtered data
     function renderTransactions() {
         const filteredTransactions = getFilteredTransactions();
         const { totalIn, totalOut } = calculateTotals(filteredTransactions);
         
-        // Update the month display
         const monthSelector = document.getElementById('monthSelector');
         if (monthSelector) {
             monthSelector.innerHTML = `${currentMonth} <i class="fas fa-chevron-down"></i>`;
         }
         
-        // Update the In/Out amounts in the static HTML
         const totalInElement = document.getElementById('totalInAmount');
         const totalOutElement = document.getElementById('totalOutAmount');
         if (totalInElement) {
@@ -729,7 +852,6 @@
             totalOutElement.textContent = `₦${totalOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
         
-        // Update the transaction list
         const transactionsList = document.getElementById('transactionsList');
         
         if (filteredTransactions.length === 0) {
@@ -761,7 +883,6 @@
             </div>
         `).join('');
         
-        // Add click handlers for each transaction
         document.querySelectorAll('.transaction-item').forEach((item, idx) => {
             item.addEventListener('click', () => {
                 const tx = filteredTransactions[idx];
@@ -778,7 +899,6 @@
     function showSheet(sheet) { if (sheet) { sheet.style.display = 'flex'; document.body.style.overflow = 'hidden'; } }
     function hideSheet(sheet) { if (sheet) { sheet.style.display = 'none'; document.body.style.overflow = ''; } }
 
-    // Category handlers
     document.getElementById('categoryFilterBtn')?.addEventListener('click', () => showSheet(categorySheet));
     categorySheet?.addEventListener('click', (e) => { if (e.target === categorySheet || e.target.classList.contains('sheet-overlay')) hideSheet(categorySheet); });
     document.querySelectorAll('.category-item').forEach(item => {
@@ -792,7 +912,6 @@
         });
     });
 
-    // Status handlers
     document.getElementById('statusFilterBtn')?.addEventListener('click', () => showSheet(statusSheet));
     statusSheet?.addEventListener('click', (e) => { if (e.target === statusSheet || e.target.classList.contains('sheet-overlay')) hideSheet(statusSheet); });
     document.querySelectorAll('.status-item').forEach(item => {
@@ -806,10 +925,8 @@
         });
     });
 
-    // Month selector click
     document.getElementById('monthSelector')?.addEventListener('click', () => showSheet(monthSheet));
 
-    // Close buttons for sheets
     document.querySelectorAll('.close-sheet-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             hideSheet(categorySheet);
@@ -818,7 +935,6 @@
         });
     });
 
-    // Month selector functions
     function generateYears() {
         const yearList = document.getElementById('yearList');
         let yearsHtml = '';
@@ -855,16 +971,14 @@
     generateYears();
     setupMonthGrid();
 
-    // Download button
     document.getElementById('downloadBtn')?.addEventListener('click', () => {
         Swal.fire({ icon: 'info', title: 'Coming Soon', text: 'Download feature will be available soon', confirmButtonColor: '#00B875' });
     });
 
-    // Initialize
     loadUserFromLocalStorage();
     renderTransactions();
     
-    console.log('✅ Transaction page loaded - Month and Amount in static HTML');
+    console.log('✅ Transaction page loaded - Premium and VIP only');
     </script>
 </body>
 </html>
