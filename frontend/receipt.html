@@ -565,11 +565,12 @@
         const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
         
         // Check if this is an OPay transfer (no timeline) or Bank transfer (with timeline)
-        const isOPayTransfer = tx.bank === 'OPay';
+        const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
         
         const bankLogos = {
             'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
-            'OPay': 'https://opay-cdn.s3.us-east-2.amazonaws.com/opay-logo.png',
+            'OPay': 'images/opay.png',
+            'OPay Digital Bank': 'images/opay.png',
             'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
             'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
             'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
@@ -577,7 +578,13 @@
             'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
         };
         
-        const bankLogo = bankLogos[tx.bank] || (tx.bank === 'OPay' ? bankLogos['OPay'] : 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png');
+        // Get bank logo with fallback
+        let bankLogo = bankLogos[tx.bank];
+        if (!bankLogo) {
+            // Try case-insensitive matching
+            const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
+            bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
+        }
         
         // Generate transaction number if not present
         const transactionRef = tx.ref || generateTransactionNumber();
@@ -586,7 +593,7 @@
             <!-- Bank Logo - Half inside card, half outside -->
             <div class="logo-wrapper">
                 <div class="bank-logo-circle">
-                    <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                    <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='images/opay.png'">
                 </div>
             </div>
             
@@ -638,7 +645,7 @@
                         <span class="detail-label">Recipient Details</span>
                         <div class="detail-value recipient-info">
                             <div class="recipient-name" id="recipientNameDetail">${tx.fromTo || 'Recipient Name'}</div>
-                            <div class="recipient-bank">${tx.bank || 'Bank'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                            <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
                         </div>
                     </div>
                     
