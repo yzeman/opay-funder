@@ -147,7 +147,7 @@
     font-weight: 500;
     color: #1a1a1a;
     border: none;
-    border-bottom: 2px solid #00B875;  /* only bottom border + color */
+    border-bottom: 2px solid #00B875;
     text-align: left;
     width: 100%;
     font-family: inherit;
@@ -220,7 +220,7 @@ input:focus::placeholder {
             width: 100%;
             padding: 12px;
             border: none;
-            border-bottom: 1px solid #aaa5;  /* only bottom border + color */
+            border-bottom: 1px solid #aaa5;
             border-radius: 12px;
             font-size: 14px;
             background: white;
@@ -242,7 +242,6 @@ input:focus::placeholder {
             flex: 1;
             padding: 10px;
             background: #f8f9fa;
-            l
             border-radius: 5px;
             font-size: 14px;
             font-weight: 500;
@@ -333,25 +332,79 @@ input:focus::placeholder {
             color: #666;
             line-height: 1.6;
         }
+        
         .message-indicator {
-    margin: 8px 16px;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    text-align: center;
-}
-.message-indicator.error {
-    background: #ffebee;
-    color: #dc3545;
-}
-.message-indicator.success {
-    background: #e8f5e9;
-    color: #00B875;
-}
-.message-indicator.warning {
-    background: #fff3cd;
-    color: #856404;
-}
+            margin: 8px 16px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .message-indicator.error {
+            background: #ffebee;
+            color: #dc3545;
+        }
+        
+        .message-indicator.success {
+            background: #e8f5e9;
+            color: #00B875;
+        }
+        
+        .message-indicator.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Custom Reminder Popup Styles */
+        .reminder-icon {
+            font-size: 48px;
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        
+        .reminder-warning {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            padding: 12px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .transaction-summary-card {
+            background: linear-gradient(135deg, #f0fdf4, #e8f5e9);
+            padding: 16px;
+            border-radius: 16px;
+            margin: 15px 0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 13px;
+        }
+        
+        .summary-amount {
+            font-weight: 700;
+            color: #00B875;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -378,17 +431,16 @@ input:focus::placeholder {
     </div>
 
     <!-- Amount Section -->
-<div class="amount-section">
-    <div class="amount-header">
-        <div class="amount-label">Amount</div>
-        <div class="no-fee-label">No Transaction Fees</div>
-    </div>
-    <div class="amount-input-wrapper">
-        <span class="currency-symbol">₦</span>
-        <input type="tel" class="amount-input" id="amountInput" placeholder="10.00-5,000,000.00" inputmode="numeric">
-    </div>
+    <div class="amount-section">
+        <div class="amount-header">
+            <div class="amount-label">Amount</div>
+            <div class="no-fee-label">No Transaction Fees</div>
+        </div>
+        <div class="amount-input-wrapper">
+            <span class="currency-symbol">₦</span>
+            <input type="tel" class="amount-input" id="amountInput" placeholder="0.00" inputmode="numeric">
+        </div>
 
-        
         <!-- Quick Amount Buttons -->
         <div class="quick-amounts">
             <div class="quick-amount-btn" data-amount="500">₦500</div>
@@ -415,7 +467,9 @@ input:focus::placeholder {
     <!-- Confirm Button -->
     <button class="confirm-btn" id="confirmBtn">Confirm</button>
 
-   <script>
+    <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
+
+    <script>
     const BACKEND_URL = 'https://opay-backend-api.onrender.com';
     
     // Load recipient info
@@ -768,79 +822,7 @@ input:focus::placeholder {
         return true;
     }
     
-    // Process transaction
-    async function processTransaction() {
-        if (!validateAmount()) return;
-        
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        
-        const transactionRef = '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
-        const note = remarkInput.value.trim();
-        const finalNote = note ? note : (selectedTag === 'Purchase' ? 'Purchase payment' : (selectedTag === 'Personal' ? 'Personal transfer' : 'Transfer'));
-        
-        const transactionData = {
-            type: 'debit',
-            title: `Transfer to ${recipient.name}`,
-            amount: currentAmount,
-            date: new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            status: 'success',
-            category: 'Transfer to',
-            ref: transactionRef,
-            paymentMethod: 'OWealth',
-            fromTo: recipient.name,
-            bank: 'OPay',
-            accountNumber: recipient.accountNumber,
-            note: finalNote,
-            tag: selectedTag,
-            dateObj: new Date()
-        };
-        
-        try {
-            const balanceResponse = await fetch(`${BACKEND_URL}/api/update-balance`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    email: currentUser.email, 
-                    amount: currentAmount,
-                    operation: 'deduct'
-                })
-            });
-            
-            const balanceData = await balanceResponse.json();
-            
-            if (balanceData.success) {
-                updateTransferCount();
-                
-                let recents = JSON.parse(localStorage.getItem('opayRecents') || '[]');
-                recents = recents.filter(r => r.account !== recipient.accountNumber);
-                recents.unshift({ name: recipient.name, account: recipient.accountNumber });
-                recents = recents.slice(0, 10);
-                localStorage.setItem('opayRecents', JSON.stringify(recents));
-                
-                let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-                transactions.unshift(transactionData);
-                localStorage.setItem('transactions', JSON.stringify(transactions));
-                
-                localStorage.setItem('transactionData', JSON.stringify(transactionData));
-                
-                showMessage(`✓ Transfer successful! ₦${currentAmount.toLocaleString()} sent to ${recipient.name}`, 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'receipt.html?data=' + encodeURIComponent(JSON.stringify(transactionData));
-                }, 1500);
-            } else {
-                throw new Error(balanceData.message || 'Transaction failed');
-            }
-        } catch (error) {
-            console.error('Transaction error:', error);
-            showMessage(`Transfer failed: ${error.message || 'Something went wrong'}`, 'error');
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = 'Confirm';
-        }
-    }
-    
-    // Confirm button click
+    // Confirm button click - Show attractive reminder popup
     confirmBtn.addEventListener('click', async () => {
         if (currentAmount < 10) {
             showMessage('Minimum amount is ₦10.00', 'error');
@@ -858,35 +840,121 @@ input:focus::placeholder {
             return;
         }
         
-        const confirmResult = await Swal.fire({
-            title: 'Confirm Transfer',
+        // Store transaction details for payment page
+        const transactionDetails = {
+            recipientName: recipient.name,
+            recipientAccount: recipient.accountNumber,
+            recipientBank: 'OPay',
+            amount: currentAmount,
+            note: remarkInput.value.trim() || (selectedTag === 'Purchase' ? 'Purchase payment' : (selectedTag === 'Personal' ? 'Personal transfer' : 'Transfer')),
+            tag: selectedTag,
+            date: new Date().toLocaleString()
+        };
+        localStorage.setItem('pendingTransaction', JSON.stringify(transactionDetails));
+        
+        // Show Attractive Reminder Popup
+        Swal.fire({
+            title: '<span style="color: #ff9800;">⚠️ Reminder</span>',
             html: `
                 <div style="text-align: left;">
-                    <p><strong>To:</strong> ${recipient.name}</p>
-                    <p><strong>Amount:</strong> ₦${currentAmount.toLocaleString()}</p>
-                    <p><strong>Note:</strong> ${remarkInput.value.trim() || 'No note'}</p>
-                    <p><strong>Fee:</strong> ₦0.00</p>
-                    <p><strong>Total:</strong> ₦${currentAmount.toLocaleString()}</p>
-                    <p><strong>Today's transfers:</strong> ${todaysTransferCount} / ${dailyCheck.limit === 'unlimited' ? '∞' : dailyCheck.limit}</p>
+                    <p style="margin-bottom: 15px; color: #555; font-size: 14px;">Double check the transfer details before you proceed.</p>
+                    
+                    <div class="reminder-warning">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+                        <strong style="color: #dc3545;">Important Notice:</strong>
+                        <p style="margin-top: 8px; font-size: 13px; color: #721c24;">Please note using OPay Funder is at your own risk. Use it wisely, otherwise you are on your own if you have been caught.</p>
+                    </div>
+                    
+                    <div class="transaction-summary-card">
+                        <div style="margin-bottom: 12px; font-weight: 600; color: #1a1a1a;">📋 Transaction Details</div>
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-user" style="margin-right: 6px; color: #00B875;"></i> Name:</span>
+                            <span class="summary-value">${recipient.name}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-credit-card" style="margin-right: 6px; color: #00B875;"></i> Account No.:</span>
+                            <span class="summary-value">${recipient.accountNumber}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-university" style="margin-right: 6px; color: #00B875;"></i> Bank:</span>
+                            <span class="summary-value">OPay</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-money-bill-wave" style="margin-right: 6px; color: #00B875;"></i> Amount:</span>
+                            <span class="summary-amount">₦${currentAmount.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fc; padding: 10px; border-radius: 10px; margin-top: 10px;">
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-tag" style="margin-right: 6px; color: #888;"></i> Remark:</span>
+                            <span class="summary-value">${remarkInput.value.trim() || 'No note'}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label"><i class="fas fa-calendar" style="margin-right: 6px; color: #888;"></i> Today's transfers:</span>
+                            <span class="summary-value">${todaysTransferCount} / ${dailyCheck.limit === 'unlimited' ? '∞' : dailyCheck.limit}</span>
+                        </div>
+                    </div>
                 </div>
             `,
-            icon: 'question',
+            icon: 'warning',
             showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check-circle"></i> Continue',
+            cancelButtonText: '<i class="fas fa-undo-alt"></i> Recheck',
             confirmButtonColor: '#00B875',
             cancelButtonColor: '#dc3545',
-            confirmButtonText: 'Send Now',
-            cancelButtonText: 'Cancel'
+            reverseButtons: true,
+            customClass: {
+                popup: 'reminder-popup',
+                confirmButton: 'btn-continue',
+                cancelButton: 'btn-recheck'
+            },
+            buttonsStyling: false,
+            didOpen: () => {
+                const popup = Swal.getPopup();
+                if (popup) {
+                    popup.style.borderRadius = '24px';
+                    popup.style.padding = '20px';
+                    popup.style.width = '360px';
+                }
+                const confirmBtnElem = Swal.getConfirmButton();
+                if (confirmBtnElem) {
+                    confirmBtnElem.style.background = '#00B875';
+                    confirmBtnElem.style.color = 'white';
+                    confirmBtnElem.style.border = 'none';
+                    confirmBtnElem.style.padding = '12px 20px';
+                    confirmBtnElem.style.borderRadius = '30px';
+                    confirmBtnElem.style.fontSize = '15px';
+                    confirmBtnElem.style.fontWeight = '600';
+                    confirmBtnElem.style.cursor = 'pointer';
+                    confirmBtnElem.style.margin = '5px';
+                }
+                const cancelBtnElem = Swal.getCancelButton();
+                if (cancelBtnElem) {
+                    cancelBtnElem.style.background = '#dc3545';
+                    cancelBtnElem.style.color = 'white';
+                    cancelBtnElem.style.border = 'none';
+                    cancelBtnElem.style.padding = '12px 20px';
+                    cancelBtnElem.style.borderRadius = '30px';
+                    cancelBtnElem.style.fontSize = '15px';
+                    cancelBtnElem.style.fontWeight = '600';
+                    cancelBtnElem.style.cursor = 'pointer';
+                    cancelBtnElem.style.margin = '5px';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User clicked Continue - go to payment.html
+                window.location.href = 'payment.html';
+            }
+            // If user clicks Recheck (cancel), just close the popup - do nothing
         });
-        
-        if (confirmResult.isConfirmed) {
-            await processTransaction();
-        }
     });
     
     // Initialize
     getCurrentUser();
     
     console.log('✅ Amount page loaded');
-</script>
+    </script>
 </body>
 </html>
