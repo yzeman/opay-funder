@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Choose Plan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 16px 10px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Current Tier Card */
+        .current-tier-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 16px;
+            padding: 20px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .current-tier-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .current-tier-name {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Plan Cards */
+        .plan-card {
+            background: white;
+            margin: 16px;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .plan-card:active {
+            transform: scale(0.98);
+        }
+
+        .plan-card.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .plan-icon {
+            font-size: 40px;
+        }
+
+        .plan-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00B875;
+        }
+
+        .plan-price small {
+            font-size: 12px;
+            font-weight: 400;
+            color: #888;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .plan-features li {
+            padding: 6px 0;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-features i {
+            color: #00B875;
+            font-size: 12px;
+            width: 16px;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .upgrade-btn.active {
+            background: #00B875;
+            color: white;
+            border: none;
+        }
+
+        .upgrade-btn.disabled {
+            background: #e8f5e9;
+            color: #00B875;
+            border: none;
+            cursor: default;
+        }
+
+        .upgrade-btn.vip {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .payment-section {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .payment-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .payment-icons i {
+            font-size: 32px;
+            color: #888;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #00B875;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Choose Your Plan</h1>
+            <div style="width: 40px;"></div>
+        </div>
+    </div>
+
+    <div id="planContent">
+        <div class="loading" style="text-align: center; padding: 50px;">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing payment...</div>
+    </div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    let currentUser = null;
+    let userTier = '1';
+
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
+    }
+
+    function showMessage(icon, title, text) {
+        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#00B875' });
+    }
+
+    async function loadUser() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (!userData) {
+            window.location.href = 'login1.html';
+            return null;
+        }
+        currentUser = JSON.parse(userData);
+        userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+        return currentUser;
+    }
+
+    async function initializePayment(plan, tier, amount, planName) {
+        showLoading(true);
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: currentUser.email,
+                    amount: amount,
+                    plan: plan,
+                    tier: tier
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Redirect to Paystack payment page
+                window.location.href = data.authorization_url;
+            } else {
+                showLoading(false);
+                showMessage('error', 'Payment Error', data.message);
+            }
+        } catch (error) {
+            showLoading(false);
+            showMessage('error', 'Error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    function renderPlans() {
+        const container = document.getElementById('planContent');
+        const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
+                                 userTier === '2' ? '🥈 Basic Tier' : 
+                                 userTier === '3' ? '🥉 Premium Tier' : '👑 VIP Tier';
+        
+        container.innerHTML = `
+            <div class="current-tier-card">
+                <div class="current-tier-label">Your Current Tier</div>
+                <div class="current-tier-name">${currentTierName}</div>
+            </div>
+
+            <!-- Basic Plan -->
+            <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">🥈</div>
+                    <div class="plan-price">₦30,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">Basic Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Transfer to OPay only</li>
+                    <li><i class="fas fa-check-circle"></i> Add money unlock</li>
+                    <li><i class="fas fa-check-circle"></i> View receipt & history</li>
+                    <li><i class="fas fa-check-circle"></i> Payment proof - no watermark</li>
+                    <li><i class="fas fa-check-circle"></i> Activate banner removed</li>
+                    <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
+                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
+                </ul>
+                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" ${userTier >= 2 ? 'disabled' : ''}>
+                    ${userTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
+                </button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">🥉</div>
+                    <div class="plan-price">₦50,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">Premium Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Basic plus:</li>
+                    <li><i class="fas fa-check-circle"></i> History access, recent recipients</li>
+                    <li><i class="fas fa-check-circle"></i> OPay and bank transfer</li>
+                    <li><i class="fas fa-check-circle"></i> Custom sender name</li>
+                    <li><i class="fas fa-check-circle"></i> Edit receipt & custom status</li>
+                    <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
+                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
+                </ul>
+                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" ${userTier >= 3 ? 'disabled' : ''}>
+                    ${userTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
+                </button>
+            </div>
+
+            <!-- VIP Plan -->
+            <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">👑</div>
+                    <div class="plan-price">₦100,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">VIP Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Basic and Premium plus:</li>
+                    <li><i class="fas fa-check-circle"></i> OPay Funder in-app transfers</li>
+                    <li><i class="fas fa-check-circle"></i> Statement of account generation</li>
+                    <li><i class="fas fa-check-circle"></i> Receivers receive alert</li>
+                    <li><i class="fas fa-check-circle"></i> Airtime & Data purchase</li>
+                    <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
+                    <li><i class="fas fa-check-circle"></i> No transaction limits</li>
+                </ul>
+                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
+                    ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
+                </button>
+            </div>
+
+            <div class="payment-section">
+                <div class="payment-title">Secure Payment Methods</div>
+                <div class="payment-icons">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fas fa-university"></i>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: 12px;">
+                    Payments are processed securely via Paystack
+                </div>
+            </div>
+        `;
+
+        // Add click handlers to plan cards
+        document.querySelectorAll('.plan-card').forEach(card => {
+            const btn = card.querySelector('.upgrade-btn');
+            if (btn && !btn.disabled) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const plan = card.getAttribute('data-plan');
+                    const tier = card.getAttribute('data-tier');
+                    const price = parseInt(card.getAttribute('data-price'));
+                    const name = card.getAttribute('data-name');
+                    
+                    Swal.fire({
+                        title: `Upgrade to ${name}`,
+                        html: `
+                            <div style="text-align: left;">
+                                <p><strong>Plan:</strong> ${name}</p>
+                                <p><strong>Amount:</strong> ₦${price.toLocaleString()}</p>
+                                <p><strong>Payment Method:</strong> Paystack (Card/Bank Transfer)</p>
+                            </div>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#00B875',
+                        confirmButtonText: 'Proceed to Payment',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            initializePayment(plan, tier, price, name);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    async function init() {
+        await loadUser();
+        renderPlans();
+        console.log('✅ Plan page loaded - User tier:', userTier);
+    }
+
+    init();
+    </script>
+</body>
+</html>
