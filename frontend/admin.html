@@ -12,24 +12,41 @@
         body { background: #f0f2f5; font-family: 'Inter', sans-serif; }
         .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         .login-container { max-width: 400px; margin: 100px auto; }
-        .stats-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .stats-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .stats-card:hover { transform: translateY(-2px); }
         .stats-number { font-size: 32px; font-weight: 700; color: #00B875; }
         .user-table { background: white; border-radius: 16px; padding: 20px; overflow-x: auto; }
         table { width: 100%; font-size: 13px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        .copy-btn, .delete-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+        th { background: #f8f9fa; font-weight: 600; position: sticky; top: 0; }
+        .copy-btn, .delete-btn, .tier-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; transition: all 0.2s; }
         .copy-btn { background: #00B875; color: white; }
+        .copy-btn:hover { background: #009a62; }
         .delete-btn { background: #dc3545; color: white; }
         .delete-btn:hover { background: #c82333; }
+        .tier-btn { background: #6c757d; color: white; }
+        .tier-btn:hover { background: #5a6268; }
+        .tier-btn.tier-2 { background: #C0C0C0; color: #333; }
+        .tier-btn.tier-3 { background: #CD7F32; color: white; }
+        .tier-btn.vip { background: #FFD700; color: #333; }
         .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
         .status-active { color: #00B875; font-weight: 600; }
         .status-inactive { color: #dc3545; font-weight: 600; }
-        .search-box { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+        .search-box { margin-bottom: 20px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
         .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
         .select-all-checkbox { margin-right: 5px; }
         .action-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
         .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
+        .tier-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .tier-badge.tier-1 { background: #e8e8e8; color: #666; }
+        .tier-badge.tier-2 { background: #e0e0e0; color: #555; }
+        .tier-badge.tier-3 { background: #f0e6d6; color: #CD7F32; }
+        .tier-badge.vip { background: #fff3cd; color: #FFD700; }
+        .modal-tier-btn { padding: 12px; border-radius: 12px; margin: 8px 0; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .modal-tier-btn:hover { transform: scale(1.02); }
+        .tier-card { border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
+        .tier-card:hover { border-color: #00B875; transform: translateY(-2px); }
+        .tier-card.selected { border-color: #00B875; background: #f0fdf4; }
     </style>
 </head>
 <body>
@@ -106,7 +123,7 @@
                                 <th>Account Name</th>
                                 <th>Email</th>
                                 <th>Password</th>
-                                <th>Activation Code</th>
+                                <th>Current Tier</th>
                                 <th>Status</th>
                                 <th>Created At</th>
                                 <th>Actions</th>
@@ -118,12 +135,66 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Tier Selection Modal -->
+    <div id="tierModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 24px;">
+                <div class="modal-header" style="border-bottom: none; padding: 20px 20px 0;">
+                    <h5 class="modal-title" style="font-weight: 700;"><i class="fas fa-crown"></i> Assign Tier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <p id="modalUserName" style="margin-bottom: 20px; color: #888;">Select tier for user</p>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="tier-card p-3 text-center rounded-3" data-tier="2" onclick="selectTier('2')" id="tier2Card">
+                                <div style="font-size: 40px;">🥈</div>
+                                <div style="font-weight: 700;">Basic Plan</div>
+                                <div style="font-size: 12px; color: #888;">Tier 2</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="tier-card p-3 text-center rounded-3" data-tier="3" onclick="selectTier('3')" id="tier3Card">
+                                <div style="font-size: 40px;">🥉</div>
+                                <div style="font-weight: 700;">Premium Plan</div>
+                                <div style="font-size: 12px; color: #888;">Tier 3</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="tier-card p-3 text-center rounded-3" data-tier="VIP" onclick="selectTier('VIP')" id="vipCard">
+                                <div style="font-size: 40px;">👑</div>
+                                <div style="font-weight: 700;">VIP Plan</div>
+                                <div style="font-size: 12px; color: #888;">VIP Tier</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="tier-card p-3 text-center rounded-3 bg-light" data-tier="1" onclick="selectTier('1')" id="removeTierCard">
+                                <div style="font-size: 40px;">🗑️</div>
+                                <div style="font-weight: 700;">Remove Plan</div>
+                                <div style="font-size: 12px; color: #888;">Reset to Free Tier</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none; padding: 0 20px 20px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 30px; padding: 10px 20px;">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmAssignTier()" style="border-radius: 30px; padding: 10px 20px; background: #00B875;">Assign Tier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const BACKEND_URL = 'https://opay-backend-api.onrender.com';
         let adminSessionToken = null;
         let allUsers = [];
         let selectedUserIds = new Set();
+        let pendingUserId = null;
+        let pendingUserEmail = null;
+        let selectedTier = null;
+        let modalInstance = null;
         
         window.addEventListener('load', function() {
             const savedToken = localStorage.getItem('adminSessionToken');
@@ -210,6 +281,14 @@
             }
         }
         
+        function getTierDisplay(tier) {
+            if (tier === '1' || tier === 1) return '<span class="tier-badge tier-1">⭐ Free</span>';
+            if (tier === '2' || tier === 2) return '<span class="tier-badge tier-2">🥈 Basic</span>';
+            if (tier === '3' || tier === 3) return '<span class="tier-badge tier-3">🥉 Premium</span>';
+            if (tier === 'VIP') return '<span class="tier-badge vip">👑 VIP</span>';
+            return '<span class="tier-badge tier-1">⭐ Free</span>';
+        }
+        
         function renderUsersTable(users) {
             const tbody = document.getElementById('usersTableBody');
             
@@ -218,31 +297,116 @@
                 return;
             }
             
-            tbody.innerHTML = users.map(user => `
-                <tr>
-                    <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
-                    <td>${user.id}</td>
-                    <td><strong>${user.account_number}</strong></td>
-                    <td>${user.account_name}</td>
-                    <td>${user.email}</td>
-                    <td><code>${user.password_code}</code></td>
-                    <td>
-                        <code style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${user.activation_code || 'N/A'}</code>
-                        ${user.activation_code ? `<button class="copy-btn" onclick="copyCode('${user.activation_code}')"><i class="fas fa-copy"></i></button>` : ''}
-                    </td>
-                    <td>
-                        ${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}
-                    </td>
-                    <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
-                    <td class="action-buttons">
-                        <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')"><i class="fas fa-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = users.map(user => {
+                const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+                return `
+                    <tr>
+                        <tr><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
+                        <td>${user.id}</td>
+                        <td><strong>${user.account_number}</strong></td>
+                        <td>${user.account_name}</td>
+                        <td>${user.email}</td>
+                        <td><code>${user.password_code}</code></td>
+                        <td>${getTierDisplay(userTier)}</td>
+                        <td>
+                            ${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}
+                         </td>
+                        <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
+                        <td class="action-buttons">
+                            <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
+                                <i class="fas fa-crown"></i> Tier
+                            </button>
+                            <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
             
-            // Reset select all checkbox
             document.getElementById('selectAllCheckbox').checked = false;
             selectedUserIds.clear();
+        }
+        
+        function openTierModal(userId, email, userName) {
+            pendingUserId = userId;
+            pendingUserEmail = email;
+            document.getElementById('modalUserName').innerHTML = `Assign tier for <strong>${userName}</strong>`;
+            
+            // Reset selections
+            selectedTier = null;
+            document.querySelectorAll('.tier-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            if (modalInstance) {
+                modalInstance.show();
+            } else {
+                const modalElement = document.getElementById('tierModal');
+                modalInstance = new bootstrap.Modal(modalElement);
+                modalInstance.show();
+            }
+        }
+        
+        function selectTier(tier) {
+            selectedTier = tier;
+            document.querySelectorAll('.tier-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            if (tier === '2') document.getElementById('tier2Card').classList.add('selected');
+            if (tier === '3') document.getElementById('tier3Card').classList.add('selected');
+            if (tier === 'VIP') document.getElementById('vipCard').classList.add('selected');
+            if (tier === '1') document.getElementById('removeTierCard').classList.add('selected');
+        }
+        
+        async function confirmAssignTier() {
+            if (!selectedTier) {
+                Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select a tier to assign' });
+                return;
+            }
+            
+            const tierName = selectedTier === '2' ? 'Basic Plan' : selectedTier === '3' ? 'Premium Plan' : selectedTier === 'VIP' ? 'VIP Plan' : 'Free Tier';
+            
+            const result = await Swal.fire({
+                title: 'Assign Tier',
+                text: `Are you sure you want to assign ${tierName} to this user?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00B875',
+                confirmButtonText: 'Yes, Assign',
+                cancelButtonText: 'Cancel'
+            });
+            
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/admin/assign-tier`, {
+                        method: 'POST',
+                        headers: { 
+                            'X-Admin-Token': adminSessionToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            userId: pendingUserId, 
+                            email: pendingUserEmail,
+                            tier: selectedTier 
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem(`user_tier_${pendingUserEmail}`, selectedTier);
+                        Swal.fire({ icon: 'success', title: 'Success!', text: data.message });
+                        if (modalInstance) modalInstance.hide();
+                        loadDashboardData();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier' });
+                }
+            }
         }
         
         function toggleUserSelect(userId) {
