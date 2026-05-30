@@ -217,7 +217,28 @@ app.post('/api/resolve-account', async (req, res) => {
     }
 });
 
-// ============ GET ALL BANKS FROM PAYSTACK ============
+// ============ DIGITAL WALLETS / NEO BANKS LIST ============
+const DIGITAL_WALLETS = [
+    { code: '999992', name: 'OPay', logo: 'images/opay.png' },
+    { code: '50324', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
+    { code: '53322', name: 'PalmPay', logo: 'https://palmpay.com/images/logo.png' },
+    { code: '53543', name: 'Paga', logo: 'https://www.paga.com/images/logo.png' },
+    { code: '50211', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' },
+    { code: '50223', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
+    { code: '50325', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
+    { code: '50327', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
+    { code: '50328', name: 'Rubies Bank', logo: 'https://rubiesbank.com/logo.png' },
+    { code: '51333', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' },
+    { code: '50244', name: 'Renmoney', logo: 'https://renmoney.com/logo.png' },
+    { code: '50255', name: 'Mintyn', logo: 'https://mintyn.com/logo.png' },
+    { code: '50266', name: 'Chipper Cash', logo: 'https://chipper.cash/logo.png' },
+    { code: '50277', name: 'Barter', logo: 'https://barter.africa/logo.png' },
+    { code: '50288', name: 'Flutterwave', logo: 'https://flutterwave.com/logo.png' },
+    { code: '50299', name: 'Paystack', logo: 'https://paystack.com/logo.png' },
+    { code: '50300', name: 'Interswitch', logo: 'https://interswitch.com/logo.png' }
+];
+
+// ============ GET ALL BANKS (Traditional + Digital Wallets) ============
 app.get('/api/banks', async (req, res) => {
     try {
         const response = await fetch('https://api.paystack.co/bank', {
@@ -231,27 +252,53 @@ app.get('/api/banks', async (req, res) => {
         const data = await response.json();
         
         if (data.status) {
-            // Filter only Nigerian banks and format for frontend
-            const banks = data.data
+            // Filter Nigerian traditional banks
+            const traditionalBanks = data.data
                 .filter(bank => bank.country === 'Nigeria')
                 .map(bank => ({
                     code: bank.code,
                     name: bank.name,
-                    slug: bank.slug
+                    slug: bank.slug,
+                    type: 'traditional'
                 }));
             
-            res.json({ success: true, banks: banks });
+            // Combine traditional banks with digital wallets
+            const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
+                code: wallet.code,
+                name: wallet.name,
+                slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
+                type: 'digital'
+            }));
+            
+            const allBanks = [...traditionalBanks, ...digitalWalletsFormatted];
+            
+            res.json({ success: true, banks: allBanks });
         } else {
-            res.json({ success: false, message: data.message });
+            // Fallback: return only digital wallets if Paystack fails
+            const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
+                code: wallet.code,
+                name: wallet.name,
+                slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
+                type: 'digital'
+            }));
+            res.json({ success: true, banks: digitalWalletsFormatted });
         }
     } catch (error) {
-        res.json({ success: false, message: 'Network error' });
+        console.error('Error fetching banks:', error);
+        // Fallback: return digital wallets
+        const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
+            code: wallet.code,
+            name: wallet.name,
+            slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
+            type: 'digital'
+        }));
+        res.json({ success: true, banks: digitalWalletsFormatted });
     }
 });
 
-// ============ GET BANKS WITH LOGOS (FALLBACK) ============
+// ============ GET BANKS WITH LOGOS ============
 app.get('/api/banks-with-logos', async (req, res) => {
-    // Bank logos mapping
+    // Traditional bank logos mapping
     const bankLogos = {
         'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png',
         'Citibank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Citibank_logo.svg/200px-Citibank_logo.svg.png',
@@ -268,10 +315,13 @@ app.get('/api/banks-with-logos', async (req, res) => {
         'Unity Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
         'Wema Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Wema_Bank_logo.svg/200px-Wema_Bank_logo.svg.png',
         'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
-        'OPay': 'https://opay-cdn.s3.us-east-2.amazonaws.com/opay-logo.png',
-        'Moniepoint': 'https://moniepoint.com/images/logo.svg',
-        'PalmPay': 'https://palmpay.com/images/logo.png',
-        'Paga': 'https://www.paga.com/images/logo.png'
+        'Jaiz Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Heritage Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Keystone Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Providus Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Titan Trust Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'Globus Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
+        'SunTrust Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png'
     };
     
     try {
@@ -285,31 +335,36 @@ app.get('/api/banks-with-logos', async (req, res) => {
         
         const data = await response.json();
         
+        let traditionalBanks = [];
         if (data.status) {
-            const banks = data.data
+            traditionalBanks = data.data
                 .filter(bank => bank.country === 'Nigeria')
                 .map(bank => ({
                     code: bank.code,
                     name: bank.name,
                     logo: bankLogos[bank.name] || 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png'
                 }));
-            
-            // Add digital banks/wallets
-            const digitalBanks = [
-                { code: '999992', name: 'OPay', logo: bankLogos['OPay'] },
-                { code: '999991', name: 'Moniepoint', logo: bankLogos['Moniepoint'] },
-                { code: '999993', name: 'PalmPay', logo: bankLogos['PalmPay'] },
-                { code: '999994', name: 'Paga', logo: bankLogos['Paga'] }
-            ];
-            
-            const allBanks = [...banks, ...digitalBanks];
-            
-            res.json({ success: true, banks: allBanks });
-        } else {
-            res.json({ success: false, message: data.message });
         }
+        
+        // Digital wallets with their logos
+        const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
+            code: wallet.code,
+            name: wallet.name,
+            logo: wallet.logo
+        }));
+        
+        const allBanks = [...traditionalBanks, ...digitalWalletsWithLogos];
+        
+        res.json({ success: true, banks: allBanks });
     } catch (error) {
-        res.json({ success: false, message: 'Network error' });
+        console.error('Error:', error);
+        // Return only digital wallets as fallback
+        const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
+            code: wallet.code,
+            name: wallet.name,
+            logo: wallet.logo
+        }));
+        res.json({ success: true, banks: digitalWalletsWithLogos });
     }
 });
 
