@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Processing Payment - OPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container { text-align: center; padding: 40px; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #ddd; border-top-color: #00B875; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h3>Verifying Payment...</h3>
+        <p>Please wait while we confirm your transaction</p>
+    </div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+
+    async function verifyPayment() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+        
+        if (!reference) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Error',
+                text: 'No payment reference found',
+                confirmButtonColor: '#00B875'
+            }).then(() => {
+                window.location.href = 'plan.html';
+            });
+            return;
+        }
+        
+        const userData = localStorage.getItem('loggedInUser');
+        if (!userData) {
+            window.location.href = 'login1.html';
+            return;
+        }
+        
+        const user = JSON.parse(userData);
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/verify-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reference: reference, email: user.email })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Update localStorage
+                localStorage.setItem(`user_tier_${user.email}`, data.tier);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful!',
+                    text: data.message,
+                    confirmButtonColor: '#00B875'
+                }).then(() => {
+                    window.location.href = 'dashboard.html';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: data.message,
+                    confirmButtonColor: '#00B875'
+                }).then(() => {
+                    window.location.href = 'plan.html';
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Could not verify payment. Please contact support.',
+                confirmButtonColor: '#00B875'
+            }).then(() => {
+                window.location.href = 'plan.html';
+            });
+        }
+    }
+    
+    verifyPayment();
+    </script>
+</body>
+</html>
