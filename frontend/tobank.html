@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Transfer to Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 16px 16px 10px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            margin: 0;
+            flex: 1;
+        }
+
+        .history-link {
+            font-size: 12px;
+            font-weight: 500;
+            color: #00B875;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Promotion Card */
+        .promo-card {
+            margin: 16px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .promo-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: #e8f5e9;
+            margin: 0 16px 16px;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .info-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #00B875;
+        }
+
+        .info-icon {
+            color: #00B875;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 16px 16px 12px;
+        }
+
+        .section-titles {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 1px 0px 8px;
+        }
+
+        /* Input Box */
+        .input-container {
+            background: white;
+            margin: 0 16px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .phone-input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid #e0e4e8;
+            border-radius: 12px;
+            background: #f8f9fc;
+        }
+
+        .phone-input-wrapper:focus-within {
+            border-color: #00B875;
+        }
+
+        .phone-input {
+            flex: 1;
+            border: none;
+            padding: 14px 12px;
+            font-size: 15px;
+            background: transparent;
+            border-radius: 12px;
+        }
+
+        .phone-input:focus {
+            outline: none;
+        }
+
+        .ask-link {
+            text-align: right;
+            margin: 8px 16px 0;
+            font-size: 10px;
+        }
+
+        .ask-link a {
+            color: #00B875;
+            text-decoration: none;
+        }
+
+        /* Account Name Display - Clickable Card */
+        .account-name-display {
+            background: #f0fdf4;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #e8f5e9;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .account-name-display:active {
+            transform: scale(0.98);
+            background: #e8f5e9;
+        }
+
+        .name-icon {
+            width: 40px;
+            height: 40px;
+            background: #00B875;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .name-icon i {
+            font-size: 20px;
+            color: white;
+        }
+
+        .name-details {
+            flex: 1;
+        }
+
+        .verified-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .verified-account {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Message Indicator - Text Only */
+        .message-indicator {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .message-indicator.error {
+            background: #ffebee;
+            color: #dc3545;
+        }
+
+        .message-indicator.success {
+            background: #e8f5e9;
+            color: #00B875;
+        }
+
+        .message-indicator.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .message-indicator.info {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        /* Recents Section */
+        .recents-container {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recent-item:active {
+            background: #f8f9fc;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recent-avatar {
+            width: 40px;
+            height: 40px;
+            background: #f0fdf4;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .recent-avatar img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .recent-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recent-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .recent-phone {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .view-all {
+            text-align: center;
+            padding: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .view-all a {
+            color: #00B875;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Footer Contact Card */
+        .footer-links {
+            margin: 2px 16px;
+        }
+
+        .footer-contact-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .footer-contact-card:active {
+            transform: scale(0.98);
+            background: #f8f9fc;
+        }
+
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+            background: #e8f5e9;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-icon i {
+            font-size: 20px;
+            color: #00B875;
+        }
+
+        .footer-content {
+            flex: 1;
+        }
+
+        .footer-heading {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .footer-subtitle {
+            font-size: 12px;
+            color: #888;
+            margin: 0;
+        }
+
+        .footer-arrow {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* More Events Section */
+        .more-events-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 20px 16px 12px;
+        }
+
+        .event-card {
+            background: white;
+            margin: 0 16px 16px;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .event-card:active {
+            transform: scale(0.98);
+            background: #f8f9fc;
+        }
+
+        .event-icon {
+            width: 20px;
+            height: 20px;
+            background: #e8f5e9;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .event-icon i {
+            font-size: 20px;
+            color: #00B875;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .event-desc {
+            font-size: 12px;
+            color: #888;
+            margin: 0;
+        }
+
+        .event-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00B875;
+            margin-right: 5px;
+        }
+
+        .event-arrow {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* Bottom Sheet for View All */
+        .bottom-sheet {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .sheet-content {
+            background: white;
+            width: 100%;
+            border-radius: 28px 28px 0 0;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .sheet-header {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
+
+        .sheet-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .recent-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .recent-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .sheet-footer {
+            padding: 16px 20px 30px;
+        }
+
+        .close-sheet-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Transfer to Bank Account</h1>
+            <a href="#" class="history-link" id="historyLink">History</a>
+        </div>
+    </div>
+
+    <!-- Promotion Card with Image -->
+    <div class="promo-card">
+        <img src="images/card.jpg" alt="Promotion" class="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Super+Voucher+Package'">
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner">
+        <span class="info-text"><i class="fas fa-check-circle info-icon"></i> Instant, Zero Issues, Free</span>
+    </div>
+
+    <!-- Recipient Account Section -->
+    <div class="input-container">
+        <div class="section-titles">Recipient Account</div>
+        <div class="phone-input-wrapper">
+            <input type="tel" class="phone-input" id="accountInput" placeholder="Bank Account No." inputmode="numeric">
+        </div>
+        
+        <!-- Message Indicator - Text only -->
+        <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
+        
+        <!-- Account Name Display (Clickable card) -->
+        <div class="account-name-display" id="accountNameDisplay" style="display: none;">
+            <div class="name-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="name-details">
+                <div class="verified-name" id="verifiedName"></div>
+                <div class="verified-account" id="verifiedAccount"></div>
+            </div>
+        </div>
+        
+        <div class="ask-link">
+            <a href="#" id="askLink">Don't know the recipient's bank account? Ask them ></a>
+        </div>
+    </div>
+
+    <!-- Recents Section -->
+    <div class="recents-container" id="recentsContainer">
+        <div class="section-title">Recents</div>
+        <div id="recentsList">
+            <div style="padding: 20px; text-align: center; color: #888;">No recent transfers</div>
+        </div>
+        <div class="view-all">
+            <a href="#" id="viewAllLink">View All ></a>
+        </div>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="footer-links">
+        <div class="footer-contact-card" id="contactsCard">
+            <div class="footer-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="footer-content">
+                <h4 class="footer-heading">See who else is using OPay</h4>
+                <p class="footer-subtitle">Send money to your contacts for free</p>
+            </div>
+            <i class="fas fa-chevron-right footer-arrow"></i>
+        </div>
+    </div>
+
+    <!-- More Events Section -->
+    <div class="more-events-title">More Events</div>
+    <div class="event-card" id="eventCard">
+        <div class="event-icon">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <div class="event-info">
+            <h4 class="event-title">Super Voucher Package</h4>
+            <p class="event-desc">Claim 15 Discounts with ₦99 on any Bill</p>
+        </div>
+        <div class="event-price">₦99</div>
+        <i class="fas fa-chevron-right event-arrow"></i>
+    </div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api.onrender.com';
+    const accountInput = document.getElementById('accountInput');
+    const accountNameDisplay = document.getElementById('accountNameDisplay');
+    const verifiedNameSpan = document.getElementById('verifiedName');
+    const verifiedAccountSpan = document.getElementById('verifiedAccount');
+    const messageIndicator = document.getElementById('messageIndicator');
+
+    let currentFoundName = null;
+    let currentFoundAccount = null;
+    let currentUserAccount = null;
+    let currentUserTier = '1';
+
+    // Get current logged-in user's tier
+    function getCurrentUserTier() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                const savedTier = localStorage.getItem(`user_tier_${user.email}`);
+                currentUserTier = savedTier || '1';
+                console.log('Current user tier:', currentUserTier);
+            } catch(e) {
+                console.error('Error getting user tier:', e);
+            }
+        }
+    }
+
+    // Show upgrade modal
+    function showUpgradeModal() {
+        let currentTier = currentUserTier || '1';
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-end;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                    <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                    <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
+                </div>
+                
+                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                        ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    </span>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Premium ></button>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Upgrade to VIP ></button>
+                </div>
+                
+                <div style="padding: 16px 20px 30px;">
+                    <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                document.body.style.overflow = '';
+            }
+        });
+        
+        overlay.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const plan = btn.getAttribute('data-plan');
+                const tier = btn.getAttribute('data-tier');
+                localStorage.setItem('selected_plan', JSON.stringify({
+                    plan: plan,
+                    tier: tier,
+                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+                }));
+                window.location.href = 'plan.html';
+            });
+        });
+    }
+
+    // Get current logged-in user's account number
+    function getCurrentUserAccount() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                currentUserAccount = user.account_number;
+                console.log('Current user account number:', currentUserAccount);
+                return;
+            } catch(e) {
+                console.error('Error parsing loggedInUser:', e);
+            }
+        }
+        
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                currentUserAccount = user.accountNumber || user.account_number;
+                console.log('User account from currentUser:', currentUserAccount);
+                return;
+            } catch(e) {
+                console.error('Error parsing currentUser:', e);
+            }
+        }
+    }
+
+    // Show message indicator
+    function showMessage(text, type) {
+        messageIndicator.textContent = text;
+        messageIndicator.className = `message-indicator ${type}`;
+        messageIndicator.style.display = 'block';
+        setTimeout(() => {
+            messageIndicator.style.display = 'none';
+        }, 3000);
+    }
+
+    // Show bottom sheet with all recents
+    function showAllRecents() {
+        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+        
+        if (recents.length === 0) {
+            showMessage('No recent transfers available', 'warning');
+            return;
+        }
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'bottom-sheet';
+        overlay.innerHTML = `
+            <div class="sheet-content">
+                <div class="sheet-header">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-title">All Recent Transfers</div>
+                </div>
+                <div id="allRecentsList">
+                    ${recents.map(recent => `
+                        <div class="recent-list-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
+                            <div class="recent-info">
+                                <div class="recent-avatar">
+                                    <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                                </div>
+                                <div class="recent-details">
+                                    <div class="recent-name">${recent.name}</div>
+                                    <div class="recent-phone">${recent.account} | ${recent.bank}</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #ccc; font-size: 14px;"></i>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="sheet-footer">
+                    <button class="close-sheet-btn">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        overlay.querySelectorAll('.recent-list-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.getAttribute('data-name');
+                const account = item.getAttribute('data-account');
+                const bank = item.getAttribute('data-bank');
+                const selectedRecipient = { name, accountNumber: account, bank: bank };
+                localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
+                overlay.remove();
+                document.body.style.overflow = '';
+                window.location.href = 'tobank-amount.html';
+            });
+        });
+        
+        overlay.querySelector('.close-sheet-btn').addEventListener('click', () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // Load recents from localStorage
+    function loadRecents() {
+        const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+        const recentsList = document.getElementById('recentsList');
+        
+        const displayRecents = recents.slice(0, 3);
+        
+        if (displayRecents.length === 0) {
+            recentsList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No recent transfers</div>';
+        } else {
+            recentsList.innerHTML = displayRecents.map(recent => `
+                <div class="recent-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
+                    <div class="recent-info">
+                        <div class="recent-avatar">
+                            <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                        </div>
+                        <div class="recent-details">
+                            <div class="recent-name">${recent.name}</div>
+                            <div class="recent-phone">${recent.account} | ${recent.bank}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: #ccc; font-size: 14px;"></i>
+                </div>
+            `).join('');
+        }
+        
+        document.querySelectorAll('.recent-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const name = item.getAttribute('data-name');
+                const account = item.getAttribute('data-account');
+                const bank = item.getAttribute('data-bank');
+                const selectedRecipient = { name, accountNumber: account, bank: bank };
+                localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
+                window.location.href = 'tobank-amount.html';
+            });
+        });
+    }
+
+    // Save to recents
+    function saveToRecents(name, account, bank) {
+        let recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
+        recents = recents.filter(r => r.account !== account);
+        recents.unshift({ name, account, bank });
+        recents = recents.slice(0, 10);
+        localStorage.setItem('bankRecents', JSON.stringify(recents));
+        loadRecents();
+    }
+
+    // Go to amount page
+    function goToAmountPage() {
+        if (currentFoundName && currentFoundAccount) {
+            const selectedRecipient = {
+                name: currentFoundName,
+                accountNumber: currentFoundAccount,
+                bank: 'Other Bank'
+            };
+            localStorage.setItem('bankRecipientInfo', JSON.stringify(selectedRecipient));
+            window.location.href = 'tobank-amount.html';
+        }
+    }
+
+    // Handle history link click
+    function handleHistoryClick(e) {
+        e.preventDefault();
+        
+        const userData = localStorage.getItem('loggedInUser');
+        let userTier = '1';
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+            } catch(e) {}
+        }
+        
+        const canAccessHistory = userTier === '3' || userTier === 3 || userTier === 'VIP';
+        
+        if (canAccessHistory) {
+            window.location.href = 'transaction.html';
+        } else {
+            showUpgradeModal();
+        }
+    }
+
+    // Account input handler
+    let debounceTimer;
+    accountInput.addEventListener('input', async function(e) {
+        let val = this.value.replace(/\D/g, '').slice(0, 10);
+        this.value = val;
+        
+        clearTimeout(debounceTimer);
+        
+        if (val.length === 10) {
+            // Demo account name fetch - in production, call actual bank API
+            debounceTimer = setTimeout(() => {
+                currentFoundName = `Bank Account Holder ${val.slice(-4)}`;
+                currentFoundAccount = val;
+                verifiedNameSpan.textContent = currentFoundName;
+                verifiedAccountSpan.textContent = val.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+                accountNameDisplay.style.display = 'flex';
+            }, 500);
+        } else if (val.length > 0 && val.length < 10) {
+            accountNameDisplay.style.display = 'none';
+            currentFoundName = null;
+            currentFoundAccount = null;
+        } else {
+            accountNameDisplay.style.display = 'none';
+            currentFoundName = null;
+            currentFoundAccount = null;
+        }
+    });
+
+    // Click on verified name card
+    accountNameDisplay.addEventListener('click', () => {
+        if (currentFoundName && currentFoundAccount) {
+            goToAmountPage();
+        }
+    });
+
+    // View All link
+    document.getElementById('viewAllLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        showAllRecents();
+    });
+
+    // Ask link
+    document.getElementById('askLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        showMessage('💡 Ask recipient to share their bank account number', 'info');
+    });
+
+    // History link with tier restriction
+    document.getElementById('historyLink').addEventListener('click', handleHistoryClick);
+
+    // Footer contact card
+    document.getElementById('contactsCard').addEventListener('click', () => {
+        showMessage('ℹ️ See contacts using OPay feature coming soon', 'info');
+    });
+
+    // Event card click
+    document.getElementById('eventCard').addEventListener('click', () => {
+        showMessage('🎫 Super Voucher Package: Claim 15 Discounts with ₦99 on any Bill', 'info');
+    });
+
+    // Expose saveToRecents
+    window.saveToRecents = saveToRecents;
+
+    // Initialize
+    getCurrentUserAccount();
+    getCurrentUserTier();
+    loadRecents();
+
+    console.log('✅ To Bank page initialized');
+    </script>
+</body>
+</html>
