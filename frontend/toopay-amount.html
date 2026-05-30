@@ -186,7 +186,7 @@ input:focus::placeholder {
             
             border-radius: 5px;
             padding: 10px;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 450;
             color: #888;
             cursor: pointer;
@@ -682,22 +682,41 @@ input:focus::placeholder {
         });
     }
     
-    // Format amount input
+    // Format amount input with decimal point
     amountInput.addEventListener('input', function(e) {
         let val = this.value.replace(/[^0-9]/g, '');
-        if (val === '') val = '0';
-        let num = parseInt(val);
-        this.value = num.toLocaleString('en-US');
+        if (val === '') {
+            this.value = '';
+            currentAmount = 0;
+            validateAmount();
+            return;
+        }
+        
+        // Convert to number with 2 decimal places
+        let num = parseFloat(val) / 100;
         currentAmount = num;
+        
+        // Format with 2 decimal places
+        this.value = currentAmount.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
         validateAmount();
     });
     
-    // Quick amount buttons
+    // Quick amount buttons - add .00 format
     document.querySelectorAll('.quick-amount-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const amount = parseInt(btn.getAttribute('data-amount'));
-            amountInput.value = amount.toLocaleString('en-US');
+            let amount = parseInt(btn.getAttribute('data-amount'));
             currentAmount = amount;
+            
+            // Format with 2 decimal places
+            amountInput.value = currentAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
             validateAmount();
         });
     });
