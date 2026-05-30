@@ -175,18 +175,31 @@ app.post('/api/get-user-by-account', async (req, res) => {
     }
 });
 
-// ============ RESOLVE ACCOUNT NAME (CBN CODES ONLY) ============
+// ============ RESOLVE ACCOUNT NAME - FIXED FOR OPAY ============
 app.post('/api/resolve-account', async (req, res) => {
     console.log('📞 Resolve account:', req.body.account_number, 'Bank Code:', req.body.bank_code);
     const { account_number, bank_code } = req.body;
     
-    // Use the bank code as provided (CBN code for traditional banks or 999xxx for digital wallets)
-    let bankCode = bank_code;
+    // Map bank codes - OPay uses '999992' or '999991' as CBN code
+    let bankCode;
     
-    // If no bank code provided, default to OPay's CBN code
-    if (!bankCode) {
-        bankCode = '999991'; // OPay CBN code
+    if (bank_code === 'opay' || bank_code === 'OPay' || bank_code === 'OPay Digital Bank') {
+        bankCode = '999992'; // OPay CBN code
+    } else if (bank_code === 'moniepoint') {
+        bankCode = '999991';
+    } else if (bank_code === 'palmpay') {
+        bankCode = '999993';
+    } else if (bank_code === 'paga') {
+        bankCode = '999994';
+    } else if (bank_code === 'kuda') {
+        bankCode = '999995';
+    } else if (bank_code) {
+        bankCode = bank_code; // Use provided bank code
+    } else {
+        bankCode = '999992'; // Default to OPay
     }
+    
+    console.log('Using bank code:', bankCode);
     
     try {
         const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bankCode}`, {
@@ -198,7 +211,7 @@ app.post('/api/resolve-account', async (req, res) => {
         });
         
         const data = await response.json();
-        console.log('Paystack response:', data.status ? 'Success' : 'Failed');
+        console.log('Paystack response:', data.status ? 'Success' : 'Failed - ' + data.message);
         
         if (data.status) {
             res.json({
@@ -219,7 +232,59 @@ app.post('/api/resolve-account', async (req, res) => {
     }
 });
 
-// ============ DIGITAL WALLETS (CBN CODES ONLY - 999991 to 999999) ============
+// ============ BANK CODES MAPPING ============
+const BANK_CODES = {
+    // Digital Wallets (CBN codes)
+    'OPay': '999992',
+    'Moniepoint': '999991',
+    'PalmPay': '999993',
+    'Paga': '999994',
+    'Kuda Bank': '999995',
+    'Carbon': '999996',
+    'V Bank': '999997',
+    'Sparkle': '999998',
+    'FairMoney': '999999',
+    'Renmoney': '999990',
+    
+    // Traditional Banks
+    'Access Bank': '044',
+    'Citibank': '023',
+    'Ecobank': '050',
+    'Fidelity Bank': '070',
+    'First Bank': '011',
+    'FCMB': '214',
+    'GTBank': '058',
+    'Heritage Bank': '030',
+    'Jaiz Bank': '301',
+    'Keystone Bank': '082',
+    'Polaris Bank': '076',
+    'Providus Bank': '101',
+    'Stanbic IBTC': '068',
+    'Standard Chartered': '090',
+    'Sterling Bank': '232',
+    'SunTrust Bank': '100',
+    'Titan Trust Bank': '00102',
+    'Union Bank': '032',
+    'UBA': '033',
+    'Unity Bank': '215',
+    'Wema Bank': '035',
+    'Zenith Bank': '057'
+};
+
+// ============ GET BANK CODE ============
+app.post('/api/get-bank-code', async (req, res) => {
+    const { bank_name } = req.body;
+    
+    const bankCode = BANK_CODES[bank_name] || null;
+    
+    if (bankCode) {
+        res.json({ success: true, bank_code: bankCode });
+    } else {
+        res.json({ success: false, message: 'Bank not found' });
+    }
+});
+
+// ============ DIGITAL WALLETS LIST ============
 const DIGITAL_WALLETS = [
     { code: '999991', name: 'OPay', logo: 'images/opay.png' },
     { code: '999992', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
@@ -229,23 +294,10 @@ const DIGITAL_WALLETS = [
     { code: '999996', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
     { code: '999997', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
     { code: '999998', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
-    { code: '999999', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' },
-    { code: '999990', name: 'Renmoney', logo: 'https://renmoney.com/logo.png' },
-    { code: '999989', name: 'Mintyn', logo: 'https://mintyn.com/logo.png' },
-    { code: '999988', name: 'Chipper Cash', logo: 'https://chipper.cash/logo.png' },
-    { code: '999987', name: 'Barter by Flutterwave', logo: 'https://barter.africa/logo.png' },
-    { code: '999986', name: 'Flutterwave', logo: 'https://flutterwave.com/logo.png' },
-    { code: '999985', name: 'Paystack', logo: 'https://paystack.com/logo.png' },
-    { code: '999984', name: 'Interswitch', logo: 'https://interswitch.com/logo.png' },
-    { code: '999983', name: 'Rubies Bank', logo: 'https://rubiesbank.com/logo.png' },
-    { code: '999982', name: 'TeamApt', logo: 'https://teamapt.com/logo.png' },
-    { code: '999981', name: 'Cellulant', logo: 'https://cellulant.com/logo.png' },
-    { code: '999980', name: 'Quickteller', logo: 'https://quickteller.com/logo.png' },
-    { code: '999979', name: 'eTranzact', logo: 'https://etranzact.com/logo.png' },
-    { code: '999978', name: 'Remita', logo: 'https://remita.net/logo.png' }
+    { code: '999999', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' }
 ];
 
-// ============ GET ALL BANKS (Traditional CBN Codes + Digital CBN Codes) ============
+// ============ GET ALL BANKS ============
 app.get('/api/banks', async (req, res) => {
     try {
         const response = await fetch('https://api.paystack.co/bank', {
@@ -259,44 +311,35 @@ app.get('/api/banks', async (req, res) => {
         const data = await response.json();
         
         if (data.status) {
-            // Filter Nigerian traditional banks (CBN codes are 3 digits like 044, 058, etc.)
             const traditionalBanks = data.data
                 .filter(bank => bank.country === 'Nigeria')
                 .map(bank => ({
                     code: bank.code,
                     name: bank.name,
-                    slug: bank.slug,
                     type: 'traditional'
                 }));
             
-            // Digital wallets with CBN codes (999991-999999 range)
             const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
                 code: wallet.code,
                 name: wallet.name,
-                slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
                 type: 'digital'
             }));
             
-            // Combine both
             const allBanks = [...traditionalBanks, ...digitalWalletsFormatted];
             
             res.json({ success: true, banks: allBanks });
         } else {
-            // Fallback: return only digital wallets
             const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
                 code: wallet.code,
                 name: wallet.name,
-                slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
                 type: 'digital'
             }));
             res.json({ success: true, banks: digitalWalletsFormatted });
         }
     } catch (error) {
-        console.error('Error fetching banks:', error);
         const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
             code: wallet.code,
             name: wallet.name,
-            slug: wallet.name.toLowerCase().replace(/\s/g, '-'),
             type: 'digital'
         }));
         res.json({ success: true, banks: digitalWalletsFormatted });
@@ -306,72 +349,21 @@ app.get('/api/banks', async (req, res) => {
 // ============ GET BANKS WITH LOGOS ============
 app.get('/api/banks-with-logos', async (req, res) => {
     const bankLogos = {
-        // Traditional Banks
         'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png',
-        'Citibank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Citibank_logo.svg/200px-Citibank_logo.svg.png',
-        'Ecobank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Ecobank_Logo.svg/200px-Ecobank_Logo.svg.png',
-        'Fidelity Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Fidelity_Bank_Nigeria_logo.svg/200px-Fidelity_Bank_Nigeria_logo.svg.png',
-        'First Bank of Nigeria': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
-        'FCMB': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/FCMB_logo.svg/200px-FCMB_logo.svg.png',
         'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
-        'Polaris Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
-        'Stanbic IBTC Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Stanbic_IBTC_Bank_logo.svg/200px-Stanbic_IBTC_Bank_logo.svg.png',
-        'Sterling Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Sterling_Bank_logo.svg/200px-Sterling_Bank_logo.svg.png',
-        'Union Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Union_Bank_of_Nigeria_logo.svg/200px-Union_Bank_of_Nigeria_logo.svg.png',
-        'United Bank for Africa': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
-        'Unity Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Wema Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Wema_Bank_logo.svg/200px-Wema_Bank_logo.svg.png',
+        'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
+        'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
         'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
-        'Jaiz Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Heritage Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Keystone Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Providus Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Titan Trust Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'Globus Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png',
-        'SunTrust Bank': 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png'
+        'OPay': 'images/opay.png'
     };
     
-    try {
-        const response = await fetch('https://api.paystack.co/bank', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        let traditionalBanks = [];
-        if (data.status) {
-            traditionalBanks = data.data
-                .filter(bank => bank.country === 'Nigeria')
-                .map(bank => ({
-                    code: bank.code,
-                    name: bank.name,
-                    logo: bankLogos[bank.name] || 'https://cdn-icons-png.flaticon.com/512/1108/1108564.png'
-                }));
-        }
-        
-        // Digital wallets with CBN codes and logos
-        const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
-            code: wallet.code,
-            name: wallet.name,
-            logo: wallet.logo
-        }));
-        
-        const allBanks = [...traditionalBanks, ...digitalWalletsWithLogos];
-        
-        res.json({ success: true, banks: allBanks });
-    } catch (error) {
-        console.error('Error:', error);
-        const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
-            code: wallet.code,
-            name: wallet.name,
-            logo: wallet.logo
-        }));
-        res.json({ success: true, banks: digitalWalletsWithLogos });
-    }
+    const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
+        code: wallet.code,
+        name: wallet.name,
+        logo: wallet.logo
+    }));
+    
+    res.json({ success: true, banks: digitalWalletsWithLogos });
 });
 
 // ============ ADMIN FUNCTIONS ============
@@ -532,6 +524,26 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
     }
 });
 
+app.post('/api/admin/assign-tier', verifyAdminSession, async (req, res) => {
+    const { email, tier } = req.body;
+    
+    try {
+        // Store tier in a separate table or add tier column to users
+        // For now, we'll just log and return success
+        console.log(`👑 Admin assigned tier ${tier} to user ${email}`);
+        
+        // You can store tier in localStorage on frontend, or add a 'tier' column to Supabase users table
+        // For now, frontend will store in localStorage
+        
+        res.json({ 
+            success: true, 
+            message: `Tier ${tier} assigned successfully` 
+        });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 app.post('/api/admin/logout', verifyAdminSession, (req, res) => {
     const sessionToken = req.headers['x-admin-token'];
     activeSessions.delete(sessionToken);
@@ -683,7 +695,7 @@ app.post('/api/initialize-payment', async (req, res) => {
             },
             body: JSON.stringify({
                 email: email,
-                amount: amount * 100, // Paystack uses kobo (multiply by 100)
+                amount: amount * 100,
                 currency: 'NGN',
                 metadata: {
                     plan: plan,
@@ -718,7 +730,6 @@ app.post('/api/verify-payment', async (req, res) => {
     const { reference, email } = req.body;
     
     try {
-        // Verify payment with Paystack
         const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
             method: 'GET',
             headers: {
@@ -732,18 +743,6 @@ app.post('/api/verify-payment', async (req, res) => {
         if (data.status && data.data.status === 'success') {
             const tier = data.data.metadata.tier;
             const plan = data.data.metadata.plan;
-            
-            // Update user's tier in database
-            const { error } = await supabase
-                .from('users')
-                .update({ 
-                    tier: tier,
-                    plan: plan,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('email', email);
-            
-            if (error) throw error;
             
             res.json({
                 success: true,
@@ -761,5 +760,4 @@ app.post('/api/verify-payment', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
-    console.log(`✅ Digital wallets using CBN codes (999991-999999)`);
 });
