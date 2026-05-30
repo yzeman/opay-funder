@@ -66,7 +66,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            
         }
 
         .bank-icon {
@@ -102,91 +101,89 @@
         }
 
         /* Amount Section */
-.amount-section {
-    background: white;
-    margin: -16px 16px 1px;
-    border-radius: 20px;
-    padding: 20px;
-    
-}
+        .amount-section {
+            background: white;
+            margin: -16px 16px 1px;
+            border-radius: 20px;
+            padding: 20px;
+        }
 
-.amount-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+        .amount-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-.amount-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
+        .amount-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
 
-.no-fee-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #00B875;
-}
+        .no-fee-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #00B875;
+        }
 
-.amount-input-wrapper {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+        .amount-input-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-.currency-symbol {
-    font-size: 25px;
-    font-weight: 400;
-    color: #1a1a1a;
-    margin-right: 5px;
-}
+        .currency-symbol {
+            font-size: 25px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-right: 5px;
+        }
 
-.amount-input {
-    font-size: 25px;
-    font-weight: 500;
-    color: #1a1a1a;
-    border: none;
-    border-bottom: 2px solid #00B875;
-    text-align: left;
-    width: 100%;
-    font-family: inherit;
-    background: transparent;
-    padding: 0;
-}
-input::placeholder {
-  color: #aaa8;
-  transition: color 0.2s;
-}
+        .amount-input {
+            font-size: 25px;
+            font-weight: 500;
+            color: #1a1a1a;
+            border: none;
+            border-bottom: 2px solid #00B875;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+            background: transparent;
+            padding: 0;
+        }
 
-input:focus::placeholder {
-  color: transparent;
-}
+        input::placeholder {
+            color: #aaa8;
+            transition: color 0.2s;
+        }
 
-.amount-input:focus {
-    outline: none;
-}
+        input:focus::placeholder {
+            color: transparent;
+        }
 
-.amount-range {
-    font-size: 13px;
-    color: #888;
-    margin-top: 5px;
-}
+        .amount-input:focus {
+            outline: none;
+        }
+
+        .amount-range {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
 
         /* Quick Amount Buttons */
         .quick-amounts {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            
         }
 
         .quick-amount-btn {
             background: #f8f9fc;
-            
             border-radius: 5px;
             padding: 10px;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 450;
             color: #888;
             cursor: pointer;
@@ -286,53 +283,7 @@ input:focus::placeholder {
             cursor: not-allowed;
         }
 
-        /* Upgrade Modal */
-        .upgrade-plan-container {
-            background: white;
-            border-radius: 28px;
-            overflow: hidden;
-            max-width: 380px;
-            margin: 0 auto;
-        }
-
-        .plan-option {
-            padding: 16px;
-            margin: 0 16px 12px;
-            border-radius: 20px;
-            border: 1px solid #eee;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .plan-option:hover {
-            border-color: #00B875;
-            background: #f0fdf4;
-        }
-
-        .plan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .plan-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .plan-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #00B875;
-        }
-
-        .plan-features {
-            font-size: 12px;
-            color: #666;
-            line-height: 1.6;
-        }
-        
+        /* Message Indicator */
         .message-indicator {
             margin: 8px 16px;
             padding: 10px;
@@ -340,86 +291,34 @@ input:focus::placeholder {
             font-size: 13px;
             text-align: center;
         }
-        
+
         .message-indicator.error {
             background: #ffebee;
             color: #dc3545;
         }
-        
+
         .message-indicator.success {
             background: #e8f5e9;
             color: #00B875;
         }
-        
+
         .message-indicator.warning {
             background: #fff3cd;
             color: #856404;
         }
-
-        /* Custom Reminder Popup Styles */
-        .reminder-icon {
-            font-size: 48px;
-            color: #ff9800;
-            margin-bottom: 10px;
-        }
-        
-        .reminder-warning {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
-            padding: 12px;
-            border-radius: 12px;
-            margin: 15px 0;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .transaction-summary-card {
-            background: linear-gradient(135deg, #f0fdf4, #e8f5e9);
-            padding: 16px;
-            border-radius: 16px;
-            margin: 15px 0;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .summary-row:last-child {
-            border-bottom: none;
-        }
-        
-        .summary-label {
-            color: #666;
-            font-size: 13px;
-        }
-        
-        .summary-value {
-            font-weight: 600;
-            color: #1a1a1a;
-            font-size: 13px;
-        }
-        
-        .summary-amount {
-            font-weight: 700;
-            color: #00B875;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
             <button class="back-btn" onclick="window.location.href='toopay.html'">
                 <i class="fas fa-arrow-left"></i>
-        </button>
+            </button>
             <h1 class="header-title">Transfer To OPay Account</h1>
             <div style="width: 40px;"></div>
         </div>
     </div>
 
-    <!-- Recipient Card -->
     <div class="recipient-card" id="recipientCard">
         <div class="bank-icon">
             <img src="images/opay.png" alt="OPay" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
@@ -430,7 +329,6 @@ input:focus::placeholder {
         </div>
     </div>
 
-    <!-- Amount Section -->
     <div class="amount-section">
         <div class="amount-header">
             <div class="amount-label">Amount</div>
@@ -440,8 +338,7 @@ input:focus::placeholder {
             <span class="currency-symbol">₦</span>
             <input type="tel" class="amount-input" id="amountInput" placeholder="0.00" inputmode="numeric">
         </div>
-
-        <!-- Quick Amount Buttons -->
+        
         <div class="quick-amounts">
             <div class="quick-amount-btn" data-amount="500">₦500</div>
             <div class="quick-amount-btn" data-amount="1000">₦1,000</div>
@@ -452,19 +349,16 @@ input:focus::placeholder {
         </div>
     </div>
 
-    <!-- Remark Section -->
     <div class="remark-section">
         <div class="remark-title">Remark</div>
         <input type="text" class="remark-input" id="remarkInput" placeholder="What's this for? (Optional)">
         
-        <!-- Purchase / Personal Tags -->
         <div class="tag-section">
             <div class="tag-btn" id="purchaseTag">Purchase</div>
             <div class="tag-btn" id="personalTag">Personal</div>
         </div>
     </div>
 
-    <!-- Confirm Button -->
     <button class="confirm-btn" id="confirmBtn">Confirm</button>
 
     <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
@@ -501,7 +395,7 @@ input:focus::placeholder {
     let todaysTransferCount = 0;
     let lastTransferDate = null;
     
-    // Tier limits - NO per transaction limit, only daily transfer count
+    // Tier limits
     const tierLimits = {
         '1': { canSend: true, dailyTransfers: 2, tierName: 'Free' },
         '2': { canSend: true, dailyTransfers: 10, tierName: 'Basic' },
@@ -509,19 +403,15 @@ input:focus::placeholder {
         'VIP': { canSend: true, dailyTransfers: 'unlimited', tierName: 'VIP' }
     };
     
-    // Show text message indicator (no toast)
+    // Show message indicator
     function showMessage(text, type) {
         const msgDiv = document.getElementById('messageIndicator');
-        if (msgDiv) {
-            msgDiv.textContent = text;
-            msgDiv.className = `message-indicator ${type}`;
-            msgDiv.style.display = 'block';
-            setTimeout(() => {
-                msgDiv.style.display = 'none';
-            }, 3000);
-        } else {
-            console.log(`${type}: ${text}`);
-        }
+        msgDiv.textContent = text;
+        msgDiv.className = `message-indicator ${type}`;
+        msgDiv.style.display = 'block';
+        setTimeout(() => {
+            msgDiv.style.display = 'none';
+        }, 3000);
     }
     
     // Get current user
@@ -579,164 +469,13 @@ input:focus::placeholder {
         return { allowed: true, remaining: limit.dailyTransfers === 'unlimited' ? 'unlimited' : limit.dailyTransfers - todaysTransferCount, limit: limit.dailyTransfers };
     }
     
-    // Update transfer count after successful transfer
+    // Update transfer count
     function updateTransferCount() {
         todaysTransferCount++;
         localStorage.setItem('todaysTransferCount', todaysTransferCount.toString());
     }
     
-    // Show upgrade modal
-    function showUpgradeModal() {
-        let currentTier = userTier || '1';
-        
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: flex;
-            align-items: flex-end;
-        `;
-        
-        overlay.innerHTML = `
-            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                    <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
-                    <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
-                </div>
-                
-                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
-                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
-                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                        ${currentTier === '1' || currentTier === 1 ? '⭐ Free Tier (2 transfers/day)' : 
-                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic - 10 transfers/day)' : 
-                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium - Unlimited)' : '👑 VIP Tier (Unlimited)'}
-                    </span>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">🥈</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700;">Basic Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 2</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦30,000</div>
-                    </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                         • Transfer to OPay only<br>
-                    • Add money unlock<br>                            
-                    • View receipt<br>
-                    • View history<br>
-                    • payment proof - no watermark added<br>
-                    • Activate banner removed<br>
-                    • 10 times transfer daily<br>
-                    • Add Money limit ₦300,000
-                    </div>
-                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
-                        ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic >'}
-                    </button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">🥉</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700;">Premium Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to Tier 3</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #00B875;">₦50,000</div>
-                    </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                    Everything in Basic plus:<br>
-                    • History access, recent recipients history<br>
-                    • OPay and bank transfer<br>
-                    • Custom sender name<br>
-                    • Edit receipt<br>
-                    • Custom transaction status (failed, success, pending)<br>
-                    • Unlimited transfer<br>
-                    • Add Money limit ₦1,000,000
-                    </div>
-                    <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
-                        ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
-                    </button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 28px;">👑</span>
-                            <div>
-                                <div style="font-size: 18px; font-weight: 700; color: #FF6B35;">VIP Plan</div>
-                                <div style="font-size: 11px; color: #888;">Upgrade to VIP Tier</div>
-                            </div>
-                        </div>
-                        <div style="font-size: 22px; font-weight: 700; color: #FF6B35;">₦100,000</div>
-                    </div>
-                    <div style="font-size: 12px; color: #555; margin-bottom: 12px;">
-                    Everything in Basic and Premium plus:<br>
-                    • OPay Funder in-app transfers<br>
-                    • Statement of account generation<br>
-                    • Receivers receive alert<br>
-                    • Money add up to receiver balance<br>
-                    • Expire in user balance after 24hrs<br>
-                    • Airtime access purchase<br>
-                    • Data access purchase<br>
-                    • Add money unlimited<br>
-                    • No transaction limit
-                    </div>
-                    <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
-                        ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
-                    </button>
-                </div>
-                
-                <div style="padding: 16px 20px 30px;">
-                    <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer;">Close</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
-            overlay.remove();
-            document.body.style.overflow = '';
-        });
-        
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                document.body.style.overflow = '';
-            }
-        });
-        
-        overlay.querySelectorAll('.plan-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (btn.disabled) return;
-                const plan = btn.getAttribute('data-plan');
-                const tier = btn.getAttribute('data-tier');
-                localStorage.setItem('selected_plan', JSON.stringify({
-                    plan: plan,
-                    tier: tier,
-                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
-                }));
-                window.location.href = 'plan.html';
-            });
-        });
-    }
-    
-    // Format amount input with decimal point
+    // Format amount input
     amountInput.addEventListener('input', function(e) {
         let val = this.value.replace(/[^0-9]/g, '');
         if (val === '') {
@@ -746,11 +485,9 @@ input:focus::placeholder {
             return;
         }
         
-        // Convert to number with 2 decimal places
         let num = parseFloat(val) / 100;
         currentAmount = num;
         
-        // Format with 2 decimal places
         this.value = currentAmount.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
@@ -759,13 +496,12 @@ input:focus::placeholder {
         validateAmount();
     });
     
-    // Quick amount buttons - add .00 format
+    // Quick amount buttons
     document.querySelectorAll('.quick-amount-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             let amount = parseInt(btn.getAttribute('data-amount'));
             currentAmount = amount;
             
-            // Format with 2 decimal places
             amountInput.value = currentAmount.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -775,7 +511,7 @@ input:focus::placeholder {
         });
     });
     
-    // Tag buttons - NOT auto active, just set text when clicked
+    // Tag buttons
     purchaseTag.addEventListener('click', () => {
         if (purchaseTag.classList.contains('active')) {
             purchaseTag.classList.remove('active');
@@ -806,7 +542,7 @@ input:focus::placeholder {
         }
     });
     
-    // Validate amount - only check balance and minimum
+    // Validate amount
     function validateAmount() {
         if (currentAmount < 10) {
             confirmBtn.disabled = true;
@@ -822,7 +558,177 @@ input:focus::placeholder {
         return true;
     }
     
-    // Confirm button click - Show attractive reminder popup
+    // Process transaction
+    async function processTransaction() {
+        if (!validateAmount()) return;
+        
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        const transactionRef = '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
+        const note = remarkInput.value.trim();
+        const finalNote = note ? note : (selectedTag === 'Purchase' ? 'Purchase payment' : (selectedTag === 'Personal' ? 'Personal transfer' : 'Transfer'));
+        
+        const transactionData = {
+            type: 'debit',
+            title: `Transfer to ${recipient.name}`,
+            amount: currentAmount,
+            date: new Date().toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            status: 'success',
+            category: 'Transfer to',
+            ref: transactionRef,
+            paymentMethod: 'OWealth',
+            fromTo: recipient.name,
+            bank: 'OPay',
+            accountNumber: recipient.accountNumber,
+            note: finalNote,
+            tag: selectedTag,
+            dateObj: new Date()
+        };
+        
+        try {
+            const balanceResponse = await fetch(`${BACKEND_URL}/api/update-balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    email: currentUser.email, 
+                    amount: currentAmount,
+                    operation: 'deduct'
+                })
+            });
+            
+            const balanceData = await balanceResponse.json();
+            
+            if (balanceData.success) {
+                updateTransferCount();
+                
+                // ========== SAVE TO RECENTS ==========
+                let recents = JSON.parse(localStorage.getItem('opayRecents') || '[]');
+                recents = recents.filter(r => r.account !== recipient.accountNumber);
+                recents.unshift({ name: recipient.name, account: recipient.accountNumber });
+                recents = recents.slice(0, 10);
+                localStorage.setItem('opayRecents', JSON.stringify(recents));
+                console.log('✅ Saved to recents:', { name: recipient.name, account: recipient.accountNumber });
+                // ====================================
+                
+                // Save transaction
+                let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                transactions.unshift(transactionData);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                localStorage.setItem('transactionData', JSON.stringify(transactionData));
+                
+                showMessage(`✓ Transfer successful! ₦${currentAmount.toLocaleString()} sent to ${recipient.name}`, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'payment.html';
+                }, 1500);
+            } else {
+                throw new Error(balanceData.message || 'Transaction failed');
+            }
+        } catch (error) {
+            console.error('Transaction error:', error);
+            showMessage(`Transfer failed: ${error.message || 'Something went wrong'}`, 'error');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = 'Confirm';
+        }
+    }
+    
+    // Show upgrade modal
+    function showUpgradeModal() {
+        let currentTier = userTier || '1';
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-end;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
+                <div style="text-align: center; padding: 20px;">
+                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                    <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
+                    <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
+                </div>
+                
+                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
+                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
+                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
+                        ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
+                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    </span>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Premium ></button>
+                </div>
+                
+                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
+                        <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
+                    </div>
+                    <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Upgrade to VIP ></button>
+                </div>
+                
+                <div style="padding: 16px 20px 30px;">
+                    <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        
+        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+        });
+        
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                document.body.style.overflow = '';
+            }
+        });
+        
+        overlay.querySelectorAll('.plan-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const plan = btn.getAttribute('data-plan');
+                const tier = btn.getAttribute('data-tier');
+                localStorage.setItem('selected_plan', JSON.stringify({
+                    plan: plan,
+                    tier: tier,
+                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
+                }));
+                window.location.href = 'plan.html';
+            });
+        });
+    }
+    
+    // Show reminder popup
     confirmBtn.addEventListener('click', async () => {
         if (currentAmount < 10) {
             showMessage('Minimum amount is ₦10.00', 'error');
@@ -836,11 +742,10 @@ input:focus::placeholder {
         
         const dailyCheck = await checkDailyTransferLimit();
         if (!dailyCheck.allowed) {
-            showMessage(`Daily limit reached! You can only send ${dailyCheck.limit} times per day. Upgrade your plan for unlimited transfers.`, 'error');
+            showMessage(`Daily limit reached! You can only send ${dailyCheck.limit} times per day.`, 'error');
             return;
         }
         
-        // Store transaction details for payment page
         const transactionDetails = {
             recipientName: recipient.name,
             recipientAccount: recipient.accountNumber,
@@ -852,109 +757,38 @@ input:focus::placeholder {
         };
         localStorage.setItem('pendingTransaction', JSON.stringify(transactionDetails));
         
-        // Show Attractive Reminder Popup
         Swal.fire({
-            title: '<span style="color: #ff9800;">⚠️ Reminder</span>',
+            title: '⚠️ Reminder',
             html: `
-                <div style="text-align: left;">
-                    <p style="margin-bottom: 15px; color: #555; font-size: 14px;">Double check the transfer details before you proceed.</p>
+                <div style="text-align: left; font-size: 14px;">
+                    <p style="margin-bottom: 15px;">Double check the transfer details before you proceed.</p>
+                    <p style="margin-bottom: 20px; color: #dc3545;">Please note using OPay Funder is at your own risk. Use it wisely.</p>
                     
-                    <div class="reminder-warning">
-                        <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
-                        <strong style="color: #dc3545;">Important Notice:</strong>
-                        <p style="margin-top: 8px; font-size: 13px; color: #721c24;">Please note using OPay Funder is at your own risk. Use it wisely, otherwise you are on your own if you have been caught.</p>
-                    </div>
-                    
-                    <div class="transaction-summary-card">
-                        <div style="margin-bottom: 12px; font-weight: 600; color: #1a1a1a;">📋 Transaction Details</div>
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-user" style="margin-right: 6px; color: #00B875;"></i> Name:</span>
-                            <span class="summary-value">${recipient.name}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-credit-card" style="margin-right: 6px; color: #00B875;"></i> Account No.:</span>
-                            <span class="summary-value">${recipient.accountNumber}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-university" style="margin-right: 6px; color: #00B875;"></i> Bank:</span>
-                            <span class="summary-value">OPay</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-money-bill-wave" style="margin-right: 6px; color: #00B875;"></i> Amount:</span>
-                            <span class="summary-amount">₦${currentAmount.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    
-                    <div style="background: #f8f9fc; padding: 10px; border-radius: 10px; margin-top: 10px;">
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-tag" style="margin-right: 6px; color: #888;"></i> Remark:</span>
-                            <span class="summary-value">${remarkInput.value.trim() || 'No note'}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span class="summary-label"><i class="fas fa-calendar" style="margin-right: 6px; color: #888;"></i> Today's transfers:</span>
-                            <span class="summary-value">${todaysTransferCount} / ${dailyCheck.limit === 'unlimited' ? '∞' : dailyCheck.limit}</span>
-                        </div>
+                    <div style="background: #f8f9fc; padding: 12px; border-radius: 12px; margin-bottom: 15px;">
+                        <div><strong>Name:</strong> ${recipient.name}</div>
+                        <div><strong>Account No.:</strong> ${recipient.accountNumber}</div>
+                        <div><strong>Bank:</strong> OPay</div>
+                        <div><strong>Amount:</strong> ₦${currentAmount.toLocaleString()}</div>
                     </div>
                 </div>
             `,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-check-circle"></i> Continue',
-            cancelButtonText: '<i class="fas fa-undo-alt"></i> Recheck',
+            confirmButtonText: 'Continue',
+            cancelButtonText: 'Recheck',
             confirmButtonColor: '#00B875',
-            cancelButtonColor: '#dc3545',
-            reverseButtons: true,
-            customClass: {
-                popup: 'reminder-popup',
-                confirmButton: 'btn-continue',
-                cancelButton: 'btn-recheck'
-            },
-            buttonsStyling: false,
-            didOpen: () => {
-                const popup = Swal.getPopup();
-                if (popup) {
-                    popup.style.borderRadius = '24px';
-                    popup.style.padding = '20px';
-                    popup.style.width = '360px';
-                }
-                const confirmBtnElem = Swal.getConfirmButton();
-                if (confirmBtnElem) {
-                    confirmBtnElem.style.background = '#00B875';
-                    confirmBtnElem.style.color = 'white';
-                    confirmBtnElem.style.border = 'none';
-                    confirmBtnElem.style.padding = '12px 20px';
-                    confirmBtnElem.style.borderRadius = '30px';
-                    confirmBtnElem.style.fontSize = '15px';
-                    confirmBtnElem.style.fontWeight = '600';
-                    confirmBtnElem.style.cursor = 'pointer';
-                    confirmBtnElem.style.margin = '5px';
-                }
-                const cancelBtnElem = Swal.getCancelButton();
-                if (cancelBtnElem) {
-                    cancelBtnElem.style.background = '#dc3545';
-                    cancelBtnElem.style.color = 'white';
-                    cancelBtnElem.style.border = 'none';
-                    cancelBtnElem.style.padding = '12px 20px';
-                    cancelBtnElem.style.borderRadius = '30px';
-                    cancelBtnElem.style.fontSize = '15px';
-                    cancelBtnElem.style.fontWeight = '600';
-                    cancelBtnElem.style.cursor = 'pointer';
-                    cancelBtnElem.style.margin = '5px';
-                }
-            }
+            cancelButtonColor: '#dc3545'
         }).then((result) => {
             if (result.isConfirmed) {
-                // User clicked Continue - go to payment.html
-                window.location.href = 'payment.html';
+                processTransaction();
             }
-            // If user clicks Recheck (cancel), just close the popup - do nothing
         });
     });
     
     // Initialize
     getCurrentUser();
     
-    console.log('✅ Amount page loaded');
+    console.log('✅ Amount page loaded - Recents will be saved on successful transfer');
     </script>
 </body>
 </html>
