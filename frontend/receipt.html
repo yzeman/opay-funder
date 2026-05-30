@@ -487,34 +487,59 @@
 
     // Share receipt function - capture as image and share
     async function shareReceiptAsImage() {
-        const receiptElement = document.getElementById('receiptContent');
-        if (!receiptElement) {
-            showTextIndicator('Unable to capture receipt');
+        // Get the content card element
+        const contentCard = document.querySelector('.content-card');
+        if (!contentCard) {
+            showTextIndicator('Receipt not ready');
             return;
         }
         
-        showTextIndicator('📸 Capturing receipt...');
+        showTextIndicator('📸 Preparing receipt...');
         
         try {
-            // Capture the receipt element as image
-            const canvas = await html2canvas(receiptElement, {
-                scale: 2,
-                backgroundColor: '#f8f9fc',
+            // Clone the card to avoid affecting the original
+            const cloneCard = contentCard.cloneNode(true);
+            cloneCard.style.position = 'absolute';
+            cloneCard.style.top = '-9999px';
+            cloneCard.style.left = '-9999px';
+            cloneCard.style.width = '380px';
+            cloneCard.style.padding = '50px 20px 20px 20px';
+            cloneCard.style.background = 'white';
+            cloneCard.style.borderRadius = '24px';
+            document.body.appendChild(cloneCard);
+            
+            // Wait for images to load
+            const images = cloneCard.querySelectorAll('img');
+            await Promise.all([...images].map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            }));
+            
+            // Capture the clone
+            const canvas = await html2canvas(cloneCard, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                allowTaint: false
             });
+            
+            // Remove the clone
+            document.body.removeChild(cloneCard);
             
             const imageData = canvas.toDataURL('image/png');
             
             // Check if Web Share API is available (mobile)
             if (navigator.share) {
-                // Convert base64 to blob
                 const blob = await (await fetch(imageData)).blob();
                 const file = new File([blob], 'receipt.png', { type: 'image/png' });
                 
                 await navigator.share({
                     title: 'Transaction Receipt',
-                    text: 'Here is my transaction receipt',
+                    text: 'Here is my transaction receipt from OPay Funder',
                     files: [file]
                 });
                 showTextIndicator('✓ Receipt shared!');
