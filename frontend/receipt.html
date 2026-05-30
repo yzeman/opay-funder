@@ -229,7 +229,7 @@
             color: #00B875;
         }
 
-        /* Transaction Details Section - FIXED for no line breaks */
+        /* Transaction Details Section - FIXED */
         .details-section {
             margin-top: 24px;
         }
@@ -244,20 +244,21 @@
         .detail-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
+            align-items: flex-start;
+            padding: 10px 0;
             flex-wrap: nowrap;
         }
 
         .detail-label {
-            font-size: 12px;
+            font-size: 13px;
             color: #888;
             flex-shrink: 0;
             width: 30%;
+            white-space: nowrap;
         }
 
         .detail-value {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             color: #1a1a1a;
             text-align: right;
@@ -266,13 +267,8 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 4px;
+            gap: 6px;
             flex-wrap: wrap;
-        }
-
-        .detail-value .copy-icon {
-            flex-shrink: 0;
-            margin-left: 4px;
         }
 
         .recipient-info {
@@ -288,18 +284,16 @@
         }
 
         .recipient-bank {
-            font-size: 11px;
+            font-size: 12px;
             color: #888;
         }
 
-        .copy-icon {
-            margin-left: 6px;
-            color: #00B875;
-            cursor: pointer;
-            font-size: 12px;
+        .detail-value .copy-icon {
+            flex-shrink: 0;
+            margin-left: 4px;
         }
 
-        /* Edit Styles - No borders */
+        /* Edit Styles */
         .editable {
             cursor: pointer;
             transition: background 0.2s;
@@ -329,7 +323,7 @@
             background: #f0fdf4;
             border: none;
             text-align: right;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             color: #1a1a1a;
             padding: 4px 8px;
