@@ -357,6 +357,28 @@
         .footer-btn:active {
             transform: scale(0.98);
         }
+
+        /* Text Indicator Alert */
+        .text-indicator {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            z-index: 2000;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .text-indicator.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -388,6 +410,9 @@
         </button>
     </div>
 
+    <!-- Text Indicator -->
+    <div id="textIndicator" class="text-indicator"></div>
+
     <script>
     // ========== USER TIER CHECK FOR EDIT PERMISSIONS ==========
     let currentUserTier = null;
@@ -405,10 +430,20 @@
     const canEdit = getUserTier();
     // ========================================================
 
+    // Text indicator function
+    function showTextIndicator(message) {
+        const indicator = document.getElementById('textIndicator');
+        indicator.textContent = message;
+        indicator.classList.add('show');
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 2000);
+    }
+
     // Helper function to copy to clipboard
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text);
-        Swal.fire({ icon: 'success', title: 'Copied!', text: 'Copied to clipboard', timer: 1500, showConfirmButton: false });
+        showTextIndicator('✓ Copied to clipboard');
     }
 
     // Format date function
@@ -449,6 +484,14 @@
         return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
     }
 
+    // Share receipt function - copies link to clipboard
+    function shareReceipt(tx) {
+        const receiptData = encodeURIComponent(JSON.stringify(tx));
+        const shareUrl = `${window.location.origin}${window.location.pathname}?data=${receiptData}`;
+        copyToClipboard(shareUrl);
+        showTextIndicator('✓ Receipt link copied! Share with friends');
+    }
+
     // ========== EDIT FUNCTIONS (Only for Tier 3 and VIP) ==========
     function editAmount(element, currentAmount, tx) {
         if (!canEdit) return;
@@ -467,7 +510,7 @@
             if (!isNaN(newAmount) && newAmount !== currentAmount) {
                 element.innerHTML = `₦${newAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 tx.amount = newAmount;
-                Swal.fire({ icon: 'success', title: 'Updated!', text: 'Amount updated', timer: 1000, showConfirmButton: false });
+                showTextIndicator('✓ Amount updated');
             } else {
                 element.innerHTML = `₦${currentAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             }
@@ -500,7 +543,7 @@
                 } else if (field === 'accountNumber') {
                     tx.accountNumber = newValue;
                 }
-                Swal.fire({ icon: 'success', title: 'Updated!', text: `${displayField} updated`, timer: 1000, showConfirmButton: false });
+                showTextIndicator(`✓ ${displayField} updated`);
             } else {
                 element.innerHTML = currentValue;
             }
@@ -534,7 +577,7 @@
                         element.textContent = newLabel;
                         element.className = `status-badge ${newClass}`;
                         Swal.close();
-                        Swal.fire({ icon: 'success', title: 'Updated!', text: `Status changed to ${newLabel}`, timer: 1000, showConfirmButton: false });
+                        showTextIndicator(`✓ Status changed to ${newLabel}`);
                     });
                 });
             }
@@ -581,7 +624,6 @@
         // Get bank logo with fallback
         let bankLogo = bankLogos[tx.bank];
         if (!bankLogo) {
-            // Try case-insensitive matching
             const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
             bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
         }
@@ -635,7 +677,7 @@
             `;
         }
         
-        // Transaction Details section
+        // Transaction Details section (No More Actions)
         html += `
                 <!-- Transaction Details -->
                 <div class="details-section">
@@ -657,7 +699,7 @@
                         </span>
                     </div>
                     
-                    <div class="detail-row" style="margin-bottom:20px;">
+                    <div class="detail-row">
                         <span class="detail-label">Payment Method</span>
                         <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
                     </div>
@@ -676,19 +718,6 @@
                         </span>
                     </div>
                     ` : ''}
-                </div>
-                
-                <!-- More Actions Section (Only for OPay Transfers) -->
-                <div class="details-section">
-                    <div class="section-title">More Actions</div>
-                    <div style="display: flex; gap: 16px; margin-top: 10px;">
-                        <button class="action-btn" id="transferAgainBtn" style="flex: 1; padding: 12px; background: #e8f5e9; border: none; border-radius: 30px; color: #00B875; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                            <i class="fas fa-redo-alt"></i> Transfer Again
-                        </button>
-                        <button class="action-btn" id="viewRecordsBtn" style="flex: 1; padding: 12px; background: #f0f2f5; border: none; border-radius: 30px; color: #666; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
-                            <i class="fas fa-history"></i> View Records
-                        </button>
-                    </div>
                 </div>
             </div>
         `;
@@ -725,46 +754,32 @@
                 });
             }
         }
-        
-        // Add event listeners for More Actions buttons
-        document.getElementById('transferAgainBtn')?.addEventListener('click', () => {
-            window.location.href = 'toopay.html';
-        });
-        
-        document.getElementById('viewRecordsBtn')?.addEventListener('click', () => {
-            Swal.fire({ icon: 'info', title: 'View Records', text: 'Transaction history coming soon', confirmButtonColor: '#00B875' });
-        });
     }
 
-    // Help icon click
+    // Help icon click - opens WhatsApp
     document.getElementById('helpIcon')?.addEventListener('click', () => {
-        Swal.fire({
-            title: 'Need Help?',
-            text: 'Contact our support team for assistance with this transaction',
-            confirmButtonColor: '#00B875',
-            confirmButtonText: 'OK'
-        });
+        window.open('https://wa.link/ctaxj9', '_blank');
     });
 
-    // Report Issue button
+    // Report Issue button - no action
     document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        Swal.fire({ 
-            icon: 'info', 
-            title: 'Report Issue', 
-            text: 'Our support team will contact you shortly', 
-            confirmButtonColor: '#00B875' 
-        });
+        // No action, no alert
     });
 
-    // Share Receipt button
+    // Share Receipt button - share link
     document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Shared!', 
-            text: 'Receipt shared successfully', 
-            timer: 1500, 
-            showConfirmButton: false 
-        });
+        const urlParams = new URLSearchParams(window.location.search);
+        const receiptData = urlParams.get('data');
+        if (receiptData) {
+            try {
+                const tx = JSON.parse(decodeURIComponent(receiptData));
+                shareReceipt(tx);
+            } catch(e) {
+                showTextIndicator('Unable to share receipt');
+            }
+        } else {
+            showTextIndicator('No receipt data to share');
+        }
     });
 
     loadReceipt();
