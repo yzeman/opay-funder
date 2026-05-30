@@ -414,7 +414,7 @@
     <!-- Text Indicator -->
     <div id="textIndicator" class="text-indicator"></div>
 
-    <script>
+      <script>
     // ========== USER TIER CHECK FOR EDIT PERMISSIONS ==========
     let currentUserTier = null;
     
@@ -445,6 +445,49 @@
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text);
         showTextIndicator('✓ Copied to clipboard');
+    }
+
+    // Share receipt as image
+    async function shareReceiptAsImage(element) {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'screenshot-loading';
+        loadingDiv.innerHTML = `
+            <div class="spinner"></div>
+            <span>Generating receipt image...</span>
+        `;
+        document.body.appendChild(loadingDiv);
+        
+        try {
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true
+            });
+            
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], 'receipt.png', { type: 'image/png' });
+            
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Transaction Receipt',
+                    text: 'Here is your transaction receipt',
+                    files: [file]
+                });
+                showTextIndicator('✓ Receipt shared successfully');
+            } else {
+                const link = document.createElement('a');
+                link.download = 'receipt.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                showTextIndicator('✓ Receipt saved to downloads');
+            }
+        } catch (error) {
+            console.error('Error sharing receipt:', error);
+            showTextIndicator('✗ Unable to share receipt');
+        } finally {
+            loadingDiv.remove();
+        }
     }
 
     // Format date function
@@ -483,54 +526,6 @@
     // Generate Transaction Number
     function generateTransactionNumber() {
         return '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
-    }
-
-    // Share receipt function - capture as image and share
-    async function shareReceiptAsImage() {
-        // Get the receipt container
-        const receiptContainer = document.querySelector('.content-card');
-        if (!receiptContainer) {
-            showTextIndicator('Receipt not ready');
-            return;
-        }
-        
-        showTextIndicator('📸 Preparing receipt...');
-        
-        try {
-            // Capture the receipt element as image
-            const canvas = await html2canvas(receiptContainer, {
-                scale: 2.5,
-                backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true,
-                allowTaint: false
-            });
-            
-            const imageData = canvas.toDataURL('image/png');
-            
-            // Check if Web Share API is available (mobile)
-            if (navigator.share) {
-                const blob = await (await fetch(imageData)).blob();
-                const file = new File([blob], 'receipt.png', { type: 'image/png' });
-                
-                await navigator.share({
-                    title: 'Transaction Receipt',
-                    text: 'Here is my transaction receipt from OPay Funder',
-                    files: [file]
-                });
-                showTextIndicator('✓ Receipt shared!');
-            } else {
-                // Fallback: download image
-                const link = document.createElement('a');
-                link.download = 'receipt.png';
-                link.href = imageData;
-                link.click();
-                showTextIndicator('✓ Receipt saved as image');
-            }
-        } catch (error) {
-            console.error('Error sharing receipt:', error);
-            showTextIndicator('❌ Failed to share receipt');
-        }
     }
 
     // ========== EDIT FUNCTIONS (Only for Tier 3 and VIP) ==========
@@ -648,7 +643,6 @@
         const statusText = tx.status === 'success' ? 'Successful' : tx.status === 'pending' ? 'Pending' : 'Failed';
         const statusClass = tx.status === 'success' ? 'success' : tx.status === 'pending' ? 'pending' : 'failed';
         
-        // Check if this is an OPay transfer (no timeline) or Bank transfer (with timeline)
         const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
         
         const bankLogos = {
@@ -662,36 +656,32 @@
             'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
         };
         
-        // Get bank logo with fallback
         let bankLogo = bankLogos[tx.bank];
         if (!bankLogo) {
             const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
             bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
         }
         
-        // Generate transaction number if not present
         const transactionRef = tx.ref || generateTransactionNumber();
         
         let html = `
-            <!-- Bank Logo - Half inside card, half outside -->
-            <div class="logo-wrapper">
-                <div class="bank-logo-circle">
-                    <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='images/opay.png'">
+            <div class="receipt-container" id="receiptContainer">
+                <div class="logo-wrapper">
+                    <div class="bank-logo-circle">
+                        <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='images/opay.png'">
+                    </div>
                 </div>
-            </div>
-            
-            <div class="content-card">
-                <div class="transfer-title">Transfer to <span id="recipientName" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient'}</span></div>
-                <div id="amountDisplay" class="transfer-amount ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">₦${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                <div class="transfer-status">
-                    <span id="statusSpan" class="status-badge ${statusClass} ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${statusText}</span>
-                </div>
+                
+                <div class="content-card">
+                    <div class="transfer-title">Transfer to <span id="recipientName" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient'}</span></div>
+                    <div id="amountDisplay" class="transfer-amount ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">₦${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    <div class="transfer-status">
+                        <span id="statusSpan" class="status-badge ${statusClass} ${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${statusText}</span>
+                    </div>
         `;
         
-        // Show timeline ONLY for Bank transfers (not OPay)
         if (!isOPayTransfer) {
             html += `
-                <!-- Horizontal Timeline Row (Only for Bank Transfers) -->
                 <div class="timeline-row">
                     <div class="timeline-step">
                         <div class="step-icon"><i class="fas fa-check"></i></div>
@@ -718,54 +708,52 @@
             `;
         }
         
-        // Transaction Details section (No More Actions)
         html += `
-                <!-- Transaction Details -->
-                <div class="details-section">
-                    <div class="section-title">Transaction Details</div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Recipient Details</span>
-                        <div class="detail-value recipient-info">
-                            <div class="recipient-name" id="recipientNameDetail">${tx.fromTo || 'Recipient Name'}</div>
-                            <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                    <div class="details-section">
+                        <div class="section-title">Transaction Details</div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Recipient Details</span>
+                            <div class="detail-value recipient-info">
+                                <div class="recipient-name" id="recipientNameDetail">${tx.fromTo || 'Recipient Name'}</div>
+                                <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                            </div>
                         </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Transaction No.</span>
+                            <span class="detail-value" style="word-break: break-word;">
+                                ${transactionRef}
+                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${transactionRef}')"></i>
+                            </span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Payment Method</span>
+                            <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="detail-label">Transaction Date</span>
+                            <span class="detail-value">${tx.date}</span>
+                        </div>
+                        
+                        ${tx.sessionId ? `
+                        <div class="detail-row">
+                            <span class="detail-label">Session ID</span>
+                            <span class="detail-value" style="word-break: break-word;">
+                                ${tx.sessionId}
+                                <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
+                            </span>
+                        </div>
+                        ` : ''}
                     </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Transaction No.</span>
-                        <span class="detail-value">
-                            ${transactionRef}
-                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${transactionRef}')"></i>
-                        </span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Payment Method</span>
-                        <span class="detail-value">${tx.paymentMethod || 'OWealth'} <i class="fas fa-chevron-right" style="font-size: 10px; margin-left: 4px; color: #00B875;"></i></span>
-                    </div>
-                    
-                    <div class="detail-row">
-                        <span class="detail-label">Transaction Date</span>
-                        <span class="detail-value">${tx.date}</span>
-                    </div>
-                    
-                    ${tx.sessionId ? `
-                    <div class="detail-row">
-                        <span class="detail-label">Session ID</span>
-                        <span class="detail-value">
-                            ${tx.sessionId}
-                            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('${tx.sessionId}')"></i>
-                        </span>
-                    </div>
-                    ` : ''}
                 </div>
             </div>
         `;
         
         document.getElementById('receiptContent').innerHTML = html;
         
-        // Add edit listeners ONLY if user can edit (Tier 3 or VIP)
         if (canEdit) {
             const amountElement = document.getElementById('amountDisplay');
             if (amountElement) {
@@ -803,16 +791,21 @@
     });
 
     // Report Issue button - no action
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        // No action, no alert
-    });
+    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {});
 
     // Share Receipt button - share as image
-    document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
-        shareReceiptAsImage();
+    document.getElementById('shareReceiptBtn')?.addEventListener('click', async () => {
+        const receiptContainer = document.getElementById('receiptContainer');
+        if (receiptContainer) {
+            await shareReceiptAsImage(receiptContainer);
+        } else {
+            showTextIndicator('Unable to generate receipt image');
+        }
     });
 
     loadReceipt();
     </script>
+</body>
+</html>
 </body>
 </html>
