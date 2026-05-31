@@ -870,11 +870,11 @@
 
     <!-- Recent Transactions Section (2 latest) -->
     <div class="recent-transactions-card" id="recentTransactionsCard">
-        <div class="recent-title">Recent Transactions</div>
+        
         <div id="recentTransactionsList">
             <div style="padding: 10px; text-align: center; color: #888; font-size: 12px;">No recent transactions</div>
         </div>
-        <div class="view-more" id="viewMoreTransactions">View All Transactions ></div>
+        
     </div>
     
     
@@ -1522,7 +1522,10 @@
     document.getElementById('play4aChildBtn')?.addEventListener('click', doNothing);
     
     // Activate button
-    document.getElementById('activateBtn')?.addEventListener('click', () => { showActivationSheet(); });
+    // Activate button - Direct to plan.html (no popup)
+document.getElementById('activateBtn')?.addEventListener('click', () => { 
+    window.location.href = 'plan.html';
+});
     
     // Promo Banner - no action
     document.getElementById('promoBanner')?.addEventListener('click', doNothing);
