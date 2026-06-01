@@ -761,6 +761,10 @@ app.post('/api/verify-payment', async (req, res) => {
 app.post('/api/update-last-seen', async (req, res) => {
     const { email } = req.body;
     
+    if (!email) {
+        return res.json({ success: false, message: 'Email required' });
+    }
+    
     try {
         const { error } = await supabase
             .from('users')
@@ -769,8 +773,10 @@ app.post('/api/update-last-seen', async (req, res) => {
         
         if (error) throw error;
         
+        console.log(`✅ Last seen updated for: ${email}`);
         res.json({ success: true });
     } catch (error) {
+        console.error('Update last seen error:', error);
         res.json({ success: false, message: error.message });
     }
 });
