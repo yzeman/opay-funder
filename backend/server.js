@@ -757,6 +757,40 @@ app.post('/api/verify-payment', async (req, res) => {
     }
 });
 
+// ============ UPDATE LAST SEEN ============
+app.post('/api/update-last-seen', async (req, res) => {
+    const { email } = req.body;
+    
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ last_seen: new Date().toISOString() })
+            .eq('email', email);
+        
+        if (error) throw error;
+        
+        res.json({ success: true });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ GET USERS WITH LAST SEEN ============
+app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
+    try {
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('*')
+            .order('last_seen', { ascending: false, nullsLast: true });
+        
+        if (error) throw error;
+        
+        res.json({ success: true, users: users || [] });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 // Health check endpoint (for uptime monitoring)
 app.get('/health', (req, res) => {
     res.status(200).json({ 
