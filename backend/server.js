@@ -766,6 +766,17 @@ app.post('/api/update-last-seen', async (req, res) => {
     }
     
     try {
+        // First check if last_seen column exists
+        const { error: checkError } = await supabase
+            .from('users')
+            .select('last_seen')
+            .limit(1);
+        
+        // If column doesn't exist, add it
+        if (checkError && checkError.message.includes('last_seen')) {
+            await supabase.rpc('add_last_seen_column');
+        }
+        
         const { error } = await supabase
             .from('users')
             .update({ last_seen: new Date().toISOString() })
@@ -773,7 +784,7 @@ app.post('/api/update-last-seen', async (req, res) => {
         
         if (error) throw error;
         
-        console.log(`✅ Last seen updated for: ${email}`);
+        console.log(`✅ Last seen updated for: ${email} at ${new Date().toLocaleTimeString()}`);
         res.json({ success: true });
     } catch (error) {
         console.error('Update last seen error:', error);
