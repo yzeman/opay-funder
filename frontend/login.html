@@ -380,6 +380,51 @@
         createAccountBtn.addEventListener('mouseleave', function() {
             this.style.opacity = '1';
         });
+
+        // ============ UPDATE LAST SEEN ON USER ACTIVITY ==========
+async function updateLastSeen() {
+    const userData = localStorage.getItem('loggedInUser');
+    if (!userData) return;
+    
+    const user = JSON.parse(userData);
+    
+    try {
+        await fetch(`${BACKEND_URL}/api/update-last-seen`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+        });
+        console.log('✅ Last seen updated');
+    } catch (error) {
+        // Silently fail - doesn't affect user experience
+    }
+}
+
+// Update on page load
+updateLastSeen();
+
+// Update every 5 minutes
+setInterval(() => {
+    updateLastSeen();
+}, 5 * 60 * 1000);
+
+// Update when user is active
+let lastActivityTime = Date.now();
+document.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - lastActivityTime > 60 * 1000) { // If inactive for 1 minute
+        updateLastSeen();
+        lastActivityTime = now;
+    }
+});
+
+document.addEventListener('scroll', () => {
+    const now = Date.now();
+    if (now - lastActivityTime > 60 * 1000) {
+        updateLastSeen();
+        lastActivityTime = now;
+    }
+});
         
         // Initialize page
         window.addEventListener('load', function() {
