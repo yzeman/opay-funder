@@ -257,58 +257,60 @@
         }
         
         async function loadDashboardData() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
-                    headers: { 'X-Admin-Token': adminSessionToken }
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Calculate stats
-                    const totalUsers = data.users.length;
-                    const activeUsers = data.users.filter(u => u.is_active === true).length;
-                    const inactiveUsers = totalUsers - activeUsers;
-                    
-                    document.getElementById('totalUsers').textContent = totalUsers;
-                    document.getElementById('activeUsers').textContent = activeUsers;
-                    document.getElementById('inactiveUsers').textContent = inactiveUsers;
-                    document.getElementById('dbSize').textContent = `${(totalUsers * 0.5).toFixed(2)} KB`;
-                    
-                    allUsers = data.users;
-                    sortAndRenderUsers();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                    if (data.message.includes('session')) {
-                        adminLogout();
-                    }
-                }
-            } catch (error) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load data' });
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
+            headers: { 'X-Admin-Token': adminSessionToken }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            // Calculate stats
+            const totalUsers = data.users.length;
+            const activeUsers = data.users.filter(u => u.is_active === true).length;
+            const inactiveUsers = totalUsers - activeUsers;
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('inactiveUsers').textContent = inactiveUsers;
+            document.getElementById('dbSize').textContent = `${(totalUsers * 0.5).toFixed(2)} KB`;
+            
+            allUsers = data.users;
+            sortAndRenderUsers();
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+            if (data.message.includes('session')) {
+                adminLogout();
             }
         }
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load data' });
+    }
+}
         
         function formatLastSeen(lastSeen) {
-            if (!lastSeen) return '<span class="last-seen-old">Never</span>';
-            
-            const lastSeenDate = new Date(lastSeen);
-            const now = new Date();
-            const diffMs = now - lastSeenDate;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-            
-            if (diffMins < 1) {
-                return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> Online now</span>';
-            } else if (diffMins < 60) {
-                return `<span class="last-seen-recent">${diffMins} minute${diffMins !== 1 ? 's' : ''} ago</span>`;
-            } else if (diffHours < 24) {
-                return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
-            } else if (diffDays < 7) {
-                return `<span class="last-seen-old">${diffDays} day${diffDays !== 1 ? 's' : ''} ago</span>`;
-            } else {
-                return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString()}</span>`;
-            }
-        }
+    if (!lastSeen) return '<span class="last-seen-old">Never</span>';
+    
+    const lastSeenDate = new Date(lastSeen);
+    const now = new Date();
+    const diffMs = now - lastSeenDate;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    console.log('Last seen:', lastSeen, 'Diff mins:', diffMins); // Debug log
+    
+    if (diffMins < 1) {
+        return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> Online now</span>';
+    } else if (diffMins < 60) {
+        return `<span class="last-seen-recent">${diffMins} minute${diffMins !== 1 ? 's' : ''} ago</span>`;
+    } else if (diffHours < 24) {
+        return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
+    } else if (diffDays < 7) {
+        return `<span class="last-seen-old">${diffDays} day${diffDays !== 1 ? 's' : ''} ago</span>`;
+    } else {
+        return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString()}</span>`;
+    }
+}
         
         function getTierDisplay(tier) {
             if (tier === '1' || tier === 1) return '<span class="tier-badge tier-1">⭐ Free</span>';
