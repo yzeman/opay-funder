@@ -236,38 +236,59 @@
             }
         }, 1000);
 
-        // ============ UPDATE LAST SEEN ON USER ACTIVITY ==========
+       // ============ UPDATE LAST SEEN ON USER ACTIVITY ==========
 async function updateLastSeen() {
     const userData = localStorage.getItem('loggedInUser');
-    if (!userData) return;
+    if (!userData) {
+        console.log('No user logged in');
+        return;
+    }
     
     const user = JSON.parse(userData);
     
+    // Don't update too frequently (throttle to once per minute)
+    const now = Date.now();
+    const lastUpdate = localStorage.getItem('lastSeenUpdate');
+    if (lastUpdate && (now - parseInt(lastUpdate)) < 60000) {
+        console.log('Skipping last seen update - too frequent');
+        return;
+    }
+    
     try {
-        await fetch(`${BACKEND_URL}/api/update-last-seen`, {
+        const response = await fetch(`${BACKEND_URL}/api/update-last-seen`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user.email })
         });
-        console.log('✅ Last seen updated');
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('lastSeenUpdate', now.toString());
+            console.log('✅ Last seen updated at:', new Date().toLocaleString());
+        } else {
+            console.log('❌ Last seen update failed:', data.message);
+        }
     } catch (error) {
-        // Silently fail - doesn't affect user experience
+        console.log('Failed to update last seen:', error);
     }
 }
 
-// Update on page load
-updateLastSeen();
+// Update immediately on page load
+setTimeout(() => {
+    updateLastSeen();
+}, 1000);
 
 // Update every 5 minutes
 setInterval(() => {
     updateLastSeen();
 }, 5 * 60 * 1000);
 
-// Update when user is active
+// Update when user is active (click or scroll)
 let lastActivityTime = Date.now();
 document.addEventListener('click', () => {
     const now = Date.now();
-    if (now - lastActivityTime > 60 * 1000) { // If inactive for 1 minute
+    if (now - lastActivityTime > 60000) {
         updateLastSeen();
         lastActivityTime = now;
     }
@@ -275,7 +296,7 @@ document.addEventListener('click', () => {
 
 document.addEventListener('scroll', () => {
     const now = Date.now();
-    if (now - lastActivityTime > 60 * 1000) {
+    if (now - lastActivityTime > 60000) {
         updateLastSeen();
         lastActivityTime = now;
     }
