@@ -757,40 +757,7 @@ app.post('/api/verify-payment', async (req, res) => {
     }
 });
 
-// ============ UPDATE LAST SEEN ============
-app.post('/api/update-last-seen', async (req, res) => {
-    const { email } = req.body;
-    
-    if (!email) {
-        return res.json({ success: false, message: 'Email required' });
-    }
-    
-    try {
-        // First check if last_seen column exists
-        const { error: checkError } = await supabase
-            .from('users')
-            .select('last_seen')
-            .limit(1);
-        
-        // If column doesn't exist, add it
-        if (checkError && checkError.message.includes('last_seen')) {
-            await supabase.rpc('add_last_seen_column');
-        }
-        
-        const { error } = await supabase
-            .from('users')
-            .update({ last_seen: new Date().toISOString() })
-            .eq('email', email);
-        
-        if (error) throw error;
-        
-        console.log(`✅ Last seen updated for: ${email} at ${new Date().toLocaleTimeString()}`);
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Update last seen error:', error);
-        res.json({ success: false, message: error.message });
-    }
-});
+
 
 // ============ GET USERS WITH LAST SEEN ============
 app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
@@ -804,6 +771,84 @@ app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) =
         
         res.json({ success: true, users: users || [] });
     } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ ADD LAST SEEN COLUMN (if missing) ============
+app.post('/api/admin/add-last-seen-column', verifyAdminSession, async (req, res) => {
+    try {
+        // Check if column exists
+        const { error: checkError } = await supabase
+            .from('users')
+            .select('last_seen')
+            .limit(1);
+        
+        // If column doesn't exist, try to add it using raw SQL
+        if (checkError && checkError.message.includes('last_seen')) {
+            // Note: You need to run the SQL manually in Supabase dashboard
+            res.json({ 
+                success: false, 
+                message: 'Please run SQL in Supabase: ALTER TABLE users ADD COLUMN last_seen TIMESTAMP;'
+            });
+        } else {
+            res.json({ success: true, message: 'Column exists' });
+        }
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ UPDATE LAST SEEN ============
+app.post('/api/update-last-seen', async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return res.json({ success: false, message: 'Email required' });
+    }
+    
+    try {
+        // Update the last_seen timestamp
+        const { error } = await supabase
+            .from('users')
+            .update({ last_seen: new Date().toISOString() })
+            .eq('email', email);
+        
+        if (error) {
+            console.error('Update error:', error);
+            return res.json({ success: false, message: error.message });
+        }
+        
+        console.log(`✅ Last seen updated for: ${email} at ${new Date().toLocaleTimeString()}`);
+        res.json({ success: true });
+        
+    } catch (error) {
+        console.error('Update last seen error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ GET USERS WITH LAST SEEN (ADMIN) ============
+app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
+    try {
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('id, account_number, account_name, email, password_code, is_active, created_at, last_seen')
+            .order('last_seen', { ascending: false, nullsLast: true });
+        
+        if (error) throw error;
+        
+        // Format the response
+        const formattedUsers = users.map(user => ({
+            ...user,
+            last_seen: user.last_seen || null,
+            created_at: user.created_at
+        }));
+        
+        res.json({ success: true, users: formattedUsers });
+        
+    } catch (error) {
+        console.error('Error fetching users:', error);
         res.json({ success: false, message: error.message });
     }
 });
