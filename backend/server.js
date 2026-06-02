@@ -775,25 +775,29 @@ app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) =
     }
 });
 
-// ============ ADD LAST SEEN COLUMN (if missing) ============
-app.post('/api/admin/add-last-seen-column', verifyAdminSession, async (req, res) => {
+// Add this endpoint to check/add the last_seen column
+app.get('/api/admin/check-last-seen-column', verifyAdminSession, async (req, res) => {
     try {
-        // Check if column exists
-        const { error: checkError } = await supabase
+        // Try to query the column
+        const { data, error } = await supabase
             .from('users')
             .select('last_seen')
             .limit(1);
         
-        // If column doesn't exist, try to add it using raw SQL
-        if (checkError && checkError.message.includes('last_seen')) {
-            // Note: You need to run the SQL manually in Supabase dashboard
-            res.json({ 
-                success: false, 
-                message: 'Please run SQL in Supabase: ALTER TABLE users ADD COLUMN last_seen TIMESTAMP;'
-            });
-        } else {
-            res.json({ success: true, message: 'Column exists' });
+        if (error && error.message.includes('last_seen')) {
+            // Column doesn't exist - try to add it
+            const { error: alterError } = await supabase.rpc('add_last_seen_column');
+            
+            if (alterError) {
+                return res.json({ 
+                    success: false, 
+                    message: 'Please add last_seen column manually in Supabase SQL editor',
+                    sql: 'ALTER TABLE users ADD COLUMN last_seen TIMESTAMP;'
+                });
+            }
         }
+        
+        res.json({ success: true, message: 'last_seen column exists' });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
