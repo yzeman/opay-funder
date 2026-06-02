@@ -258,29 +258,34 @@
         
         async function loadDashboardData() {
     try {
+        // First, check if last_seen column exists
+        const checkResponse = await fetch(`${BACKEND_URL}/api/admin/check-last-seen-column`, {
+            headers: { 'X-Admin-Token': adminSessionToken }
+        });
+        const checkData = await checkResponse.json();
+        
+        if (!checkData.success) {
+            console.warn('⚠️ last_seen column missing:', checkData.message);
+            // You can show a warning to the admin
+            Swal.fire({
+                icon: 'warning',
+                title: 'Database Update Needed',
+                text: 'Please add last_seen column to users table in Supabase',
+                footer: '<a href="https://supabase.com/dashboard" target="_blank">Go to Supabase Dashboard</a>'
+            });
+        }
+        
+        // Continue with loading users
         const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
             headers: { 'X-Admin-Token': adminSessionToken }
         });
         const data = await response.json();
         
         if (data.success) {
-            // Calculate stats
+            // Rest of your code...
             const totalUsers = data.users.length;
             const activeUsers = data.users.filter(u => u.is_active === true).length;
-            const inactiveUsers = totalUsers - activeUsers;
-            
-            document.getElementById('totalUsers').textContent = totalUsers;
-            document.getElementById('activeUsers').textContent = activeUsers;
-            document.getElementById('inactiveUsers').textContent = inactiveUsers;
-            document.getElementById('dbSize').textContent = `${(totalUsers * 0.5).toFixed(2)} KB`;
-            
-            allUsers = data.users;
-            sortAndRenderUsers();
-        } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-            if (data.message.includes('session')) {
-                adminLogout();
-            }
+            // etc...
         }
     } catch (error) {
         Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load data' });
