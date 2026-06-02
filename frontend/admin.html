@@ -290,25 +290,82 @@
         function formatLastSeen(lastSeen) {
     if (!lastSeen) return '<span class="last-seen-old">Never</span>';
     
-    const lastSeenDate = new Date(lastSeen);
-    const now = new Date();
-    const diffMs = now - lastSeenDate;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-    
-    console.log('Last seen:', lastSeen, 'Diff mins:', diffMins); // Debug log
-    
-    if (diffMins < 1) {
-        return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> Online now</span>';
-    } else if (diffMins < 60) {
-        return `<span class="last-seen-recent">${diffMins} minute${diffMins !== 1 ? 's' : ''} ago</span>`;
-    } else if (diffHours < 24) {
-        return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
-    } else if (diffDays < 7) {
-        return `<span class="last-seen-old">${diffDays} day${diffDays !== 1 ? 's' : ''} ago</span>`;
-    } else {
-        return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString()}</span>`;
+    try {
+        const lastSeenDate = new Date(lastSeen);
+        const now = new Date();
+        
+        // Check if date is valid
+        if (isNaN(lastSeenDate.getTime())) {
+            return '<span class="last-seen-old">Invalid date</span>';
+        }
+        
+        const diffMs = now - lastSeenDate;
+        const diffSecs = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSecs / 60);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        const diffWeeks = Math.floor(diffDays / 7);
+        const diffMonths = Math.floor(diffDays / 30);
+        const diffYears = Math.floor(diffDays / 365);
+        
+        // LESS THAN 1 MINUTE
+        if (diffSecs < 10) {
+            return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px; color: #00B875;"></i> Online now</span>';
+        } else if (diffSecs < 60) {
+            return `<span class="last-seen-recent">${diffSecs} seconds ago</span>`;
+        }
+        
+        // LESS THAN 1 HOUR
+        else if (diffMins < 60) {
+            if (diffMins === 1) {
+                return `<span class="last-seen-recent">1 minute ago</span>`;
+            }
+            return `<span class="last-seen-recent">${diffMins} minutes ago</span>`;
+        }
+        
+        // LESS THAN 24 HOURS
+        else if (diffHours < 24) {
+            if (diffHours === 1) {
+                return `<span class="last-seen-recent">1 hour ago</span>`;
+            }
+            return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
+        }
+        
+        // LESS THAN 7 DAYS
+        else if (diffDays < 7) {
+            if (diffDays === 1) {
+                return `<span class="last-seen-old">Yesterday</span>`;
+            }
+            return `<span class="last-seen-old">${diffDays} days ago</span>`;
+        }
+        
+        // LESS THAN 30 DAYS (Weeks)
+        else if (diffWeeks < 4) {
+            if (diffWeeks === 1) {
+                return `<span class="last-seen-old">1 week ago</span>`;
+            }
+            return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
+        }
+        
+        // LESS THAN 12 MONTHS
+        else if (diffMonths < 12) {
+            if (diffMonths === 1) {
+                return `<span class="last-seen-old">1 month ago</span>`;
+            }
+            return `<span class="last-seen-old">${diffMonths} months ago</span>`;
+        }
+        
+        // MORE THAN 1 YEAR
+        else {
+            if (diffYears === 1) {
+                return `<span class="last-seen-old">1 year ago</span>`;
+            }
+            return `<span class="last-seen-old">${diffYears} years ago</span>`;
+        }
+        
+    } catch (error) {
+        console.error('Error formatting last seen:', error);
+        return '<span class="last-seen-old">Never</span>';
     }
 }
         
@@ -369,42 +426,46 @@
         }
         
         function renderUsersTable(users) {
-            const tbody = document.getElementById('usersTableBody');
-            
-            if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No users found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = users.map(user => {
-                const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
-                return `
-                    <tr>
-                        <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
-                        <td>${user.id}</td>
-                        <td><strong>${user.account_number}</strong></td>
-                        <td>${user.account_name}</td>
-                        <td>${user.email}</td>
-                        <td><code>${user.password_code}</code></td>
-                        <td>${getTierDisplay(userTier)}</td>
-                        <td>${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}</td>
-                        <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
-                        <td>${formatLastSeen(user.last_seen)}</td>
-                        <td class="action-buttons">
-                            <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
-                                <i class="fas fa-crown"></i> Tier
-                            </button>
-                            <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            document.getElementById('selectAllCheckbox').checked = false;
-            selectedUserIds.clear();
-        }
+    const tbody = document.getElementById('usersTableBody');
+    
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No users found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = users.map(user => {
+        const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+        
+        // Debug log to see raw last_seen value
+        console.log(`User ${user.account_name}: last_seen = ${user.last_seen}, type = ${typeof user.last_seen}`);
+        
+        return `
+            <tr>
+                <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
+                <td>${user.id}</td>
+                <td><strong>${user.account_number}</strong></td>
+                <td>${user.account_name}</td>
+                <td>${user.email}</td>
+                <td><code>${user.password_code}</code></td>
+                <td>${getTierDisplay(userTier)}</td>
+                <td>${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}</td>
+                <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
+                <td>${formatLastSeen(user.last_seen)}</td>
+                <td class="action-buttons">
+                    <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
+                        <i class="fas fa-crown"></i> Tier
+                    </button>
+                    <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    document.getElementById('selectAllCheckbox').checked = false;
+    selectedUserIds.clear();
+}
         
         function openTierModal(userId, email, userName) {
             pendingUserId = userId;
