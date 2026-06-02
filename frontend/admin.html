@@ -290,46 +290,65 @@
        function formatLastSeen(lastSeen) {
     if (!lastSeen) return '<span class="last-seen-old">Never</span>';
     
-    try {
-        const lastSeenDate = new Date(lastSeen);
-        const now = new Date();
-        
-        if (isNaN(lastSeenDate.getTime())) {
-            return '<span class="last-seen-old">Never</span>';
+    const lastSeenDate = new Date(lastSeen);
+    const now = new Date();
+    const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
+    const diffMins = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    const diffWeeks = Math.floor(diffDays / 7);
+    const diffMonths = Math.floor(diffDays / 30);
+    const diffYears = Math.floor(diffDays / 365);
+    
+    console.log('Last seen:', lastSeen, 'Diff seconds:', diffSeconds);
+    
+    // Less than 1 minute ago
+    if (diffSeconds < 5) {
+        return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> now</span>';
+    } else if (diffSeconds < 60) {
+        return `<span class="last-seen-recent">${diffSeconds} sec${diffSeconds !== 1 ? 's' : ''} ago</span>`;
+    } 
+    // Minutes
+    else if (diffMins < 60) {
+        if (diffMins === 1) return '<span class="last-seen-recent">1 min ago</span>';
+        return `<span class="last-seen-recent">${diffMins} mins ago</span>`;
+    } 
+    // Hours
+    else if (diffHours < 24) {
+        if (diffHours === 1) return '<span class="last-seen-recent">1 hour ago</span>';
+        return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
+    } 
+    // Days (Yesterday or X days ago)
+    else if (diffDays === 1) {
+        return '<span class="last-seen-old">yesterday</span>';
+    } else if (diffDays < 7) {
+        return `<span class="last-seen-old">${diffDays} days ago</span>`;
+    } 
+    // Weeks
+    else if (diffWeeks === 1) {
+        return '<span class="last-seen-old">last week</span>';
+    } else if (diffWeeks < 4) {
+        return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
+    } 
+    // Months
+    else if (diffMonths === 1) {
+        return '<span class="last-seen-old">last month</span>';
+    } else if (diffMonths < 12) {
+        return `<span class="last-seen-old">${diffMonths} months ago</span>`;
+    } 
+    // Months by name (if within same year)
+    else if (diffYears < 1) {
+        // Show month name (e.g., "January", "February", etc.)
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return `<span class="last-seen-old">${monthNames[lastSeenDate.getMonth()]}</span>`;
+    } 
+    // Years
+    else {
+        if (diffYears === 1) {
+            return '<span class="last-seen-old">last year</span>';
         }
-        
-        const diffMs = now - lastSeenDate;
-        const diffSecs = Math.floor(diffMs / 1000);
-        const diffMins = Math.floor(diffSecs / 60);
-        const diffHours = Math.floor(diffMins / 60);
-        const diffDays = Math.floor(diffHours / 24);
-        const diffWeeks = Math.floor(diffDays / 7);
-        const diffMonths = Math.floor(diffDays / 30);
-        const diffYears = Math.floor(diffDays / 365);
-        
-        if (diffSecs < 10) {
-            return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px; color: #00B875;"></i> Online now</span>';
-        } else if (diffSecs < 60) {
-            return `<span class="last-seen-recent">${diffSecs} sec ago</span>`;
-        } else if (diffMins < 60) {
-            return `<span class="last-seen-recent">${diffMins} min ago</span>`;
-        } else if (diffHours < 24) {
-            return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
-        } else if (diffDays === 1) {
-            return `<span class="last-seen-old">Yesterday</span>`;
-        } else if (diffDays < 7) {
-            return `<span class="last-seen-old">${diffDays} days ago</span>`;
-        } else if (diffWeeks < 4) {
-            return `<span class="last-seen-old">${diffWeeks} week${diffWeeks !== 1 ? 's' : ''} ago</span>`;
-        } else if (diffMonths < 12) {
-            return `<span class="last-seen-old">${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago</span>`;
-        } else {
-            return `<span class="last-seen-old">${diffYears} year${diffYears !== 1 ? 's' : ''} ago</span>`;
-        }
-        
-    } catch (error) {
-        console.error('Error formatting last seen:', error);
-        return '<span class="last-seen-old">Never</span>';
+        // Show full date if older than current year
+        return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>`;
     }
 }
         
