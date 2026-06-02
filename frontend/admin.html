@@ -287,16 +287,15 @@
     }
 }
         
-        function formatLastSeen(lastSeen) {
+       function formatLastSeen(lastSeen) {
     if (!lastSeen) return '<span class="last-seen-old">Never</span>';
     
     try {
         const lastSeenDate = new Date(lastSeen);
         const now = new Date();
         
-        // Check if date is valid
         if (isNaN(lastSeenDate.getTime())) {
-            return '<span class="last-seen-old">Invalid date</span>';
+            return '<span class="last-seen-old">Never</span>';
         }
         
         const diffMs = now - lastSeenDate;
@@ -308,59 +307,24 @@
         const diffMonths = Math.floor(diffDays / 30);
         const diffYears = Math.floor(diffDays / 365);
         
-        // LESS THAN 1 MINUTE
         if (diffSecs < 10) {
             return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px; color: #00B875;"></i> Online now</span>';
         } else if (diffSecs < 60) {
-            return `<span class="last-seen-recent">${diffSecs} seconds ago</span>`;
-        }
-        
-        // LESS THAN 1 HOUR
-        else if (diffMins < 60) {
-            if (diffMins === 1) {
-                return `<span class="last-seen-recent">1 minute ago</span>`;
-            }
-            return `<span class="last-seen-recent">${diffMins} minutes ago</span>`;
-        }
-        
-        // LESS THAN 24 HOURS
-        else if (diffHours < 24) {
-            if (diffHours === 1) {
-                return `<span class="last-seen-recent">1 hour ago</span>`;
-            }
-            return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
-        }
-        
-        // LESS THAN 7 DAYS
-        else if (diffDays < 7) {
-            if (diffDays === 1) {
-                return `<span class="last-seen-old">Yesterday</span>`;
-            }
+            return `<span class="last-seen-recent">${diffSecs} sec ago</span>`;
+        } else if (diffMins < 60) {
+            return `<span class="last-seen-recent">${diffMins} min ago</span>`;
+        } else if (diffHours < 24) {
+            return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
+        } else if (diffDays === 1) {
+            return `<span class="last-seen-old">Yesterday</span>`;
+        } else if (diffDays < 7) {
             return `<span class="last-seen-old">${diffDays} days ago</span>`;
-        }
-        
-        // LESS THAN 30 DAYS (Weeks)
-        else if (diffWeeks < 4) {
-            if (diffWeeks === 1) {
-                return `<span class="last-seen-old">1 week ago</span>`;
-            }
-            return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
-        }
-        
-        // LESS THAN 12 MONTHS
-        else if (diffMonths < 12) {
-            if (diffMonths === 1) {
-                return `<span class="last-seen-old">1 month ago</span>`;
-            }
-            return `<span class="last-seen-old">${diffMonths} months ago</span>`;
-        }
-        
-        // MORE THAN 1 YEAR
-        else {
-            if (diffYears === 1) {
-                return `<span class="last-seen-old">1 year ago</span>`;
-            }
-            return `<span class="last-seen-old">${diffYears} years ago</span>`;
+        } else if (diffWeeks < 4) {
+            return `<span class="last-seen-old">${diffWeeks} week${diffWeeks !== 1 ? 's' : ''} ago</span>`;
+        } else if (diffMonths < 12) {
+            return `<span class="last-seen-old">${diffMonths} month${diffMonths !== 1 ? 's' : ''} ago</span>`;
+        } else {
+            return `<span class="last-seen-old">${diffYears} year${diffYears !== 1 ? 's' : ''} ago</span>`;
         }
         
     } catch (error) {
