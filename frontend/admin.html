@@ -257,105 +257,84 @@
         }
         
         async function loadDashboardData() {
-    try {
-        // First, check if last_seen column exists
-        const checkResponse = await fetch(`${BACKEND_URL}/api/admin/check-last-seen-column`, {
-            headers: { 'X-Admin-Token': adminSessionToken }
-        });
-        const checkData = await checkResponse.json();
-        
-        if (!checkData.success) {
-            console.warn('⚠️ last_seen column missing:', checkData.message);
-            // You can show a warning to the admin
-            Swal.fire({
-                icon: 'warning',
-                title: 'Database Update Needed',
-                text: 'Please add last_seen column to users table in Supabase',
-                footer: '<a href="https://supabase.com/dashboard" target="_blank">Go to Supabase Dashboard</a>'
-            });
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
+                    headers: { 'X-Admin-Token': adminSessionToken }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allUsers = data.users;
+                    
+                    const totalUsers = data.users.length;
+                    const activeUsers = data.users.filter(u => u.is_active === true).length;
+                    const inactiveUsers = totalUsers - activeUsers;
+                    
+                    document.getElementById('totalUsers').textContent = totalUsers;
+                    document.getElementById('activeUsers').textContent = activeUsers;
+                    document.getElementById('inactiveUsers').textContent = inactiveUsers;
+                    
+                    const dbSizeKB = (totalUsers * 0.5).toFixed(2);
+                    document.getElementById('dbSize').textContent = `${dbSizeKB} KB`;
+                    
+                    sortAndRenderUsers();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to load users' });
+                    if (data.message && data.message.includes('session')) {
+                        adminLogout();
+                    }
+                }
+            } catch (error) {
+                console.error('Load data error:', error);
+                Swal.fire({ icon: 'error', title: 'Network Error', text: 'Failed to load dashboard data' });
+            }
         }
         
-        // Continue with loading users
-        const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
-            headers: { 'X-Admin-Token': adminSessionToken }
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            // Rest of your code...
-            const totalUsers = data.users.length;
-            const activeUsers = data.users.filter(u => u.is_active === true).length;
-            // etc...
+        function formatLastSeen(lastSeen) {
+            if (!lastSeen) return '<span class="last-seen-old">Never</span>';
+            
+            const lastSeenDate = new Date(lastSeen);
+            const now = new Date();
+            const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
+            const diffMins = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            const diffWeeks = Math.floor(diffDays / 7);
+            const diffMonths = Math.floor(diffDays / 30);
+            const diffYears = Math.floor(diffDays / 365);
+            
+            if (diffSeconds < 5) {
+                return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> now</span>';
+            } else if (diffSeconds < 60) {
+                return `<span class="last-seen-recent">${diffSeconds} sec${diffSeconds !== 1 ? 's' : ''} ago</span>`;
+            } else if (diffMins < 60) {
+                if (diffMins === 1) return '<span class="last-seen-recent">1 min ago</span>';
+                return `<span class="last-seen-recent">${diffMins} mins ago</span>`;
+            } else if (diffHours < 24) {
+                if (diffHours === 1) return '<span class="last-seen-recent">1 hour ago</span>';
+                return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
+            } else if (diffDays === 1) {
+                return '<span class="last-seen-old">yesterday</span>';
+            } else if (diffDays < 7) {
+                return `<span class="last-seen-old">${diffDays} days ago</span>`;
+            } else if (diffWeeks === 1) {
+                return '<span class="last-seen-old">last week</span>';
+            } else if (diffWeeks < 4) {
+                return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
+            } else if (diffMonths === 1) {
+                return '<span class="last-seen-old">last month</span>';
+            } else if (diffMonths < 12) {
+                return `<span class="last-seen-old">${diffMonths} months ago</span>`;
+            } else if (diffYears < 1) {
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                return `<span class="last-seen-old">${monthNames[lastSeenDate.getMonth()]}</span>`;
+            } else {
+                if (diffYears === 1) {
+                    return '<span class="last-seen-old">last year</span>';
+                }
+                return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>`;
+            }
         }
-    } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load data' });
-    }
-}
-        
-       function formatLastSeen(lastSeen) {
-    if (!lastSeen) return '<span class="last-seen-old">Never</span>';
-    
-    const lastSeenDate = new Date(lastSeen);
-    const now = new Date();
-    const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
-    const diffMins = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-    const diffWeeks = Math.floor(diffDays / 7);
-    const diffMonths = Math.floor(diffDays / 30);
-    const diffYears = Math.floor(diffDays / 365);
-    
-    console.log('Last seen:', lastSeen, 'Diff seconds:', diffSeconds);
-    
-    // Less than 1 minute ago
-    if (diffSeconds < 5) {
-        return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> now</span>';
-    } else if (diffSeconds < 60) {
-        return `<span class="last-seen-recent">${diffSeconds} sec${diffSeconds !== 1 ? 's' : ''} ago</span>`;
-    } 
-    // Minutes
-    else if (diffMins < 60) {
-        if (diffMins === 1) return '<span class="last-seen-recent">1 min ago</span>';
-        return `<span class="last-seen-recent">${diffMins} mins ago</span>`;
-    } 
-    // Hours
-    else if (diffHours < 24) {
-        if (diffHours === 1) return '<span class="last-seen-recent">1 hour ago</span>';
-        return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
-    } 
-    // Days (Yesterday or X days ago)
-    else if (diffDays === 1) {
-        return '<span class="last-seen-old">yesterday</span>';
-    } else if (diffDays < 7) {
-        return `<span class="last-seen-old">${diffDays} days ago</span>`;
-    } 
-    // Weeks
-    else if (diffWeeks === 1) {
-        return '<span class="last-seen-old">last week</span>';
-    } else if (diffWeeks < 4) {
-        return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
-    } 
-    // Months
-    else if (diffMonths === 1) {
-        return '<span class="last-seen-old">last month</span>';
-    } else if (diffMonths < 12) {
-        return `<span class="last-seen-old">${diffMonths} months ago</span>`;
-    } 
-    // Months by name (if within same year)
-    else if (diffYears < 1) {
-        // Show month name (e.g., "January", "February", etc.)
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        return `<span class="last-seen-old">${monthNames[lastSeenDate.getMonth()]}</span>`;
-    } 
-    // Years
-    else {
-        if (diffYears === 1) {
-            return '<span class="last-seen-old">last year</span>';
-        }
-        // Show full date if older than current year
-        return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>`;
-    }
-}
         
         function getTierDisplay(tier) {
             if (tier === '1' || tier === 1) return '<span class="tier-badge tier-1">⭐ Free</span>';
@@ -366,7 +345,6 @@
         }
         
         function sortAndRenderUsers() {
-            // Sort users
             const sortedUsers = [...allUsers].sort((a, b) => {
                 let aVal, bVal;
                 
@@ -390,7 +368,6 @@
             
             renderUsersTable(sortedUsers);
             
-            // Update sort icons
             document.querySelectorAll('.sort-icon').forEach(icon => {
                 icon.classList.remove('fa-sort-up', 'fa-sort-down');
                 icon.classList.add('fa-sort');
@@ -414,46 +391,42 @@
         }
         
         function renderUsersTable(users) {
-    const tbody = document.getElementById('usersTableBody');
-    
-    if (!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No users found</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = users.map(user => {
-        const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
-        
-        // Debug log to see raw last_seen value
-        console.log(`User ${user.account_name}: last_seen = ${user.last_seen}, type = ${typeof user.last_seen}`);
-        
-        return `
-            <tr>
-                <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
-                <td>${user.id}</td>
-                <td><strong>${user.account_number}</strong></td>
-                <td>${user.account_name}</td>
-                <td>${user.email}</td>
-                <td><code>${user.password_code}</code></td>
-                <td>${getTierDisplay(userTier)}</td>
-                <td>${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}</td>
-                <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
-                <td>${formatLastSeen(user.last_seen)}</td>
-                <td class="action-buttons">
-                    <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
-                        <i class="fas fa-crown"></i> Tier
-                    </button>
-                    <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-    
-    document.getElementById('selectAllCheckbox').checked = false;
-    selectedUserIds.clear();
-}
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(user => {
+                const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+                return `
+                    <tr>
+                        <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
+                        <td>${user.id}</td>
+                        <td><strong>${user.account_number}</strong></td>
+                        <td>${user.account_name}</td>
+                        <td>${user.email}</td>
+                        <td><code>${user.password_code}</code></td>
+                        <td>${getTierDisplay(userTier)}</td>
+                        <td>${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}</td>
+                        <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
+                        <td>${formatLastSeen(user.last_seen)}</td>
+                        <td class="action-buttons">
+                            <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
+                                <i class="fas fa-crown"></i> Tier
+                            </button>
+                            <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('selectAllCheckbox').checked = false;
+            selectedUserIds.clear();
+        }
         
         function openTierModal(userId, email, userName) {
             pendingUserId = userId;
