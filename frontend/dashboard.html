@@ -1578,6 +1578,99 @@ document.getElementById('activateBtn')?.addEventListener('click', () => {
     if (closeHelpSheet) {
         closeHelpSheet.addEventListener('click', hideHelpSheet);
     }
+
+              // ============ UPDATE LAST SEEN - COMPLETE WORKING VERSION ==========
+const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+
+async function updateLastSeen() {
+    const userData = localStorage.getItem('loggedInUser');
+    if (!userData) {
+        console.log('❌ No user logged in');
+        return false;
+    }
+    
+    const user = JSON.parse(userData);
+    
+    // Throttle: only update every 2 minutes (120000 ms)
+    const now = Date.now();
+    const lastUpdate = localStorage.getItem('lastSeenUpdateTime');
+    if (lastUpdate && (now - parseInt(lastUpdate)) < 120000) {
+        console.log('⏭️ Skipping - last update was', Math.floor((now - parseInt(lastUpdate)) / 1000), 'seconds ago');
+        return false;
+    }
+    
+    console.log('🟡 Updating last seen for:', user.email);
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/update-last-seen`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('lastSeenUpdateTime', now.toString());
+            console.log('✅ Last seen updated at:', new Date().toLocaleTimeString());
+            return true;
+        } else {
+            console.log('❌ Update failed:', data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Network error:', error);
+        return false;
+    }
+}
+
+// ============ CALL ON PAGE LOAD ============
+updateLastSeen();
+
+// ============ UPDATE EVERY 2 MINUTES ============
+setInterval(() => {
+    updateLastSeen();
+}, 120000); // 2 minutes
+
+// ============ UPDATE ON USER ACTIVITY ============
+let lastActivityTime = Date.now();
+
+function onUserActivity() {
+    const now = Date.now();
+    // Only update if more than 1 minute has passed since last activity update
+    if (now - lastActivityTime > 60000) {
+        updateLastSeen();
+        lastActivityTime = now;
+    }
+}
+
+// Listen for user interactions
+document.addEventListener('click', onUserActivity);
+document.addEventListener('scroll', onUserActivity);
+document.addEventListener('touchstart', onUserActivity);
+document.addEventListener('keypress', onUserActivity);
+
+// ============ ALSO UPDATE WHEN PAGE BECOMES VISIBLE ============
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        console.log('🔄 Page became visible, updating last seen');
+        updateLastSeen();
+    }
+});
+
+// ============ UPDATE BEFORE PAGE CLOSES ============
+window.addEventListener('beforeunload', () => {
+    // Use synchronous beacon API for page unload
+    const userData = localStorage.getItem('loggedInUser');
+    if (userData) {
+        const user = JSON.parse(userData);
+        navigator.sendBeacon(`${BACKEND_URL}/api/update-last-seen`, 
+            JSON.stringify({ email: user.email })
+        );
+    }
+});
+
+console.log('✅ Last seen tracking initialized');
     
     // ========== INITIALIZE ==========
     loadUserFromLocalStorage();
