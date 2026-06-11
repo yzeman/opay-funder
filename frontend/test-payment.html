@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Payment</title>
+</head>
+<body>
+    <button onclick="testPayment()">Test Payment</button>
+    <pre id="result"></pre>
+
+    <script>
+    function testPayment() {
+        document.getElementById('result').innerText = 'Testing...';
+        
+        fetch('https://opay-backend-api-pncl.onrender.com/api/initialize-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: 'test@example.com',
+                amount: 1000,
+                plan: 'basic',
+                tier: '2'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+            document.getElementById('result').innerText = 'Error: ' + err.message;
+        });
+    }
+    </script>
+</body>
+</html>
