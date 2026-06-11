@@ -19,9 +19,6 @@
             background: #f8f9fc;
             min-height: 100vh;
             padding-bottom: 30px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
         }
 
         .header {
@@ -158,18 +155,17 @@
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+            border: none;
         }
 
         .upgrade-btn.active {
             background: #00B875;
             color: white;
-            border: none;
         }
 
         .upgrade-btn.disabled {
             background: #e8f5e9;
             color: #00B875;
-            border: none;
             cursor: default;
         }
 
@@ -257,11 +253,6 @@
             margin-bottom: 4px;
         }
 
-        .modal-subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
         .modal-body {
             padding: 20px;
         }
@@ -329,29 +320,18 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
             text-align: center;
+            border: none;
         }
 
         .modal-btn.confirm {
             background: #00B875;
             color: white;
-            border: none;
         }
 
         .modal-btn.cancel {
             background: #f0f2f5;
             color: #666;
-            border: none;
-        }
-
-        .modal-btn.confirm:active {
-            transform: scale(0.98);
-            background: #009a62;
-        }
-
-        .modal-btn.cancel:active {
-            transform: scale(0.98);
         }
 
         .loading-overlay {
@@ -450,11 +430,15 @@
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Redirecting to payment gateway...</div>
+        <div class="loading-text">Processing your payment...</div>
     </div>
 
     <script>
-    const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+    // Use relative path or dynamic backend URL detection
+    const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:3000' 
+        : 'https://opay-backend-api-pncl.onrender.com';
+    
     let currentUser = null;
     let userTier = '1';
     let pendingPlan = null;
@@ -469,7 +453,13 @@
     }
 
     function showMessage(icon, title, text) {
-        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#00B875' });
+        Swal.fire({ 
+            icon: icon, 
+            title: title, 
+            text: text, 
+            confirmButtonColor: '#00B875',
+            confirmButtonText: 'OK'
+        });
     }
 
     function showConfirmationModal(plan, tier, price, planName) {
@@ -491,28 +481,48 @@
         if (!pendingPlan) return;
         
         if (!currentUser || !currentUser.email) {
-            showMessage('error', 'Error', 'Please login again');
-            window.location.href = 'login1.html';
+            showMessage('error', 'Login Required', 'Please login again to continue');
+            setTimeout(() => {
+                window.location.href = 'login1.html';
+            }, 2000);
             return;
         }
         
         hideConfirmationModal();
         showLoading(true);
         
+        console.log('Sending payment request to:', `${BACKEND_URL}/api/initialize-payment`);
+        console.log('Payment data:', {
+            email: currentUser.email,
+            amount: pendingPlan.price,
+            plan: pendingPlan.plan,
+            tier: pendingPlan.tier
+        });
+        
         try {
-            console.log('Initializing payment for:', currentUser.email);
-            console.log('Plan:', pendingPlan.plan, 'Amount:', pendingPlan.price);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
             
             const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
                     email: currentUser.email,
                     amount: pendingPlan.price,
                     plan: pendingPlan.plan,
                     tier: pendingPlan.tier
-                })
+                }),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             
             const data = await response.json();
             console.log('Payment response:', data);
@@ -521,12 +531,19 @@
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
-                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
+                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
             }
         } catch (error) {
-            console.error('Payment error:', error);
+            console.error('Payment initialization error:', error);
             showLoading(false);
-            showMessage('error', 'Error', 'Network error. Please try again.');
+            
+            if (error.name === 'AbortError') {
+                showMessage('error', 'Timeout Error', 'Request timed out. Please check your internet connection and try again.');
+            } else if (error.message.includes('Failed to fetch')) {
+                showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please check if the backend is running.');
+            } else {
+                showMessage('error', 'Network Error', error.message || 'Something went wrong. Please try again.');
+            }
         }
     }
 
@@ -660,7 +677,16 @@
     async function init() {
         await loadUser();
         renderPlans();
-        console.log('✅ Plan page loaded - User tier:', userTier);
+        
+        // Test backend connection
+        try {
+            const testResponse = await fetch(`${BACKEND_URL}/health`);
+            const testData = await testResponse.json();
+            console.log('Backend connection test:', testData);
+        } catch (error) {
+            console.error('Backend connection failed:', error);
+            showMessage('warning', 'Connection Issue', 'Cannot connect to payment server. Please contact support.');
+        }
     }
 
     init();
