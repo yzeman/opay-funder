@@ -6,7 +6,14 @@ const { createClient } = require('@supabase/supabase-js');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// ============ CORRECTED CORS CONFIGURATION ============
+app.use(cors({
+    origin: ['https://opay-funder.onrender.com', 'http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token']
+}));
 app.use(express.json());
 
 // ============ INITIALIZE SUPABASE ============
@@ -18,6 +25,13 @@ const supabase = createClient(
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const ADMIN_PASSWORD = 'adminkeyzer';
 
+// ============ VERIFY PAYSTACK KEY IS SET ============
+if (!PAYSTACK_SECRET_KEY) {
+    console.error('❌ ERROR: PAYSTACK_SECRET_KEY is not set in environment variables!');
+} else {
+    console.log('✅ Paystack secret key is configured');
+}
+
 const activeSessions = new Map();
 
 console.log('✅ Server starting...');
@@ -26,7 +40,8 @@ console.log('✅ Server starting...');
 app.get('/', (req, res) => {
     res.json({ 
         message: 'OPay Backend API is running!',
-        status: 'ok'
+        status: 'ok',
+        paystackConfigured: !!PAYSTACK_SECRET_KEY
     });
 });
 
@@ -175,16 +190,15 @@ app.post('/api/get-user-by-account', async (req, res) => {
     }
 });
 
-// ============ RESOLVE ACCOUNT NAME - FIXED FOR OPAY ============
+// ============ RESOLVE ACCOUNT NAME ============
 app.post('/api/resolve-account', async (req, res) => {
     console.log('📞 Resolve account:', req.body.account_number, 'Bank Code:', req.body.bank_code);
     const { account_number, bank_code } = req.body;
     
-    // Map bank codes - OPay uses '999992' or '999991' as CBN code
     let bankCode;
     
     if (bank_code === 'opay' || bank_code === 'OPay' || bank_code === 'OPay Digital Bank') {
-        bankCode = '999992'; // OPay CBN code
+        bankCode = '999992';
     } else if (bank_code === 'moniepoint') {
         bankCode = '999991';
     } else if (bank_code === 'palmpay') {
@@ -194,9 +208,9 @@ app.post('/api/resolve-account', async (req, res) => {
     } else if (bank_code === 'kuda') {
         bankCode = '999995';
     } else if (bank_code) {
-        bankCode = bank_code; // Use provided bank code
+        bankCode = bank_code;
     } else {
-        bankCode = '999992'; // Default to OPay
+        bankCode = '999992';
     }
     
     console.log('Using bank code:', bankCode);
@@ -234,7 +248,6 @@ app.post('/api/resolve-account', async (req, res) => {
 
 // ============ BANK CODES MAPPING ============
 const BANK_CODES = {
-    // Digital Wallets (CBN codes)
     'OPay': '999992',
     'Moniepoint': '999991',
     'PalmPay': '999993',
@@ -245,8 +258,6 @@ const BANK_CODES = {
     'Sparkle': '999998',
     'FairMoney': '999999',
     'Renmoney': '999990',
-    
-    // Traditional Banks
     'Access Bank': '044',
     'Citibank': '023',
     'Ecobank': '050',
@@ -274,7 +285,6 @@ const BANK_CODES = {
 // ============ GET BANK CODE ============
 app.post('/api/get-bank-code', async (req, res) => {
     const { bank_name } = req.body;
-    
     const bankCode = BANK_CODES[bank_name] || null;
     
     if (bankCode) {
@@ -290,11 +300,7 @@ const DIGITAL_WALLETS = [
     { code: '999992', name: 'Moniepoint', logo: 'https://moniepoint.com/images/logo.svg' },
     { code: '999993', name: 'PalmPay', logo: 'https://palmpay.com/images/logo.png' },
     { code: '999994', name: 'Paga', logo: 'https://www.paga.com/images/logo.png' },
-    { code: '999995', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' },
-    { code: '999996', name: 'Carbon', logo: 'https://carbon.africa/logo.png' },
-    { code: '999997', name: 'V Bank', logo: 'https://vbank.ng/logo.png' },
-    { code: '999998', name: 'Sparkle', logo: 'https://sparkle.ng/logo.png' },
-    { code: '999999', name: 'FairMoney', logo: 'https://fairmoney.ng/logo.png' }
+    { code: '999995', name: 'Kuda Bank', logo: 'https://kuda.com/logo.png' }
 ];
 
 // ============ GET ALL BANKS ============
@@ -326,7 +332,6 @@ app.get('/api/banks', async (req, res) => {
             }));
             
             const allBanks = [...traditionalBanks, ...digitalWalletsFormatted];
-            
             res.json({ success: true, banks: allBanks });
         } else {
             const digitalWalletsFormatted = DIGITAL_WALLETS.map(wallet => ({
@@ -348,21 +353,11 @@ app.get('/api/banks', async (req, res) => {
 
 // ============ GET BANKS WITH LOGOS ============
 app.get('/api/banks-with-logos', async (req, res) => {
-    const bankLogos = {
-        'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png',
-        'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
-        'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
-        'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
-        'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
-        'OPay': 'images/opay.png'
-    };
-    
     const digitalWalletsWithLogos = DIGITAL_WALLETS.map(wallet => ({
         code: wallet.code,
         name: wallet.name,
         logo: wallet.logo
     }));
-    
     res.json({ success: true, banks: digitalWalletsWithLogos });
 });
 
@@ -425,7 +420,6 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
         
         try {
             const { data: dbSizeData, error: dbError } = await supabase.rpc('get_database_size');
-            
             if (dbSizeData && !dbError) {
                 const sizeInMB = (dbSizeData / (1024 * 1024)).toFixed(2);
                 databaseSize = `${sizeInMB} MB`;
@@ -526,22 +520,8 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
 
 app.post('/api/admin/assign-tier', verifyAdminSession, async (req, res) => {
     const { email, tier } = req.body;
-    
-    try {
-        // Store tier in a separate table or add tier column to users
-        // For now, we'll just log and return success
-        console.log(`👑 Admin assigned tier ${tier} to user ${email}`);
-        
-        // You can store tier in localStorage on frontend, or add a 'tier' column to Supabase users table
-        // For now, frontend will store in localStorage
-        
-        res.json({ 
-            success: true, 
-            message: `Tier ${tier} assigned successfully` 
-        });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
+    console.log(`👑 Admin assigned tier ${tier} to user ${email}`);
+    res.json({ success: true, message: `Tier ${tier} assigned successfully` });
 });
 
 app.post('/api/admin/logout', verifyAdminSession, (req, res) => {
@@ -600,7 +580,6 @@ app.post('/api/check-account', async (req, res) => {
 app.post('/api/create-user', async (req, res) => {
     console.log('👤 Create user:', req.body.email);
     const { account_number, account_name, email, password_code } = req.body;
-    
     const activationCode = Math.floor(10000 + Math.random() * 90000).toString();
     
     try {
@@ -682,19 +661,20 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// ============ PAYSTACK PAYMENT INITIALIZATION ============
+// ============ CORRECTED PAYSTACK PAYMENT INITIALIZATION ============
 app.post('/api/initialize-payment', async (req, res) => {
     const { email, amount, plan, tier } = req.body;
     
-    console.log('💰 Payment request received for:', email);
-    console.log('Plan:', plan, 'Amount:', amount);
+    console.log('💰 Payment Init Request:', { email, amount, plan, tier });
     
     if (!PAYSTACK_SECRET_KEY) {
-        console.error('❌ PAYSTACK_SECRET_KEY is missing!');
-        return res.json({ 
-            success: false, 
-            message: 'Payment system not configured. Please contact support.' 
-        });
+        console.error('❌ PAYSTACK_SECRET_KEY is not set!');
+        return res.json({ success: false, message: 'Payment system not configured' });
+    }
+    
+    if (!email) {
+        console.error('❌ No email provided');
+        return res.json({ success: false, message: 'User email is required' });
     }
     
     try {
@@ -706,7 +686,7 @@ app.post('/api/initialize-payment', async (req, res) => {
             },
             body: JSON.stringify({
                 email: email,
-                amount: amount * 100, // Convert to kobo
+                amount: amount * 100,
                 currency: 'NGN',
                 metadata: {
                     plan: plan,
@@ -716,12 +696,12 @@ app.post('/api/initialize-payment', async (req, res) => {
                         { display_name: "Tier", variable_name: "tier", value: tier }
                     ]
                 },
-                callback_url: 'https://opay-funder.onrender.com/payment-callback.html'
+                callback_url: 'https://opay-funder.onrender.com/dashboard.html'
             })
         });
         
         const data = await response.json();
-        console.log('Paystack response:', data.status ? 'Success' : 'Failed - ' + data.message);
+        console.log('Paystack Response:', data.status ? 'Success' : 'Failed - ' + data.message);
         
         if (data.status) {
             res.json({
@@ -733,12 +713,12 @@ app.post('/api/initialize-payment', async (req, res) => {
             res.json({ success: false, message: data.message });
         }
     } catch (error) {
-        console.error('Paystack error:', error);
+        console.error('Payment init error:', error);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ VERIFY PAYMENT ============
+// ============ VERIFY PAYMENT & UPDATE TIER ============
 app.post('/api/verify-payment', async (req, res) => {
     const { reference, email } = req.body;
     
@@ -756,10 +736,10 @@ app.post('/api/verify-payment', async (req, res) => {
         const data = await response.json();
         
         if (data.status && data.data.status === 'success') {
-            const tier = data.data.metadata?.tier || '2';
-            const plan = data.data.metadata?.plan || 'Basic';
+            const tier = data.data.metadata.tier;
+            const plan = data.data.metadata.plan;
             
-            console.log(`✅ Payment verified! User: ${email}, New Tier: ${tier}`);
+            console.log(`✅ Payment verified! User upgraded to ${plan} (Tier ${tier})`);
             
             res.json({
                 success: true,
@@ -767,64 +747,11 @@ app.post('/api/verify-payment', async (req, res) => {
                 tier: tier
             });
         } else {
+            console.log('❌ Payment verification failed:', data.message);
             res.json({ success: false, message: 'Payment verification failed' });
         }
     } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
-
-// ============ TEST ENDPOINT (to verify backend is working) ============
-app.get('/api/test', (req, res) => {
-    res.json({ 
-        success: true, 
-        message: 'Backend is working!',
-        endpoints: ['/api/initialize-payment (POST)', '/api/verify-payment (POST)']
-    });
-});
-
-
-
-// ============ GET USERS WITH LAST SEEN ============
-app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
-    try {
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('*')
-            .order('last_seen', { ascending: false, nullsLast: true });
-        
-        if (error) throw error;
-        
-        res.json({ success: true, users: users || [] });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-});
-
-// Add this endpoint to check/add the last_seen column
-app.get('/api/admin/check-last-seen-column', verifyAdminSession, async (req, res) => {
-    try {
-        // Try to query the column
-        const { data, error } = await supabase
-            .from('users')
-            .select('last_seen')
-            .limit(1);
-        
-        if (error && error.message.includes('last_seen')) {
-            // Column doesn't exist - try to add it
-            const { error: alterError } = await supabase.rpc('add_last_seen_column');
-            
-            if (alterError) {
-                return res.json({ 
-                    success: false, 
-                    message: 'Please add last_seen column manually in Supabase SQL editor',
-                    sql: 'ALTER TABLE users ADD COLUMN last_seen TIMESTAMP;'
-                });
-            }
-        }
-        
-        res.json({ success: true, message: 'last_seen column exists' });
-    } catch (error) {
+        console.error('Verify error:', error);
         res.json({ success: false, message: error.message });
     }
 });
@@ -838,7 +765,6 @@ app.post('/api/update-last-seen', async (req, res) => {
     }
     
     try {
-        // Update the last_seen timestamp
         const { error } = await supabase
             .from('users')
             .update({ last_seen: new Date().toISOString() })
@@ -868,7 +794,6 @@ app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) =
         
         if (error) throw error;
         
-        // Format the response
         const formattedUsers = users.map(user => ({
             ...user,
             last_seen: user.last_seen || null,
@@ -883,15 +808,17 @@ app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) =
     }
 });
 
-// Health check endpoint (for uptime monitoring)
+// ============ HEALTH CHECK ============
 app.get('/health', (req, res) => {
     res.status(200).json({ 
         status: 'healthy',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        paystackConfigured: !!PAYSTACK_SECRET_KEY
     });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Paystack configured: ${!!PAYSTACK_SECRET_KEY ? 'YES' : 'NO'}`);
 });
