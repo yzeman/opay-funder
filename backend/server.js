@@ -686,6 +686,17 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/initialize-payment', async (req, res) => {
     const { email, amount, plan, tier } = req.body;
     
+    console.log('💰 Payment request received for:', email);
+    console.log('Plan:', plan, 'Amount:', amount);
+    
+    if (!PAYSTACK_SECRET_KEY) {
+        console.error('❌ PAYSTACK_SECRET_KEY is missing!');
+        return res.json({ 
+            success: false, 
+            message: 'Payment system not configured. Please contact support.' 
+        });
+    }
+    
     try {
         const response = await fetch('https://api.paystack.co/transaction/initialize', {
             method: 'POST',
@@ -695,7 +706,7 @@ app.post('/api/initialize-payment', async (req, res) => {
             },
             body: JSON.stringify({
                 email: email,
-                amount: amount * 100,
+                amount: amount * 100, // Convert to kobo
                 currency: 'NGN',
                 metadata: {
                     plan: plan,
@@ -710,6 +721,7 @@ app.post('/api/initialize-payment', async (req, res) => {
         });
         
         const data = await response.json();
+        console.log('Paystack response:', data.status ? 'Success' : 'Failed - ' + data.message);
         
         if (data.status) {
             res.json({
@@ -721,13 +733,16 @@ app.post('/api/initialize-payment', async (req, res) => {
             res.json({ success: false, message: data.message });
         }
     } catch (error) {
+        console.error('Paystack error:', error);
         res.json({ success: false, message: error.message });
     }
 });
 
-// ============ VERIFY PAYMENT & UPDATE TIER ============
+// ============ VERIFY PAYMENT ============
 app.post('/api/verify-payment', async (req, res) => {
     const { reference, email } = req.body;
+    
+    console.log('🔍 Verifying payment:', reference);
     
     try {
         const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
@@ -741,8 +756,10 @@ app.post('/api/verify-payment', async (req, res) => {
         const data = await response.json();
         
         if (data.status && data.data.status === 'success') {
-            const tier = data.data.metadata.tier;
-            const plan = data.data.metadata.plan;
+            const tier = data.data.metadata?.tier || '2';
+            const plan = data.data.metadata?.plan || 'Basic';
+            
+            console.log(`✅ Payment verified! User: ${email}, New Tier: ${tier}`);
             
             res.json({
                 success: true,
@@ -755,6 +772,15 @@ app.post('/api/verify-payment', async (req, res) => {
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
+});
+
+// ============ TEST ENDPOINT (to verify backend is working) ============
+app.get('/api/test', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'Backend is working!',
+        endpoints: ['/api/initialize-payment (POST)', '/api/verify-payment (POST)']
+    });
 });
 
 
