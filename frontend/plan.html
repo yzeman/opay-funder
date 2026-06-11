@@ -434,10 +434,8 @@
     </div>
 
     <script>
-    // Use relative path or dynamic backend URL detection
-    const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:3000' 
-        : 'https://opay-backend-api-pncl.onrender.com';
+    // FIXED: Hardcoded backend URL (since we know it's working)
+    const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     
     let currentUser = null;
     let userTier = '1';
@@ -500,9 +498,6 @@
         });
         
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-            
             const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                 method: 'POST',
                 headers: { 
@@ -514,15 +509,8 @@
                     amount: pendingPlan.price,
                     plan: pendingPlan.plan,
                     tier: pendingPlan.tier
-                }),
-                signal: controller.signal
+                })
             });
-            
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
             
             const data = await response.json();
             console.log('Payment response:', data);
@@ -536,14 +524,7 @@
         } catch (error) {
             console.error('Payment initialization error:', error);
             showLoading(false);
-            
-            if (error.name === 'AbortError') {
-                showMessage('error', 'Timeout Error', 'Request timed out. Please check your internet connection and try again.');
-            } else if (error.message.includes('Failed to fetch')) {
-                showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please check if the backend is running.');
-            } else {
-                showMessage('error', 'Network Error', error.message || 'Something went wrong. Please try again.');
-            }
+            showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please check your internet connection.');
         }
     }
 
@@ -683,9 +664,12 @@
             const testResponse = await fetch(`${BACKEND_URL}/health`);
             const testData = await testResponse.json();
             console.log('Backend connection test:', testData);
+            if (testData.paystackConfigured) {
+                console.log('✅ Paystack is configured on backend');
+            }
         } catch (error) {
             console.error('Backend connection failed:', error);
-            showMessage('warning', 'Connection Issue', 'Cannot connect to payment server. Please contact support.');
+            showMessage('warning', 'Connection Issue', 'Cannot connect to payment server. Please refresh the page.');
         }
     }
 
