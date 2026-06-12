@@ -3,65 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>OPay - Choose Plan</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Choose Plan - OPay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f8f9fc;min-height:100vh;padding-bottom:30px}
-        .header{background:white;padding:16px 16px 10px;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100}
-        .header-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
-        .back-btn{background:none;border:none;font-size:20px;cursor:pointer;color:#333;padding:5px;width:40px}
-        .header-title{font-size:18px;font-weight:600;color:#1a1a1a;text-align:center;margin:0;flex:1}
-        .current-tier-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);margin:16px;padding:20px;border-radius:20px;color:white;text-align:center}
-        .current-tier-label{font-size:12px;opacity:0.8;margin-bottom:5px}
-        .current-tier-name{font-size:24px;font-weight:700}
-        .plan-card{background:white;margin:16px;border-radius:24px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:all 0.2s;cursor:pointer}
-        .plan-card:active{transform:scale(0.98)}
-        .plan-card.disabled{opacity:0.6;cursor:not-allowed}
-        .plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-        .plan-icon{font-size:40px}
-        .plan-price{font-size:24px;font-weight:700;color:#00B875}
-        .plan-price small{font-size:12px;font-weight:400;color:#888}
-        .plan-name{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:12px}
-        .plan-features{list-style:none;padding:0;margin-bottom:20px}
-        .plan-features li{padding:6px 0;font-size:12px;color:#666;display:flex;align-items:center;gap:8px}
-        .plan-features i{color:#00B875;font-size:12px;width:16px}
-        .upgrade-btn{width:100%;padding:14px;border-radius:30px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;border:none}
-        .upgrade-btn.active{background:#00B875;color:white}
-        .upgrade-btn.disabled{background:#e8f5e9;color:#00B875;cursor:default}
-        .upgrade-btn.vip{background:#FF6B35;color:white}
-        .payment-section{background:white;margin:16px;border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-        .payment-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:15px}
-        .payment-icons{display:flex;justify-content:center;gap:20px}
-        .payment-icons i{font-size:32px;color:#888}
-        .confirmation-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:3000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:all 0.3s ease}
-        .confirmation-modal.active{visibility:visible;opacity:1}
-        .modal-container{background:white;width:320px;border-radius:32px;overflow:hidden;transform:scale(0.9);transition:transform 0.3s ease}
-        .confirmation-modal.active .modal-container{transform:scale(1)}
-        .modal-header{background:linear-gradient(135deg,#00B875,#009a62);padding:24px;text-align:center;color:white}
-        .modal-icon{font-size:38px;margin-bottom:12px}
-        .modal-title{font-size:20px;font-weight:500;margin-bottom:4px}
-        .modal-body{padding:20px}
-        .plan-summary{background:#f8f9fc;border-radius:20px;padding:16px;margin-bottom:16px}
-        .summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}
-        .summary-row:last-child{border-bottom:none}
-        .summary-label{font-size:13px;color:#888}
-        .summary-value{font-size:13px;font-weight:600;color:#1a1a1a}
-        .summary-amount{font-size:16px;font-weight:700;color:#00B875}
-        .payment-methods{display:flex;justify-content:center;gap:16px;margin:16px 0;padding:12px;background:#f8f9fc;border-radius:16px}
-        .payment-methods i{font-size:24px;color:#888}
-        .modal-buttons{display:flex;gap:12px;margin-top:20px}
-        .modal-btn{flex:1;padding:14px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;border:none}
-        .modal-btn.confirm{background:#00B875;color:white}
-        .modal-btn.cancel{background:#f0f2f5;color:#666}
-        .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;opacity:0;visibility:hidden;transition:all 0.3s ease}
-        .loading-overlay.active{opacity:1;visibility:visible}
-        .loading-spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,0.3);border-top-color:#00B875;border-radius:50%;animation:spin 1s linear infinite}
-        .loading-text{color:white;font-size:14px}
-        @keyframes spin{to{transform:rotate(360deg)}}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8f9fc;
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
+
+        .header {
+            background: white;
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+            width: 40px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .current-tier-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 16px;
+            padding: 20px;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .current-tier-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .current-tier-name {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .plan-card {
+            background: white;
+            margin: 16px;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .plan-card.disabled {
+            opacity: 0.6;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .plan-icon {
+            font-size: 40px;
+        }
+
+        .plan-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00B875;
+        }
+
+        .plan-price small {
+            font-size: 12px;
+            font-weight: 400;
+            color: #888;
+        }
+
+        .plan-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .plan-features li {
+            padding: 6px 0;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-features i {
+            color: #00B875;
+            font-size: 12px;
+            width: 16px;
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+        }
+
+        .upgrade-btn.active {
+            background: #00B875;
+            color: white;
+        }
+
+        .upgrade-btn.disabled {
+            background: #e8f5e9;
+            color: #00B875;
+            cursor: default;
+        }
+
+        .upgrade-btn.vip {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .payment-section {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .payment-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        .payment-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .payment-icons i {
+            font-size: 32px;
+            color: #888;
+        }
+
+        /* Modal Styles */
+        .confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .confirmation-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-container {
+            background: white;
+            width: 320px;
+            border-radius: 32px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #00B875, #009a62);
+            padding: 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .modal-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .plan-summary {
+            background: #f8f9fc;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .summary-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .summary-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00B875;
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 16px 0;
+            padding: 12px;
+            background: #f8f9fc;
+            border-radius: 16px;
+        }
+
+        .payment-methods i {
+            font-size: 24px;
+            color: #888;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            border: none;
+        }
+
+        .modal-btn.confirm {
+            background: #00B875;
+            color: white;
+        }
+
+        .modal-btn.cancel {
+            background: #f0f2f5;
+            color: #666;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 3500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #00B875;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -76,11 +372,12 @@
     </div>
 
     <div id="planContent">
-        <div class="loading" style="text-align: center; padding: 50px;">
+        <div style="text-align: center; padding: 50px;">
             <i class="fas fa-spinner fa-spin"></i> Loading...
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="confirmation-modal">
         <div class="modal-container">
             <div class="modal-header">
@@ -110,23 +407,26 @@
                 </div>
                 <div class="modal-buttons">
                     <button class="modal-btn cancel" id="cancelBtn">Cancel</button>
-                    <button class="modal-btn confirm" id="confirmBtn">Proceed</button>
+                    <button class="modal-btn confirm" id="confirmBtn">Proceed to Payment</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Redirecting to payment gateway...</div>
+        <div class="loading-text">Processing... Please wait</div>
     </div>
 
     <script>
+    // Configuration
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let userTier = '1';
-    let pendingPlan = null;
+    let selectedPlan = null;
 
+    // Helper Functions
     function showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
         if (show) {
@@ -137,38 +437,46 @@
     }
 
     function showMessage(icon, title, text) {
-        Swal.fire({ icon, title, text, confirmButtonColor: '#00B875' });
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: text,
+            confirmButtonColor: '#00B875'
+        });
     }
 
-    function showConfirmationModal(plan, tier, price, planName) {
-        pendingPlan = { plan, tier, price, planName };
-        document.getElementById('modalPlanName').innerHTML = `Upgrade to ${planName}`;
-        document.getElementById('summaryPlanName').innerHTML = planName;
+    // Modal Functions
+    function openModal(plan, tier, price, name) {
+        selectedPlan = { plan, tier, price, name };
+        document.getElementById('modalPlanName').textContent = `Upgrade to ${name}`;
+        document.getElementById('summaryPlanName').textContent = name;
         document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
         document.getElementById('confirmationModal').classList.add('active');
     }
 
-    function hideConfirmationModal() {
+    function closeModal() {
         document.getElementById('confirmationModal').classList.remove('active');
-        pendingPlan = null;
+        selectedPlan = null;
     }
 
-    async function initializePayment() {
-        // FIX: Check if pendingPlan exists first
-        if (!pendingPlan) {
+    // Payment Function - MATCHES YOUR WORKING TEST PAGE EXACTLY
+    async function processPayment() {
+        if (!selectedPlan) {
             showMessage('error', 'Error', 'Please select a plan first');
             return;
         }
-        
+
         if (!currentUser || !currentUser.email) {
             showMessage('error', 'Login Required', 'Please login again');
-            setTimeout(() => window.location.href = 'login1.html', 2000);
+            setTimeout(() => {
+                window.location.href = 'login1.html';
+            }, 2000);
             return;
         }
-        
-        hideConfirmationModal();
+
+        closeModal();
         showLoading(true);
-        
+
         try {
             const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                 method: 'POST',
@@ -177,27 +485,29 @@
                 },
                 body: JSON.stringify({
                     email: currentUser.email,
-                    amount: pendingPlan.price,
-                    plan: pendingPlan.plan,
-                    tier: pendingPlan.tier
+                    amount: selectedPlan.price,
+                    plan: selectedPlan.plan,
+                    tier: selectedPlan.tier
                 })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success && data.authorization_url) {
+                // Redirect to Paystack
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
                 showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
             }
         } catch (error) {
-            console.error('Payment error:', error);
+            console.error('Payment Error:', error);
             showLoading(false);
-            showMessage('error', 'Error', error.message || 'Network error. Please try again.');
+            showMessage('error', 'Connection Error', error.message || 'Network error. Please try again.');
         }
     }
 
+    // Load User from localStorage
     async function loadUser() {
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
@@ -206,22 +516,25 @@
         }
         currentUser = JSON.parse(userData);
         userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
-        console.log('Logged in user:', currentUser.email);
+        console.log('User loaded:', currentUser.email, 'Tier:', userTier);
         return currentUser;
     }
 
+    // Render Plans UI
     function renderPlans() {
         const container = document.getElementById('planContent');
-        const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
-                                 userTier === '2' ? '🥈 Basic Tier' : 
-                                 userTier === '3' ? '🥉 Premium Tier' : '👑 VIP Tier';
+        const tierName = userTier === '1' ? 'Free Tier' : 
+                         userTier === '2' ? 'Basic Tier' : 
+                         userTier === '3' ? 'Premium Tier' : 'VIP Tier';
         
         container.innerHTML = `
             <div class="current-tier-card">
                 <div class="current-tier-label">Your Current Tier</div>
-                <div class="current-tier-name">${currentTierName}</div>
+                <div class="current-tier-name">⭐ ${tierName}</div>
             </div>
-            <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
+
+            <!-- Basic Plan -->
+            <div class="plan-card">
                 <div class="plan-header">
                     <div class="plan-icon">🥈</div>
                     <div class="plan-price">₦30,000 <small>/ one-time</small></div>
@@ -236,11 +549,15 @@
                     <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" ${userTier >= 2 ? 'disabled' : ''}>
+                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" 
+                        onclick="${userTier >= 2 ? '' : 'openModal(\'basic\', \'2\', 30000, \'Basic Plan\')'}"
+                        ${userTier >= 2 ? 'disabled' : ''}>
                     ${userTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
                 </button>
             </div>
-            <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
+
+            <!-- Premium Plan -->
+            <div class="plan-card">
                 <div class="plan-header">
                     <div class="plan-icon">🥉</div>
                     <div class="plan-price">₦50,000 <small>/ one-time</small></div>
@@ -255,11 +572,15 @@
                     <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" ${userTier >= 3 ? 'disabled' : ''}>
+                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" 
+                        onclick="${userTier >= 3 ? '' : 'openModal(\'premium\', \'3\', 50000, \'Premium Plan\')'}"
+                        ${userTier >= 3 ? 'disabled' : ''}>
                     ${userTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
                 </button>
             </div>
-            <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
+
+            <!-- VIP Plan -->
+            <div class="plan-card">
                 <div class="plan-header">
                     <div class="plan-icon">👑</div>
                     <div class="plan-price">₦100,000 <small>/ one-time</small></div>
@@ -274,10 +595,13 @@
                     <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
                     <li><i class="fas fa-check-circle"></i> No transaction limits</li>
                 </ul>
-                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
+                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" 
+                        onclick="${userTier === 'VIP' ? '' : 'openModal(\'vip\', \'VIP\', 100000, \'VIP Plan\')'}"
+                        ${userTier === 'VIP' ? 'disabled' : ''}>
                     ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
                 </button>
             </div>
+
             <div class="payment-section">
                 <div class="payment-title">Secure Payment Methods</div>
                 <div class="payment-icons">
@@ -286,49 +610,29 @@
                     <i class="fab fa-cc-amex"></i>
                     <i class="fas fa-university"></i>
                 </div>
-                <div style="font-size: 11px; color: #888; margin-top: 12px;">Payments are processed securely via Paystack</div>
+                <div style="font-size: 11px; color: #888; margin-top: 12px;">
+                    Payments are processed securely via Paystack
+                </div>
             </div>
         `;
-
-        document.querySelectorAll('.plan-card').forEach(card => {
-            const btn = card.querySelector('.upgrade-btn');
-            if (btn && !btn.disabled) {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const plan = card.getAttribute('data-plan');
-                    const tier = card.getAttribute('data-tier');
-                    const price = parseInt(card.getAttribute('data-price'));
-                    const name = card.getAttribute('data-name');
-                    showConfirmationModal(plan, tier, price, name);
-                });
-            }
-        });
     }
 
-    // Fix: Make sure event listeners are set after DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        const confirmBtn = document.getElementById('confirmBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const modal = document.getElementById('confirmationModal');
-        
-        if (confirmBtn) {
-            confirmBtn.onclick = () => initializePayment();
-        }
-        if (cancelBtn) {
-            cancelBtn.onclick = () => hideConfirmationModal();
-        }
-        if (modal) {
-            modal.onclick = (e) => {
-                if (e.target === modal) hideConfirmationModal();
-            };
+    // Event Listeners
+    document.getElementById('confirmBtn').addEventListener('click', processPayment);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('confirmationModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('confirmationModal')) {
+            closeModal();
         }
     });
 
+    // Initialize Page
     async function init() {
         await loadUser();
         renderPlans();
-        console.log('Plan page ready - User:', currentUser?.email);
+        console.log('Plan page ready');
     }
+
     init();
     </script>
 </body>
