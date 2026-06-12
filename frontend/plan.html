@@ -56,6 +56,63 @@
             flex: 1;
         }
 
+        /* Debug Panel - Sticky at top */
+        .debug-panel {
+            background: #1a1a1a;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 11px;
+            padding: 12px;
+            border-radius: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            position: sticky;
+            top: 60px;
+            z-index: 1000;
+            margin: 0;
+            border-bottom: 2px solid #00B875;
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .debug-title {
+            font-weight: bold;
+            color: #0f0;
+        }
+        
+        .copy-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .debug-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .debug-content div {
+            margin-bottom: 3px;
+            padding: 2px 0;
+            border-bottom: 1px solid #333;
+        }
+
         .current-tier-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 16px;
@@ -370,23 +427,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        .debug-panel {
-            background: #1a1a1a;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 12px;
-            margin: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .debug-panel.show {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -400,13 +440,22 @@
         </div>
     </div>
 
+    <!-- Debug Panel at Top - Copyable -->
+    <div id="debugPanel" class="debug-panel">
+        <div class="debug-header">
+            <span class="debug-title">🔍 DEBUG LOGS (Click Copy to share)</span>
+            <button class="copy-btn" onclick="copyDebugLogs()">📋 Copy Logs</button>
+        </div>
+        <div id="debugContent" class="debug-content">
+            <div>⏳ Initializing...</div>
+        </div>
+    </div>
+
     <div id="planContent">
         <div class="loading" style="text-align: center; padding: 50px;">
             <i class="fas fa-spinner fa-spin"></i> Loading...
         </div>
     </div>
-
-    <div id="debugPanel" class="debug-panel"></div>
 
     <div id="confirmationModal" class="confirmation-modal">
         <div class="modal-container">
@@ -456,13 +505,39 @@
         let currentUser = null;
         let userTier = '1';
         let pendingPlan = null;
+        let debugLogs = [];
 
         function addDebugLog(message) {
-            const debugPanel = document.getElementById('debugPanel');
             const timestamp = new Date().toLocaleTimeString();
-            debugPanel.innerHTML += `<div>[${timestamp}] ${message}</div>`;
-            debugPanel.classList.add('show');
-            console.log(message);
+            const logEntry = `[${timestamp}] ${message}`;
+            debugLogs.push(logEntry);
+            
+            const debugContent = document.getElementById('debugContent');
+            debugContent.innerHTML += `<div>${escapeHtml(logEntry)}</div>`;
+            debugContent.scrollTop = debugContent.scrollHeight;
+            
+            console.log(logEntry);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyDebugLogs() {
+            const logsText = debugLogs.join('\n');
+            navigator.clipboard.writeText(logsText).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    text: 'Debug logs copied to clipboard',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }).catch(() => {
+                alert('Copy failed. Here are the logs:\n\n' + logsText);
+            });
         }
 
         function showLoading(show, text = 'Processing payment request...') {
@@ -503,25 +578,27 @@
         }
 
         async function initializePayment() {
-            addDebugLog('=== PAYMENT INITIALIZATION STARTED ===');
+            addDebugLog('========================================');
+            addDebugLog('PAYMENT INITIALIZATION STARTED');
+            addDebugLog('========================================');
             
             if (!pendingPlan) {
-                addDebugLog('ERROR: No plan selected');
+                addDebugLog('❌ ERROR: No plan selected');
                 showMessage('error', 'Error', 'No plan selected');
                 return;
             }
             
             if (!currentUser || !currentUser.email) {
-                addDebugLog('ERROR: User not logged in or email missing');
+                addDebugLog('❌ ERROR: User not logged in or email missing');
                 showMessage('error', 'Error', 'User not logged in');
                 window.location.href = 'login1.html';
                 return;
             }
             
-            addDebugLog(`Plan: ${pendingPlan.plan}`);
-            addDebugLog(`Tier: ${pendingPlan.tier}`);
-            addDebugLog(`Amount: ₦${pendingPlan.price}`);
-            addDebugLog(`Email: ${currentUser.email}`);
+            addDebugLog(`✅ Plan: ${pendingPlan.plan}`);
+            addDebugLog(`✅ Tier: ${pendingPlan.tier}`);
+            addDebugLog(`✅ Amount: ₦${pendingPlan.price}`);
+            addDebugLog(`✅ Email: ${currentUser.email}`);
             
             hideConfirmationModal();
             showLoading(true, 'Initializing payment...');
@@ -533,11 +610,11 @@
                 tier: pendingPlan.tier
             };
             
-            addDebugLog(`Request URL: ${BACKEND_URL}/api/initialize-payment`);
-            addDebugLog(`Request Body: ${JSON.stringify(requestBody)}`);
+            addDebugLog(`📡 Request URL: ${BACKEND_URL}/api/initialize-payment`);
+            addDebugLog(`📦 Request Body: ${JSON.stringify(requestBody)}`);
             
             try {
-                addDebugLog('Sending request to backend...');
+                addDebugLog('🚀 Sending request to backend...');
                 
                 const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                     method: 'POST',
@@ -548,90 +625,94 @@
                     body: JSON.stringify(requestBody)
                 });
                 
-                addDebugLog(`Response status: ${response.status} ${response.statusText}`);
+                addDebugLog(`📥 Response status: ${response.status} ${response.statusText}`);
                 
                 const data = await response.json();
-                addDebugLog(`Response data: ${JSON.stringify(data, null, 2)}`);
+                addDebugLog(`📄 Response data: ${JSON.stringify(data, null, 2)}`);
                 
                 if (data.success && data.authorization_url) {
-                    addDebugLog(`SUCCESS! Redirecting to: ${data.authorization_url}`);
+                    addDebugLog(`✅ SUCCESS! Payment URL received`);
+                    addDebugLog(`🔗 Redirecting to: ${data.authorization_url}`);
                     showLoading(true, 'Redirecting to payment gateway...');
                     setTimeout(() => {
                         window.location.href = data.authorization_url;
                     }, 1000);
                 } else {
-                    addDebugLog(`ERROR: Payment initialization failed - ${data.message}`);
+                    addDebugLog(`❌ ERROR: Payment initialization failed`);
+                    addDebugLog(`❌ Message: ${data.message}`);
                     showLoading(false);
                     showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
                 }
             } catch (error) {
-                addDebugLog(`EXCEPTION: ${error.message}`);
-                addDebugLog(`Stack: ${error.stack}`);
+                addDebugLog(`❌ EXCEPTION: ${error.message}`);
+                addDebugLog(`❌ Stack: ${error.stack}`);
                 showLoading(false);
                 showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
             }
+            
+            addDebugLog('========================================');
         }
 
         async function testBackendConnection() {
-            addDebugLog('Testing backend connection...');
+            addDebugLog('🔍 Testing backend connection...');
             try {
                 const response = await fetch(`${BACKEND_URL}/health`);
                 const data = await response.json();
-                addDebugLog(`Backend health: ${JSON.stringify(data)}`);
+                addDebugLog(`✅ Backend health check: ${JSON.stringify(data)}`);
                 return data;
             } catch (error) {
-                addDebugLog(`Backend connection FAILED: ${error.message}`);
+                addDebugLog(`❌ Backend connection FAILED: ${error.message}`);
                 showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please try again later.');
                 return null;
             }
         }
 
         async function loadUser() {
-            addDebugLog('Loading user data...');
+            addDebugLog('👤 Loading user data...');
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
-                addDebugLog('No user found in localStorage, redirecting to login');
+                addDebugLog('❌ No user found in localStorage, redirecting to login');
                 window.location.href = 'login1.html';
                 return null;
             }
             currentUser = JSON.parse(userData);
-            addDebugLog(`User loaded: ${currentUser.email}`);
+            addDebugLog(`✅ User loaded: ${currentUser.email}`);
             
             await testBackendConnection();
             
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
-            addDebugLog(`User tier from localStorage: ${userTier || 'not found'}`);
+            addDebugLog(`📊 User tier from localStorage: ${userTier || 'not found'}`);
             
             if (!userTier) {
                 try {
-                    addDebugLog('Fetching user tier from backend...');
+                    addDebugLog('🔄 Fetching user tier from backend...');
                     const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: currentUser.email })
                     });
                     const data = await response.json();
-                    addDebugLog(`Profile response: ${JSON.stringify(data)}`);
+                    addDebugLog(`📄 Profile response: ${JSON.stringify(data)}`);
                     if (data.success && data.profile && data.profile.user_tier) {
                         userTier = data.profile.user_tier;
                         localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
-                        addDebugLog(`User tier updated: ${userTier}`);
+                        addDebugLog(`✅ User tier updated: ${userTier}`);
                     } else {
                         userTier = '1';
-                        addDebugLog(`Using default tier: ${userTier}`);
+                        addDebugLog(`⚠️ Using default tier: ${userTier}`);
                     }
                 } catch (error) {
-                    addDebugLog(`Failed to fetch profile: ${error.message}`);
+                    addDebugLog(`❌ Failed to fetch profile: ${error.message}`);
                     userTier = '1';
                 }
             }
             
-            addDebugLog(`Final user tier: ${userTier}`);
+            addDebugLog(`🎯 Final user tier: ${userTier}`);
             return currentUser;
         }
 
         function renderPlans() {
-            addDebugLog('Rendering plans...');
+            addDebugLog('🎨 Rendering plans...');
             const container = document.getElementById('planContent');
             const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
                                      userTier === '2' ? '🥈 Basic Tier' : 
@@ -728,38 +809,42 @@
                         const price = parseInt(card.getAttribute('data-price'));
                         const name = card.getAttribute('data-name');
                         
-                        addDebugLog(`Plan selected: ${name} (${plan}, Tier ${tier}, ₦${price})`);
+                        addDebugLog(`🖱️ Plan selected: ${name} (${plan}, Tier ${tier}, ₦${price})`);
                         showConfirmationModal(plan, tier, price, name);
                     });
                 }
             });
             
-            addDebugLog('Plans rendered successfully');
+            addDebugLog('✅ Plans rendered successfully');
         }
 
         document.getElementById('confirmBtn').addEventListener('click', () => {
-            addDebugLog('Confirm button clicked, calling initializePayment()');
+            addDebugLog('🖱️ Confirm button clicked, calling initializePayment()');
             initializePayment();
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
-            addDebugLog('Cancel button clicked');
+            addDebugLog('🖱️ Cancel button clicked');
             hideConfirmationModal();
         });
 
         document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
-                addDebugLog('Modal background clicked, closing');
+                addDebugLog('🖱️ Modal background clicked, closing');
                 hideConfirmationModal();
             }
         });
 
         async function init() {
-            addDebugLog('=== PAGE INITIALIZATION STARTED ===');
-            addDebugLog(`Backend URL: ${BACKEND_URL}`);
+            addDebugLog('========================================');
+            addDebugLog('PAGE INITIALIZATION STARTED');
+            addDebugLog(`🌐 Backend URL: ${BACKEND_URL}`);
+            addDebugLog('========================================');
             await loadUser();
             renderPlans();
-            addDebugLog('=== PAGE INITIALIZATION COMPLETE ===');
+            addDebugLog('========================================');
+            addDebugLog('PAGE INITIALIZATION COMPLETE');
+            addDebugLog('========================================');
         }
 
         init();
