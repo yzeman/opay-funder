@@ -541,7 +541,7 @@
     <div class="month-section">
         <div class="month-header-row">
             <div class="month-title" id="monthSelector">
-                May <i class="fas fa-chevron-down"></i>
+                <span id="currentMonthDisplay">June</span> <i class="fas fa-chevron-down"></i>
             </div>
             <button class="analysis-btn" id="analysisBtn">Analysis</button>
         </div>
@@ -573,7 +573,7 @@
             <div class="sheet-body">
                 <div class="selector-row">
                     <div class="selector-label">Month</div>
-                    <div class="selector-value" id="selectedMonthDisplay">May</div>
+                    <div class="selector-value" id="selectedMonthDisplay">June</div>
                 </div>
                 <div class="month-grid" id="monthGrid">
                     <div class="month-grid-item" data-month="January">Jan</div>
@@ -668,8 +668,12 @@
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let currentUserTier = '1';
-    let currentMonth = 'May';
-    let currentYear = 2026;
+    
+    // Get current month and year automatically
+    const currentDate = new Date();
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    let currentMonth = monthNames[currentDate.getMonth()];
+    let currentYear = currentDate.getFullYear();
     let currentCategory = 'All Categories';
     let currentStatus = 'All Status';
 
@@ -838,9 +842,10 @@
         const filteredTransactions = getFilteredTransactions();
         const { totalIn, totalOut } = calculateTotals(filteredTransactions);
         
-        const monthSelector = document.getElementById('monthSelector');
-        if (monthSelector) {
-            monthSelector.innerHTML = `${currentMonth} <i class="fas fa-chevron-down"></i>`;
+        // Update month display
+        const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+        if (currentMonthDisplay) {
+            currentMonthDisplay.textContent = currentMonth;
         }
         
         const totalInElement = document.getElementById('totalInAmount');
@@ -925,7 +930,12 @@
         });
     });
 
-    document.getElementById('monthSelector')?.addEventListener('click', () => showSheet(monthSheet));
+    document.getElementById('monthSelector')?.addEventListener('click', () => {
+        // Update displays with current values before showing
+        document.getElementById('selectedMonthDisplay').textContent = currentMonth;
+        document.getElementById('selectedYearDisplay').textContent = currentYear;
+        showSheet(monthSheet);
+    });
 
     document.querySelectorAll('.close-sheet-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -953,7 +963,12 @@
     }
 
     function setupMonthGrid() {
+        // Highlight current month in the grid
         document.querySelectorAll('.month-grid-item').forEach(item => {
+            const month = item.getAttribute('data-month');
+            if (month === currentMonth) {
+                item.classList.add('selected');
+            }
             item.addEventListener('click', () => {
                 document.querySelectorAll('.month-grid-item').forEach(i => i.classList.remove('selected'));
                 item.classList.add('selected');
@@ -978,7 +993,7 @@
     loadUserFromLocalStorage();
     renderTransactions();
     
-    console.log('✅ Transaction page loaded - Premium and VIP only');
+    console.log('✅ Transaction page loaded - Current month:', currentMonth, currentYear);
     </script>
 </body>
 </html>
