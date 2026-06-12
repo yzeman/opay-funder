@@ -62,7 +62,6 @@
         .loading-spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,0.3);border-top-color:#00B875;border-radius:50%;animation:spin 1s linear infinite}
         .loading-text{color:white;font-size:14px}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .debug-box{background:#1a1a1a;color:#0f0;font-family:monospace;font-size:10px;padding:8px;margin:16px;border-radius:8px;max-height:150px;overflow:auto;white-space:pre-wrap;word-break:break-all}
     </style>
 </head>
 <body>
@@ -122,42 +121,27 @@
         <div class="loading-text">Redirecting to payment gateway...</div>
     </div>
 
-    <div id="debugBox" class="debug-box">🔍 Debug Console - Waiting for actions...</div>
-
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let userTier = '1';
     let pendingPlan = null;
 
-    function debugLog(message, data = null) {
-        const debugBox = document.getElementById('debugBox');
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = `[${timestamp}] ${message} ${data ? JSON.stringify(data) : ''}\n`;
-        debugBox.innerHTML += logEntry;
-        debugBox.scrollTop = debugBox.scrollHeight;
-        console.log(message, data);
-    }
-
     function showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
         if (show) {
             overlay.classList.add('active');
-            debugLog('Loading overlay shown');
         } else {
             overlay.classList.remove('active');
-            debugLog('Loading overlay hidden');
         }
     }
 
     function showMessage(icon, title, text) {
-        debugLog(`Message: ${title} - ${text}`);
         Swal.fire({ icon, title, text, confirmButtonColor: '#00B875' });
     }
 
     function showConfirmationModal(plan, tier, price, planName) {
         pendingPlan = { plan, tier, price, planName };
-        debugLog('Plan selected:', pendingPlan);
         document.getElementById('modalPlanName').innerHTML = `Upgrade to ${planName}`;
         document.getElementById('summaryPlanName').innerHTML = planName;
         document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
@@ -169,16 +153,11 @@
         pendingPlan = null;
     }
 
+    // USING FORM SUBMIT INSTEAD OF FETCH - MORE RELIABLE ON MOBILE
     async function initializePayment() {
-        debugLog('initializePayment called');
-        
-        if (!pendingPlan) {
-            debugLog('ERROR: No pending plan');
-            return;
-        }
+        if (!pendingPlan) return;
         
         if (!currentUser || !currentUser.email) {
-            debugLog('ERROR: No user logged in', currentUser);
             showMessage('error', 'Login Required', 'Please login again');
             setTimeout(() => window.location.href = 'login1.html', 2000);
             return;
@@ -187,71 +166,53 @@
         hideConfirmationModal();
         showLoading(true);
         
-        const paymentData = {
-            email: currentUser.email,
-            amount: pendingPlan.price,
-            plan: pendingPlan.plan,
-            tier: pendingPlan.tier
-        };
+        // Create a form and submit it - this bypasses CORS issues
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${BACKEND_URL}/api/initialize-payment`;
+        form.target = '_self';
         
-        debugLog('Sending payment request to:', `${BACKEND_URL}/api/initialize-payment`);
-        debugLog('Request body:', paymentData);
+        const emailField = document.createElement('input');
+        emailField.type = 'hidden';
+        emailField.name = 'email';
+        emailField.value = currentUser.email;
         
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-            
-            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(paymentData),
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            debugLog('Response status:', response.status);
-            debugLog('Response OK:', response.ok);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            debugLog('Response data:', data);
-            
-            if (data.success && data.authorization_url) {
-                debugLog('✅ Redirecting to Paystack:', data.authorization_url);
-                window.location.href = data.authorization_url;
-            } else {
-                showLoading(false);
-                debugLog('❌ Payment init failed:', data.message);
-                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
-            }
-        } catch (error) {
-            debugLog('❌ FETCH ERROR:', error.message);
-            debugLog('Error type:', error.name);
-            showLoading(false);
-            showMessage('error', 'Error', error.message || 'Network error. Please try again.');
-        }
+        const amountField = document.createElement('input');
+        amountField.type = 'hidden';
+        amountField.name = 'amount';
+        amountField.value = pendingPlan.price;
+        
+        const planField = document.createElement('input');
+        planField.type = 'hidden';
+        planField.name = 'plan';
+        planField.value = pendingPlan.plan;
+        
+        const tierField = document.createElement('input');
+        tierField.type = 'hidden';
+        tierField.name = 'tier';
+        tierField.value = pendingPlan.tier;
+        
+        form.appendChild(emailField);
+        form.appendChild(amountField);
+        form.appendChild(planField);
+        form.appendChild(tierField);
+        
+        document.body.appendChild(form);
+        form.submit();
     }
 
     async function loadUser() {
-        debugLog('Loading user from localStorage');
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
-            debugLog('No user found, redirecting to login');
             window.location.href = 'login1.html';
             return null;
         }
         currentUser = JSON.parse(userData);
         userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
-        debugLog('User loaded:', { email: currentUser.email, tier: userTier });
         return currentUser;
     }
 
     function renderPlans() {
-        debugLog('Rendering plans');
         const container = document.getElementById('planContent');
         const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
                                  userTier === '2' ? '🥈 Basic Tier' : 
@@ -346,30 +307,16 @@
         });
     }
 
-    document.getElementById('confirmBtn').onclick = () => {
-        debugLog('Confirm button clicked');
-        initializePayment();
-    };
+    document.getElementById('confirmBtn').onclick = () => initializePayment();
     document.getElementById('cancelBtn').onclick = () => hideConfirmationModal();
     document.getElementById('confirmationModal').onclick = (e) => {
         if (e.target === document.getElementById('confirmationModal')) hideConfirmationModal();
     };
 
     async function init() {
-        debugLog('Page initialized');
         await loadUser();
         renderPlans();
-        debugLog('Plan page ready');
-        
-        // Test backend connection
-        try {
-            debugLog('Testing backend connection...');
-            const testResponse = await fetch(`${BACKEND_URL}/health`);
-            const testData = await testResponse.json();
-            debugLog('Backend health:', testData);
-        } catch (error) {
-            debugLog('Backend connection test FAILED:', error.message);
-        }
+        console.log('Plan page loaded - User:', currentUser?.email, 'Tier:', userTier);
     }
     init();
     </script>
