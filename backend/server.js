@@ -17,16 +17,20 @@ const supabase = createClient(
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const ADMIN_PASSWORD = 'adminkeyzer';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://your-frontend-link.onrender.com';
 
 const activeSessions = new Map();
 
 console.log('✅ Server starting...');
+console.log('🔐 Paystack Mode:', PAYSTACK_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST');
+console.log('🌐 Frontend URL:', FRONTEND_URL);
 
 // ============ HEALTH CHECK ============
 app.get('/', (req, res) => {
     res.json({ 
         message: 'OPay Backend API is running!',
-        status: 'ok'
+        status: 'ok',
+        paystack_mode: PAYSTACK_SECRET_KEY?.startsWith('sk_live') ? 'live' : 'test'
     });
 });
 
@@ -624,8 +628,8 @@ app.post('/api/create-user', async (req, res) => {
                 email,
                 password_code,
                 platform: 'opay',
-                is_active: false,
-                email_verified: false,
+                is_active: true,
+                email_verified: true,
                 activation_code: activationCode,
                 activation_expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                 user_tier: '1',
@@ -634,11 +638,11 @@ app.post('/api/create-user', async (req, res) => {
         
         if (error) throw error;
         
-        console.log(`✅ User created: ${account_name} (${email}) - Activation: ${activationCode}`);
+        console.log(`✅ User created: ${account_name} (${email})`);
         
         res.json({ 
             success: true, 
-            message: 'Account created! Payment required for activation.'
+            message: 'Account created successfully!'
         });
     } catch (error) {
         console.error('Error:', error.message);
@@ -662,7 +666,6 @@ app.post('/api/login', async (req, res) => {
         if (error) throw error;
         
         if (data) {
-            // Update last seen
             await supabase
                 .from('users')
                 .update({ last_seen: new Date().toISOString() })
@@ -686,11 +689,12 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// ============ PAYSTACK PAYMENT INITIALIZATION ============
+// ============ PAYSTACK PAYMENT INITIALIZATION (LIVE MODE) ============
 app.post('/api/initialize-payment', async (req, res) => {
     const { email, amount, plan, tier } = req.body;
     
     console.log('💰 Initializing payment:', { email, amount, plan, tier });
+    console.log('🔐 Using Paystack Key:', PAYSTACK_SECRET_KEY ? `${PAYSTACK_SECRET_KEY.substring(0, 10)}...` : 'MISSING');
     
     if (!PAYSTACK_SECRET_KEY) {
         console.error('❌ PAYSTACK_SECRET_KEY is not set!');
@@ -716,7 +720,7 @@ app.post('/api/initialize-payment', async (req, res) => {
                         { display_name: "Tier", variable_name: "tier", value: tier }
                     ]
                 },
-                callback_url: 'https://your-domain.com/payment-callback.html'
+                callback_url: `${FRONTEND_URL}/payment-callback.html`
             })
         });
         
@@ -724,17 +728,18 @@ app.post('/api/initialize-payment', async (req, res) => {
         console.log('Paystack response:', data.status ? 'Success' : 'Failed');
         
         if (data.status) {
+            console.log('✅ Payment URL:', data.data.authorization_url);
             res.json({
                 success: true,
                 authorization_url: data.data.authorization_url,
                 reference: data.data.reference
             });
         } else {
-            console.error('Paystack error:', data.message);
+            console.error('❌ Paystack error:', data.message);
             res.json({ success: false, message: data.message });
         }
     } catch (error) {
-        console.error('Payment initialization error:', error);
+        console.error('❌ Payment initialization error:', error);
         res.json({ success: false, message: error.message });
     }
 });
@@ -760,8 +765,10 @@ app.post('/api/verify-payment', async (req, res) => {
         if (data.status && data.data.status === 'success') {
             const tier = data.data.metadata.tier;
             const plan = data.data.metadata.plan;
+            const amount = data.data.amount / 100;
             
-            // SAVE TIER TO DATABASE
+            console.log(`✅ Payment verified: ${email} paid ₦${amount} for ${plan} (Tier ${tier})`);
+            
             const { error: updateError } = await supabase
                 .from('users')
                 .update({ 
@@ -781,7 +788,9 @@ app.post('/api/verify-payment', async (req, res) => {
             res.json({
                 success: true,
                 message: `Successfully upgraded to ${plan} plan!`,
-                tier: tier
+                tier: tier,
+                plan: plan,
+                amount: amount
             });
         } else {
             console.error('Verification failed:', data.message);
@@ -812,7 +821,6 @@ app.post('/api/update-last-seen', async (req, res) => {
             return res.json({ success: false, message: error.message });
         }
         
-        console.log(`✅ Last seen updated for: ${email} at ${new Date().toLocaleTimeString()}`);
         res.json({ success: true });
         
     } catch (error) {
@@ -845,11 +853,48 @@ app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) =
     }
 });
 
+// ============ WEBHOOK FOR PAYSTACK (IMPORTANT FOR LIVE MODE) ============
+app.post('/api/paystack-webhook', async (req, res) => {
+    const event = req.body;
+    
+    console.log('📨 Webhook received:', event.event);
+    
+    // Verify signature (optional but recommended for live mode)
+    const signature = req.headers['x-paystack-signature'];
+    
+    if (event.event === 'charge.success') {
+        const { reference, metadata, customer } = event.data;
+        const email = customer.email;
+        const tier = metadata.tier;
+        const plan = metadata.plan;
+        
+        console.log(`💰 Charge success for ${email}: ${plan} plan`);
+        
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ 
+                user_tier: tier,
+                tier_updated_at: new Date().toISOString(),
+                is_active: true
+            })
+            .eq('email', email);
+        
+        if (updateError) {
+            console.error('Webhook update error:', updateError);
+        } else {
+            console.log(`✅ Webhook updated tier for ${email} to ${tier}`);
+        }
+    }
+    
+    res.sendStatus(200);
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ 
         status: 'healthy',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        paystack_configured: !!PAYSTACK_SECRET_KEY
     });
 });
 
@@ -857,4 +902,6 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
     console.log(`📝 Paystack configured: ${PAYSTACK_SECRET_KEY ? 'Yes' : 'No'}`);
+    console.log(`🔐 Paystack Mode: ${PAYSTACK_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST'}`);
+    console.log(`🌐 Frontend URL: ${FRONTEND_URL}`);
 });
