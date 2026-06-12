@@ -514,7 +514,6 @@
             console.log('Payment response:', data);
             
             if (data.success && data.authorization_url) {
-                // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
@@ -553,7 +552,6 @@
                 <div class="current-tier-name">${currentTierName}</div>
             </div>
 
-            <!-- Basic Plan -->
             <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥈</div>
@@ -574,7 +572,6 @@
                 </button>
             </div>
 
-            <!-- Premium Plan -->
             <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥉</div>
@@ -595,7 +592,6 @@
                 </button>
             </div>
 
-            <!-- VIP Plan -->
             <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
                 <div class="plan-header">
                     <div class="plan-icon">👑</div>
@@ -630,7 +626,6 @@
             </div>
         `;
 
-        // Add click handlers to upgrade buttons
         document.querySelectorAll('.plan-card').forEach(card => {
             const btn = card.querySelector('.upgrade-btn');
             if (btn && !btn.disabled) {
@@ -666,7 +661,6 @@
         await loadUser();
         renderPlans();
         
-        // Test backend connection
         try {
             const testResponse = await fetch(`${BACKEND_URL}/health`);
             const testData = await testResponse.json();
@@ -676,7 +670,6 @@
             }
         } catch (error) {
             console.error('Backend connection failed:', error);
-            showMessage('warning', 'Connection Issue', 'Cannot connect to payment server. Please refresh the page.');
         }
     }
 
