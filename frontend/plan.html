@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Choose Plan - OPay</title>
+    <title>OPay - Choose Plan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -19,11 +19,14 @@
             background: #f8f9fc;
             min-height: 100vh;
             padding-bottom: 30px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         .header {
             background: white;
-            padding: 16px;
+            padding: 16px 16px 10px;
             border-bottom: 1px solid #eee;
             position: sticky;
             top: 0;
@@ -34,6 +37,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 15px;
         }
 
         .back-btn {
@@ -50,7 +54,9 @@
             font-size: 18px;
             font-weight: 600;
             color: #1a1a1a;
+            text-align: center;
             margin: 0;
+            flex: 1;
         }
 
         .current-tier-card {
@@ -80,10 +86,16 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .plan-card:active {
+            transform: scale(0.98);
         }
 
         .plan-card.disabled {
             opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .plan-header {
@@ -144,6 +156,7 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
             text-align: center;
             border: none;
         }
@@ -217,6 +230,12 @@
             width: 320px;
             border-radius: 32px;
             overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .confirmation-modal.active .modal-container {
+            transform: scale(1);
         }
 
         .modal-header {
@@ -234,6 +253,12 @@
         .modal-title {
             font-size: 20px;
             font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .modal-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
         }
 
         .modal-body {
@@ -303,6 +328,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
             text-align: center;
             border: none;
         }
@@ -315,6 +341,15 @@
         .modal-btn.cancel {
             background: #f0f2f5;
             color: #666;
+        }
+
+        .modal-btn.confirm:active {
+            transform: scale(0.98);
+            background: #009a62;
+        }
+
+        .modal-btn.cancel:active {
+            transform: scale(0.98);
         }
 
         .loading-overlay {
@@ -371,7 +406,7 @@
     </div>
 
     <div id="planContent">
-        <div style="text-align: center; padding: 50px;">
+        <div class="loading" style="text-align: center; padding: 50px;">
             <i class="fas fa-spinner fa-spin"></i> Loading...
         </div>
     </div>
@@ -397,12 +432,14 @@
                         <span class="summary-value">Paystack</span>
                     </div>
                 </div>
+
                 <div class="payment-methods">
                     <i class="fab fa-cc-visa"></i>
                     <i class="fab fa-cc-mastercard"></i>
                     <i class="fab fa-cc-amex"></i>
                     <i class="fas fa-university"></i>
                 </div>
+
                 <div class="modal-buttons">
                     <button class="modal-btn cancel" id="cancelBtn">Cancel</button>
                     <button class="modal-btn confirm" id="confirmBtn">Proceed to Payment</button>
@@ -413,14 +450,14 @@
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Processing... Please wait</div>
+        <div class="loading-text">Redirecting to payment gateway...</div>
     </div>
 
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let userTier = '1';
-    let selectedPlan = null;
+    let pendingPlan = null;
 
     function showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
@@ -432,70 +469,88 @@
     }
 
     function showMessage(icon, title, text) {
-        Swal.fire({
-            icon: icon,
-            title: title,
-            text: text,
-            confirmButtonColor: '#00B875'
+        Swal.fire({ 
+            icon: icon, 
+            title: title, 
+            text: text, 
+            confirmButtonColor: '#00B875' 
         });
     }
 
-    function openModal(plan, tier, price, name) {
-        selectedPlan = { plan, tier, price, name };
-        document.getElementById('modalPlanName').textContent = `Upgrade to ${name}`;
-        document.getElementById('summaryPlanName').textContent = name;
+    function showConfirmationModal(plan, tier, price, planName) {
+        pendingPlan = { plan, tier, price, planName };
+        
+        document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
+        document.getElementById('summaryPlanName').textContent = planName;
         document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
-        document.getElementById('confirmationModal').classList.add('active');
+        
+        const modal = document.getElementById('confirmationModal');
+        modal.classList.add('active');
     }
 
-    function closeModal() {
-        document.getElementById('confirmationModal').classList.remove('active');
-        selectedPlan = null;
+    function hideConfirmationModal() {
+        const modal = document.getElementById('confirmationModal');
+        modal.classList.remove('active');
+        pendingPlan = null;
     }
 
-    async function processPayment() {
-        if (!selectedPlan) {
-            showMessage('error', 'Error', 'Please select a plan first');
+    async function initializePayment() {
+        if (!pendingPlan) {
+            showMessage('error', 'Error', 'No plan selected');
             return;
         }
-
+        
         if (!currentUser || !currentUser.email) {
-            showMessage('error', 'Login Required', 'Please login again');
-            setTimeout(() => {
-                window.location.href = 'login1.html';
-            }, 2000);
+            showMessage('error', 'Error', 'User not logged in');
+            window.location.href = 'login1.html';
             return;
         }
-
-        closeModal();
+        
+        hideConfirmationModal();
         showLoading(true);
-
+        
+        console.log('Initializing payment for:', {
+            email: currentUser.email,
+            amount: pendingPlan.price,
+            plan: pendingPlan.plan,
+            tier: pendingPlan.tier
+        });
+        
         try {
             const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                 method: 'POST',
-                headers: {
+                headers: { 
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     email: currentUser.email,
-                    amount: selectedPlan.price,
-                    plan: selectedPlan.plan,
-                    tier: selectedPlan.tier
+                    amount: pendingPlan.price,
+                    plan: pendingPlan.plan,
+                    tier: pendingPlan.tier
                 })
             });
-
+            
             const data = await response.json();
-
-            if (data.success && data.authorization_url) {
+            console.log('Payment init response:', data);
+            
+            if (data.success) {
+                // Store pending payment info
+                localStorage.setItem('pendingPayment', JSON.stringify({
+                    plan: pendingPlan.plan,
+                    tier: pendingPlan.tier,
+                    amount: pendingPlan.price,
+                    reference: data.reference
+                }));
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
-                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
+                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
             }
         } catch (error) {
-            console.error('Payment Error:', error);
+            console.error('Payment initialization error:', error);
             showLoading(false);
-            showMessage('error', 'Connection Error', error.message || 'Network error. Please try again.');
+            showMessage('error', 'Error', error.message || 'Something went wrong. Please check your connection and try again.');
         }
     }
 
@@ -506,21 +561,43 @@
             return null;
         }
         currentUser = JSON.parse(userData);
-        userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
-        console.log('User loaded:', currentUser.email, 'Tier:', userTier);
+        
+        // Get user tier from localStorage or fetch from server
+        userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
+        if (!userTier) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await response.json();
+                if (data.success && data.profile.user_tier) {
+                    userTier = data.profile.user_tier;
+                    localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
+                } else {
+                    userTier = '1';
+                }
+            } catch (error) {
+                userTier = '1';
+            }
+        }
+        
+        console.log('User loaded:', { email: currentUser.email, tier: userTier });
         return currentUser;
     }
 
     function renderPlans() {
         const container = document.getElementById('planContent');
-        const tierName = userTier === '1' ? 'Free Tier' : 
-                         userTier === '2' ? 'Basic Tier' : 
-                         userTier === '3' ? 'Premium Tier' : 'VIP Tier';
+        const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
+                                 userTier === '2' ? '🥈 Basic Tier' : 
+                                 userTier === '3' ? '🥉 Premium Tier' : 
+                                 userTier === 'VIP' ? '👑 VIP Tier' : '⭐ Free Tier';
         
         container.innerHTML = `
             <div class="current-tier-card">
                 <div class="current-tier-label">Your Current Tier</div>
-                <div class="current-tier-name">⭐ ${tierName}</div>
+                <div class="current-tier-name">${currentTierName}</div>
             </div>
 
             <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
@@ -538,8 +615,8 @@
                     <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" ${userTier >= 2 ? 'disabled' : ''}>
-                    ${userTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
+                <button class="upgrade-btn ${parseInt(userTier) >= 2 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 2 ? 'disabled' : ''}>
+                    ${parseInt(userTier) >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
                 </button>
             </div>
 
@@ -558,8 +635,8 @@
                     <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" ${userTier >= 3 ? 'disabled' : ''}>
-                    ${userTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
+                <button class="upgrade-btn ${parseInt(userTier) >= 3 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 3 ? 'disabled' : ''}>
+                    ${parseInt(userTier) >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
                 </button>
             </div>
 
@@ -597,38 +674,40 @@
             </div>
         `;
 
-        // Add event listeners to buttons
-        const cards = document.querySelectorAll('.plan-card');
-        cards.forEach(card => {
+        document.querySelectorAll('.plan-card').forEach(card => {
             const btn = card.querySelector('.upgrade-btn');
             if (btn && !btn.disabled) {
                 btn.addEventListener('click', (e) => {
-                    e.preventDefault();
                     e.stopPropagation();
                     const plan = card.getAttribute('data-plan');
                     const tier = card.getAttribute('data-tier');
                     const price = parseInt(card.getAttribute('data-price'));
                     const name = card.getAttribute('data-name');
-                    console.log('Button clicked:', { plan, tier, price, name });
-                    openModal(plan, tier, price, name);
+                    
+                    showConfirmationModal(plan, tier, price, name);
                 });
             }
         });
     }
 
-    // Event Listeners
-    document.getElementById('confirmBtn').addEventListener('click', processPayment);
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+        initializePayment();
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        hideConfirmationModal();
+    });
+
     document.getElementById('confirmationModal').addEventListener('click', (e) => {
         if (e.target === document.getElementById('confirmationModal')) {
-            closeModal();
+            hideConfirmationModal();
         }
     });
 
     async function init() {
         await loadUser();
         renderPlans();
-        console.log('Plan page ready');
+        console.log('✅ Plan page loaded - User tier:', userTier);
     }
 
     init();
