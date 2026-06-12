@@ -191,7 +191,6 @@
             color: #888;
         }
 
-        /* Modal Styles */
         .confirmation-modal {
             position: fixed;
             top: 0;
@@ -377,7 +376,6 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="confirmation-modal">
         <div class="modal-container">
             <div class="modal-header">
@@ -413,20 +411,17 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
         <div class="loading-text">Processing... Please wait</div>
     </div>
 
     <script>
-    // Configuration
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let userTier = '1';
     let selectedPlan = null;
 
-    // Helper Functions
     function showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
         if (show) {
@@ -445,7 +440,6 @@
         });
     }
 
-    // Modal Functions
     function openModal(plan, tier, price, name) {
         selectedPlan = { plan, tier, price, name };
         document.getElementById('modalPlanName').textContent = `Upgrade to ${name}`;
@@ -459,7 +453,6 @@
         selectedPlan = null;
     }
 
-    // Payment Function - MATCHES YOUR WORKING TEST PAGE EXACTLY
     async function processPayment() {
         if (!selectedPlan) {
             showMessage('error', 'Error', 'Please select a plan first');
@@ -494,7 +487,6 @@
             const data = await response.json();
 
             if (data.success && data.authorization_url) {
-                // Redirect to Paystack
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
@@ -507,7 +499,6 @@
         }
     }
 
-    // Load User from localStorage
     async function loadUser() {
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
@@ -520,7 +511,6 @@
         return currentUser;
     }
 
-    // Render Plans UI
     function renderPlans() {
         const container = document.getElementById('planContent');
         const tierName = userTier === '1' ? 'Free Tier' : 
@@ -533,8 +523,7 @@
                 <div class="current-tier-name">⭐ ${tierName}</div>
             </div>
 
-            <!-- Basic Plan -->
-            <div class="plan-card">
+            <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥈</div>
                     <div class="plan-price">₦30,000 <small>/ one-time</small></div>
@@ -549,15 +538,12 @@
                     <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" 
-                        onclick="${userTier >= 2 ? '' : 'openModal(\'basic\', \'2\', 30000, \'Basic Plan\')'}"
-                        ${userTier >= 2 ? 'disabled' : ''}>
+                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" ${userTier >= 2 ? 'disabled' : ''}>
                     ${userTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
                 </button>
             </div>
 
-            <!-- Premium Plan -->
-            <div class="plan-card">
+            <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥉</div>
                     <div class="plan-price">₦50,000 <small>/ one-time</small></div>
@@ -572,15 +558,12 @@
                     <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
                     <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
                 </ul>
-                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" 
-                        onclick="${userTier >= 3 ? '' : 'openModal(\'premium\', \'3\', 50000, \'Premium Plan\')'}"
-                        ${userTier >= 3 ? 'disabled' : ''}>
+                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" ${userTier >= 3 ? 'disabled' : ''}>
                     ${userTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
                 </button>
             </div>
 
-            <!-- VIP Plan -->
-            <div class="plan-card">
+            <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
                 <div class="plan-header">
                     <div class="plan-icon">👑</div>
                     <div class="plan-price">₦100,000 <small>/ one-time</small></div>
@@ -595,9 +578,7 @@
                     <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
                     <li><i class="fas fa-check-circle"></i> No transaction limits</li>
                 </ul>
-                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" 
-                        onclick="${userTier === 'VIP' ? '' : 'openModal(\'vip\', \'VIP\', 100000, \'VIP Plan\')'}"
-                        ${userTier === 'VIP' ? 'disabled' : ''}>
+                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
                     ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
                 </button>
             </div>
@@ -615,6 +596,24 @@
                 </div>
             </div>
         `;
+
+        // Add event listeners to buttons
+        const cards = document.querySelectorAll('.plan-card');
+        cards.forEach(card => {
+            const btn = card.querySelector('.upgrade-btn');
+            if (btn && !btn.disabled) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const plan = card.getAttribute('data-plan');
+                    const tier = card.getAttribute('data-tier');
+                    const price = parseInt(card.getAttribute('data-price'));
+                    const name = card.getAttribute('data-name');
+                    console.log('Button clicked:', { plan, tier, price, name });
+                    openModal(plan, tier, price, name);
+                });
+            }
+        });
     }
 
     // Event Listeners
@@ -626,7 +625,6 @@
         }
     });
 
-    // Initialize Page
     async function init() {
         await loadUser();
         renderPlans();
