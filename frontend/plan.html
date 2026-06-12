@@ -64,10 +64,9 @@
             font-size: 11px;
             padding: 12px;
             border-radius: 0;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
-            position: sticky;
-            top: 60px;
+            position: relative;
             z-index: 1000;
             margin: 0;
             border-bottom: 2px solid #00B875;
@@ -80,6 +79,10 @@
             margin-bottom: 10px;
             padding-bottom: 5px;
             border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            background: #1a1a1a;
+            z-index: 1001;
         }
         
         .debug-title {
@@ -111,6 +114,41 @@
             margin-bottom: 3px;
             padding: 2px 0;
             border-bottom: 1px solid #333;
+        }
+
+        /* Loading indicator - NOT fullscreen overlay */
+        .loading-indicator {
+            background: rgba(0, 184, 117, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .loading-indicator.hidden {
+            display: none;
+        }
+        
+        .loading-spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .current-tier-card {
@@ -386,47 +424,6 @@
             background: #f0f2f5;
             color: #666;
         }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 3500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: #00B875;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .loading-text {
-            color: white;
-            font-size: 14px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -443,7 +440,7 @@
     <!-- Debug Panel at Top - Copyable -->
     <div id="debugPanel" class="debug-panel">
         <div class="debug-header">
-            <span class="debug-title">🔍 DEBUG LOGS (Click Copy to share)</span>
+            <span class="debug-title">🔍 DEBUG LOGS (Click Copy to share - Updated in real-time)</span>
             <button class="copy-btn" onclick="copyDebugLogs()">📋 Copy Logs</button>
         </div>
         <div id="debugContent" class="debug-content">
@@ -494,9 +491,10 @@
         </div>
     </div>
 
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text" id="loadingText">Processing payment request...</div>
+    <!-- Loading indicator - bottom right, doesn't cover content -->
+    <div id="loadingIndicator" class="loading-indicator hidden">
+        <div class="loading-spinner-small"></div>
+        <span id="loadingText">Processing...</span>
     </div>
 
     <script>
@@ -540,14 +538,14 @@
             });
         }
 
-        function showLoading(show, text = 'Processing payment request...') {
-            const overlay = document.getElementById('loadingOverlay');
+        function showLoading(show, text = 'Processing...') {
+            const indicator = document.getElementById('loadingIndicator');
             const loadingText = document.getElementById('loadingText');
             loadingText.textContent = text;
             if (show) {
-                overlay.classList.add('active');
+                indicator.classList.remove('hidden');
             } else {
-                overlay.classList.remove('active');
+                indicator.classList.add('hidden');
             }
         }
 
@@ -579,7 +577,7 @@
 
         async function initializePayment() {
             addDebugLog('========================================');
-            addDebugLog('PAYMENT INITIALIZATION STARTED');
+            addDebugLog('🚀 PAYMENT INITIALIZATION STARTED');
             addDebugLog('========================================');
             
             if (!pendingPlan) {
@@ -595,10 +593,10 @@
                 return;
             }
             
-            addDebugLog(`✅ Plan: ${pendingPlan.plan}`);
-            addDebugLog(`✅ Tier: ${pendingPlan.tier}`);
-            addDebugLog(`✅ Amount: ₦${pendingPlan.price}`);
-            addDebugLog(`✅ Email: ${currentUser.email}`);
+            addDebugLog(`📋 Plan: ${pendingPlan.plan}`);
+            addDebugLog(`📋 Tier: ${pendingPlan.tier}`);
+            addDebugLog(`💰 Amount: ₦${pendingPlan.price}`);
+            addDebugLog(`👤 Email: ${currentUser.email}`);
             
             hideConfirmationModal();
             showLoading(true, 'Initializing payment...');
@@ -610,11 +608,11 @@
                 tier: pendingPlan.tier
             };
             
-            addDebugLog(`📡 Request URL: ${BACKEND_URL}/api/initialize-payment`);
+            addDebugLog(`🌐 Request URL: ${BACKEND_URL}/api/initialize-payment`);
             addDebugLog(`📦 Request Body: ${JSON.stringify(requestBody)}`);
             
             try {
-                addDebugLog('🚀 Sending request to backend...');
+                addDebugLog('📡 Sending request to backend...');
                 
                 const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                     method: 'POST',
@@ -632,20 +630,23 @@
                 
                 if (data.success && data.authorization_url) {
                     addDebugLog(`✅ SUCCESS! Payment URL received`);
-                    addDebugLog(`🔗 Redirecting to: ${data.authorization_url}`);
+                    addDebugLog(`🔗 Redirect URL: ${data.authorization_url}`);
                     showLoading(true, 'Redirecting to payment gateway...');
+                    
+                    // Add a small delay before redirect so user can see the log
                     setTimeout(() => {
+                        addDebugLog(`🔄 Redirecting now...`);
                         window.location.href = data.authorization_url;
-                    }, 1000);
+                    }, 1500);
                 } else {
                     addDebugLog(`❌ ERROR: Payment initialization failed`);
-                    addDebugLog(`❌ Message: ${data.message}`);
+                    addDebugLog(`❌ Error message: ${data.message}`);
                     showLoading(false);
                     showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
                 }
             } catch (error) {
-                addDebugLog(`❌ EXCEPTION: ${error.message}`);
-                addDebugLog(`❌ Stack: ${error.stack}`);
+                addDebugLog(`❌ EXCEPTION CAUGHT: ${error.message}`);
+                addDebugLog(`❌ Error details: ${error.stack}`);
                 showLoading(false);
                 showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
             }
@@ -658,11 +659,11 @@
             try {
                 const response = await fetch(`${BACKEND_URL}/health`);
                 const data = await response.json();
-                addDebugLog(`✅ Backend health check: ${JSON.stringify(data)}`);
+                addDebugLog(`✅ Backend health: ${JSON.stringify(data)}`);
                 return data;
             } catch (error) {
                 addDebugLog(`❌ Backend connection FAILED: ${error.message}`);
-                showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please try again later.');
+                showMessage('error', 'Connection Error', 'Cannot connect to payment server.');
                 return null;
             }
         }
@@ -671,7 +672,7 @@
             addDebugLog('👤 Loading user data...');
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
-                addDebugLog('❌ No user found in localStorage, redirecting to login');
+                addDebugLog('❌ No user found, redirecting to login');
                 window.location.href = 'login1.html';
                 return null;
             }
@@ -681,33 +682,13 @@
             await testBackendConnection();
             
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
-            addDebugLog(`📊 User tier from localStorage: ${userTier || 'not found'}`);
+            addDebugLog(`📊 User tier: ${userTier || '1'}`);
             
             if (!userTier) {
-                try {
-                    addDebugLog('🔄 Fetching user tier from backend...');
-                    const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: currentUser.email })
-                    });
-                    const data = await response.json();
-                    addDebugLog(`📄 Profile response: ${JSON.stringify(data)}`);
-                    if (data.success && data.profile && data.profile.user_tier) {
-                        userTier = data.profile.user_tier;
-                        localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
-                        addDebugLog(`✅ User tier updated: ${userTier}`);
-                    } else {
-                        userTier = '1';
-                        addDebugLog(`⚠️ Using default tier: ${userTier}`);
-                    }
-                } catch (error) {
-                    addDebugLog(`❌ Failed to fetch profile: ${error.message}`);
-                    userTier = '1';
-                }
+                userTier = '1';
             }
             
-            addDebugLog(`🎯 Final user tier: ${userTier}`);
+            addDebugLog(`🎯 Final tier: ${userTier}`);
             return currentUser;
         }
 
@@ -809,7 +790,7 @@
                         const price = parseInt(card.getAttribute('data-price'));
                         const name = card.getAttribute('data-name');
                         
-                        addDebugLog(`🖱️ Plan selected: ${name} (${plan}, Tier ${tier}, ₦${price})`);
+                        addDebugLog(`🖱️ Plan clicked: ${name}`);
                         showConfirmationModal(plan, tier, price, name);
                     });
                 }
@@ -819,7 +800,7 @@
         }
 
         document.getElementById('confirmBtn').addEventListener('click', () => {
-            addDebugLog('🖱️ Confirm button clicked, calling initializePayment()');
+            addDebugLog('🖱️ CONFIRM button clicked - Starting payment');
             initializePayment();
         });
 
@@ -830,20 +811,20 @@
 
         document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
-                addDebugLog('🖱️ Modal background clicked, closing');
+                addDebugLog('🖱️ Modal background clicked');
                 hideConfirmationModal();
             }
         });
 
         async function init() {
             addDebugLog('========================================');
-            addDebugLog('PAGE INITIALIZATION STARTED');
+            addDebugLog('🚀 PAGE INITIALIZATION STARTED');
             addDebugLog(`🌐 Backend URL: ${BACKEND_URL}`);
             addDebugLog('========================================');
             await loadUser();
             renderPlans();
             addDebugLog('========================================');
-            addDebugLog('PAGE INITIALIZATION COMPLETE');
+            addDebugLog('✅ PAGE READY - Select a plan to upgrade');
             addDebugLog('========================================');
         }
 
