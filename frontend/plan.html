@@ -374,27 +374,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        .debug-console {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #0f0;
-            font-family: monospace;
-            font-size: 10px;
-            padding: 8px;
-            border-radius: 8px;
-            z-index: 9999;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .debug-console.active {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -451,45 +430,27 @@
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Processing your payment...</div>
+        <div class="loading-text">Redirecting to payment gateway...</div>
     </div>
-    
-    <div id="debugConsole" class="debug-console"></div>
 
     <script>
+    // ==================== CONFIGURATION ====================
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     let currentUser = null;
     let userTier = '1';
     let pendingPlan = null;
 
-    function debugLog(message, data = null) {
-        const debugDiv = document.getElementById('debugConsole');
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = `[${timestamp}] ${message} ${data ? JSON.stringify(data) : ''}\n`;
-        debugDiv.innerHTML += logEntry;
-        debugDiv.scrollTop = debugDiv.scrollHeight;
-        console.log(message, data || '');
-        
-        // Auto-hide debug after 30 seconds
-        debugDiv.classList.add('active');
-        setTimeout(() => {
-            debugDiv.classList.remove('active');
-        }, 30000);
-    }
-
+    // ==================== HELPER FUNCTIONS ====================
     function showLoading(show) {
         const overlay = document.getElementById('loadingOverlay');
         if (show) {
             overlay.classList.add('active');
-            debugLog('Loading overlay shown');
         } else {
             overlay.classList.remove('active');
-            debugLog('Loading overlay hidden');
         }
     }
 
     function showMessage(icon, title, text) {
-        debugLog(`Showing message: ${title} - ${text}`);
         Swal.fire({ 
             icon: icon, 
             title: title, 
@@ -499,9 +460,9 @@
         });
     }
 
+    // ==================== MODAL FUNCTIONS ====================
     function showConfirmationModal(plan, tier, price, planName) {
         pendingPlan = { plan, tier, price, planName };
-        debugLog('Plan selected:', pendingPlan);
         document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
         document.getElementById('summaryPlanName').textContent = planName;
         document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
@@ -515,16 +476,11 @@
         pendingPlan = null;
     }
 
+    // ==================== PAYMENT INITIALIZATION ====================
     async function initializePayment() {
-        debugLog('initializePayment called');
-        
-        if (!pendingPlan) {
-            debugLog('ERROR: No pending plan');
-            return;
-        }
+        if (!pendingPlan) return;
         
         if (!currentUser || !currentUser.email) {
-            debugLog('ERROR: No user or email', { currentUser });
             showMessage('error', 'Login Required', 'Please login again to continue');
             setTimeout(() => {
                 window.location.href = 'login1.html';
@@ -542,13 +498,10 @@
             tier: pendingPlan.tier
         };
         
-        debugLog('Sending payment request', paymentData);
+        console.log('Sending payment request:', paymentData);
         
         try {
-            const url = `${BACKEND_URL}/api/initialize-payment`;
-            debugLog('Fetching URL:', url);
-            
-            const response = await fetch(url, {
+            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -557,47 +510,38 @@
                 body: JSON.stringify(paymentData)
             });
             
-            debugLog('Response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
             const data = await response.json();
-            debugLog('Response data:', data);
+            console.log('Payment response:', data);
             
             if (data.success && data.authorization_url) {
-                debugLog('Redirecting to:', data.authorization_url);
+                // Redirect to Paystack payment page
                 window.location.href = data.authorization_url;
             } else {
                 showLoading(false);
-                debugLog('ERROR: No authorization URL', data);
                 showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
             }
         } catch (error) {
-            debugLog('FETCH ERROR:', error.message);
-            console.error('Full error:', error);
+            console.error('Payment initialization error:', error);
             showLoading(false);
             showMessage('error', 'Connection Error', error.message || 'Cannot connect to payment server. Please check your internet connection.');
         }
     }
 
+    // ==================== USER DATA ====================
     async function loadUser() {
-        debugLog('Loading user from localStorage');
         const userData = localStorage.getItem('loggedInUser');
         if (!userData) {
-            debugLog('No user found, redirecting to login');
             window.location.href = 'login1.html';
             return null;
         }
         currentUser = JSON.parse(userData);
         userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
-        debugLog('User loaded', { email: currentUser.email, tier: userTier });
+        console.log('User loaded:', currentUser.email, 'Tier:', userTier);
         return currentUser;
     }
 
+    // ==================== RENDER PLANS ====================
     function renderPlans() {
-        debugLog('Rendering plans');
         const container = document.getElementById('planContent');
         const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
                                  userTier === '2' ? '🥈 Basic Tier' : 
@@ -609,6 +553,7 @@
                 <div class="current-tier-name">${currentTierName}</div>
             </div>
 
+            <!-- Basic Plan -->
             <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥈</div>
@@ -629,6 +574,7 @@
                 </button>
             </div>
 
+            <!-- Premium Plan -->
             <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
                 <div class="plan-header">
                     <div class="plan-icon">🥉</div>
@@ -649,6 +595,7 @@
                 </button>
             </div>
 
+            <!-- VIP Plan -->
             <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
                 <div class="plan-header">
                     <div class="plan-icon">👑</div>
@@ -683,6 +630,7 @@
             </div>
         `;
 
+        // Add click handlers to upgrade buttons
         document.querySelectorAll('.plan-card').forEach(card => {
             const btn = card.querySelector('.upgrade-btn');
             if (btn && !btn.disabled) {
@@ -698,39 +646,36 @@
         });
     }
 
+    // ==================== EVENT LISTENERS ====================
     document.getElementById('confirmBtn').addEventListener('click', () => {
-        debugLog('Confirm button clicked');
         initializePayment();
     });
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
-        debugLog('Cancel button clicked');
         hideConfirmationModal();
     });
 
     document.getElementById('confirmationModal').addEventListener('click', (e) => {
         if (e.target === document.getElementById('confirmationModal')) {
-            debugLog('Modal background clicked, closing');
             hideConfirmationModal();
         }
     });
 
+    // ==================== INITIALIZATION ====================
     async function init() {
-        debugLog('Page initialized');
         await loadUser();
         renderPlans();
         
         // Test backend connection
         try {
-            debugLog('Testing backend connection...');
             const testResponse = await fetch(`${BACKEND_URL}/health`);
             const testData = await testResponse.json();
-            debugLog('Backend health check:', testData);
+            console.log('Backend connection test:', testData);
             if (testData.paystackConfigured) {
-                debugLog('✅ Paystack is configured on backend');
+                console.log('✅ Paystack is configured on backend');
             }
         } catch (error) {
-            debugLog('❌ Backend connection failed:', error.message);
+            console.error('Backend connection failed:', error);
             showMessage('warning', 'Connection Issue', 'Cannot connect to payment server. Please refresh the page.');
         }
     }
