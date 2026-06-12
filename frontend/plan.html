@@ -56,99 +56,6 @@
             flex: 1;
         }
 
-        .debug-panel {
-            background: #1a1a1a;
-            color: #0f0;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 12px;
-            border-radius: 0;
-            max-height: 300px;
-            overflow-y: auto;
-            position: relative;
-            z-index: 1000;
-            margin: 0;
-            border-bottom: 2px solid #00B875;
-        }
-        
-        .debug-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            background: #1a1a1a;
-            z-index: 1001;
-        }
-        
-        .debug-title {
-            font-weight: bold;
-            color: #0f0;
-        }
-        
-        .copy-btn {
-            background: #00B875;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        
-        .copy-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .debug-content {
-            font-family: monospace;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        
-        .debug-content div {
-            margin-bottom: 3px;
-            padding: 2px 0;
-            border-bottom: 1px solid #333;
-        }
-
-        .loading-indicator {
-            background: rgba(0, 184, 117, 0.95);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .loading-indicator.hidden {
-            display: none;
-        }
-        
-        .loading-spinner-small {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         .current-tier-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 16px;
@@ -422,6 +329,47 @@
             background: #f0f2f5;
             color: #666;
         }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 3500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #00B875;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -432,16 +380,6 @@
             </button>
             <h1 class="header-title">Choose Your Plan</h1>
             <div style="width: 40px;"></div>
-        </div>
-    </div>
-
-    <div id="debugPanel" class="debug-panel">
-        <div class="debug-header">
-            <span class="debug-title">🔍 DEBUG LOGS (Click Copy to share)</span>
-            <button class="copy-btn" onclick="copyDebugLogs()">📋 Copy Logs</button>
-        </div>
-        <div id="debugContent" class="debug-content">
-            <div>⏳ Initializing...</div>
         </div>
     </div>
 
@@ -488,9 +426,9 @@
         </div>
     </div>
 
-    <div id="loadingIndicator" class="loading-indicator hidden">
-        <div class="loading-spinner-small"></div>
-        <span id="loadingText">Processing...</span>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Redirecting to payment gateway...</div>
     </div>
 
     <script>
@@ -499,49 +437,13 @@
         let currentUser = null;
         let userTier = '1';
         let pendingPlan = null;
-        let debugLogs = [];
 
-        function addDebugLog(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = `[${timestamp}] ${message}`;
-            debugLogs.push(logEntry);
-            
-            const debugContent = document.getElementById('debugContent');
-            debugContent.innerHTML += `<div>${escapeHtml(logEntry)}</div>`;
-            debugContent.scrollTop = debugContent.scrollHeight;
-            
-            console.log(logEntry);
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function copyDebugLogs() {
-            const logsText = debugLogs.join('\n');
-            navigator.clipboard.writeText(logsText).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Copied!',
-                    text: 'Debug logs copied to clipboard',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }).catch(() => {
-                alert('Copy failed. Here are the logs:\n\n' + logsText);
-            });
-        }
-
-        function showLoading(show, text = 'Processing...') {
-            const indicator = document.getElementById('loadingIndicator');
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = text;
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
             if (show) {
-                indicator.classList.remove('hidden');
+                overlay.classList.add('active');
             } else {
-                indicator.classList.add('hidden');
+                overlay.classList.remove('active');
             }
         }
 
@@ -555,11 +457,7 @@
         }
 
         function showConfirmationModal(plan, tier, price, planName) {
-            // Store in a local variable first
-            const selectedPlan = { plan, tier, price, planName };
-            pendingPlan = selectedPlan;
-            
-            addDebugLog(`📦 Stored plan data: ${JSON.stringify(selectedPlan)}`);
+            pendingPlan = { plan, tier, price, planName };
             
             document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
             document.getElementById('summaryPlanName').textContent = planName;
@@ -572,53 +470,22 @@
         function hideConfirmationModal() {
             const modal = document.getElementById('confirmationModal');
             modal.classList.remove('active');
-            // DON'T clear pendingPlan here! That was the bug!
-            // pendingPlan = null; // REMOVED - this was causing the error
-            addDebugLog(`Modal closed, keeping plan data: ${JSON.stringify(pendingPlan)}`);
         }
 
         async function initializePayment() {
-            addDebugLog('========================================');
-            addDebugLog('🚀 PAYMENT INITIALIZATION STARTED');
-            addDebugLog('========================================');
-            
-            // Check pendingPlan directly without clearing it
             if (!pendingPlan) {
-                addDebugLog('❌ ERROR: No plan selected - pendingPlan is null');
-                showMessage('error', 'Error', 'No plan selected. Please try again.');
+                showMessage('error', 'Error', 'No plan selected');
                 return;
             }
             
-            addDebugLog(`✅ pendingPlan exists: ${JSON.stringify(pendingPlan)}`);
-            
             if (!currentUser || !currentUser.email) {
-                addDebugLog('❌ ERROR: User not logged in or email missing');
                 showMessage('error', 'Error', 'User not logged in');
                 window.location.href = 'login1.html';
                 return;
             }
             
-            addDebugLog(`📋 Plan: ${pendingPlan.plan}`);
-            addDebugLog(`📋 Tier: ${pendingPlan.tier}`);
-            addDebugLog(`💰 Amount: ₦${pendingPlan.price}`);
-            addDebugLog(`👤 Email: ${currentUser.email}`);
-            
-            // Close modal but KEEP the plan data
-            const modal = document.getElementById('confirmationModal');
-            modal.classList.remove('active');
-            
-            showLoading(true, 'Initializing payment...');
-            
-            const requestBody = {
-                email: currentUser.email,
-                amount: pendingPlan.price,
-                plan: pendingPlan.plan,
-                tier: pendingPlan.tier
-            };
-            
-            addDebugLog(`🌐 Request URL: ${BACKEND_URL}/api/initialize-payment`);
-            addDebugLog(`📦 Request Body: ${JSON.stringify(requestBody)}`);
-            addDebugLog(`📡 Sending request to backend...`);
+            hideConfirmationModal();
+            showLoading(true);
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
@@ -627,78 +494,48 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        amount: pendingPlan.price,
+                        plan: pendingPlan.plan,
+                        tier: pendingPlan.tier
+                    })
                 });
                 
-                addDebugLog(`📥 Response status: ${response.status} ${response.statusText}`);
-                
                 const data = await response.json();
-                addDebugLog(`📄 Response data: ${JSON.stringify(data, null, 2)}`);
                 
                 if (data.success && data.authorization_url) {
-                    addDebugLog(`✅ SUCCESS! Payment URL received`);
-                    addDebugLog(`🔗 Redirect URL: ${data.authorization_url}`);
-                    showLoading(true, 'Redirecting to payment gateway...');
-                    
                     setTimeout(() => {
-                        addDebugLog(`🔄 Redirecting now...`);
                         window.location.href = data.authorization_url;
-                    }, 1000);
+                    }, 500);
                 } else {
-                    addDebugLog(`❌ ERROR: Payment initialization failed`);
-                    addDebugLog(`❌ Error message: ${data.message || 'Unknown error'}`);
                     showLoading(false);
                     showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
                 }
             } catch (error) {
-                addDebugLog(`❌ EXCEPTION CAUGHT: ${error.name} - ${error.message}`);
-                addDebugLog(`❌ Error details: ${error.stack}`);
                 showLoading(false);
-                showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
-            }
-            
-            addDebugLog('========================================');
-        }
-
-        async function testBackendConnection() {
-            addDebugLog('🔍 Testing backend connection...');
-            try {
-                const response = await fetch(`${BACKEND_URL}/health`);
-                const data = await response.json();
-                addDebugLog(`✅ Backend health: ${JSON.stringify(data)}`);
-                return data;
-            } catch (error) {
-                addDebugLog(`❌ Backend connection FAILED: ${error.message}`);
-                showMessage('error', 'Connection Error', 'Cannot connect to payment server.');
-                return null;
+                showMessage('error', 'Error', error.message || 'Something went wrong. Please try again.');
             }
         }
 
         async function loadUser() {
-            addDebugLog('👤 Loading user data...');
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
-                addDebugLog('❌ No user found, redirecting to login');
                 window.location.href = 'login1.html';
                 return null;
             }
             currentUser = JSON.parse(userData);
-            addDebugLog(`✅ User loaded: ${currentUser.email}`);
-            
-            await testBackendConnection();
             
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
             if (!userTier || userTier === 'null') {
                 userTier = '1';
                 localStorage.setItem(`user_tier_${currentUser.email}`, '1');
             }
-            addDebugLog(`📊 User tier: ${userTier}`);
             
             return currentUser;
         }
 
         function renderPlans() {
-            addDebugLog('🎨 Rendering plans...');
             const container = document.getElementById('planContent');
             const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
                                      userTier === '2' ? '🥈 Basic Tier' : 
@@ -795,43 +632,29 @@
                         const price = parseInt(card.getAttribute('data-price'));
                         const name = card.getAttribute('data-name');
                         
-                        addDebugLog(`🖱️ Plan clicked: ${name}`);
                         showConfirmationModal(plan, tier, price, name);
                     });
                 }
             });
-            
-            addDebugLog('✅ Plans rendered successfully');
         }
 
         document.getElementById('confirmBtn').addEventListener('click', () => {
-            addDebugLog('🖱️ CONFIRM button clicked - Starting payment');
-            addDebugLog(`📦 Current pendingPlan: ${JSON.stringify(pendingPlan)}`);
             initializePayment();
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
-            addDebugLog('🖱️ Cancel button clicked');
             hideConfirmationModal();
         });
 
         document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
-                addDebugLog('🖱️ Modal background clicked');
                 hideConfirmationModal();
             }
         });
 
         async function init() {
-            addDebugLog('========================================');
-            addDebugLog('🚀 PAGE INITIALIZATION STARTED');
-            addDebugLog(`🌐 Backend URL: ${BACKEND_URL}`);
-            addDebugLog('========================================');
             await loadUser();
             renderPlans();
-            addDebugLog('========================================');
-            addDebugLog('✅ PAGE READY - Select a plan to upgrade');
-            addDebugLog('========================================');
         }
 
         init();
