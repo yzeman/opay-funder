@@ -555,7 +555,11 @@
         }
 
         function showConfirmationModal(plan, tier, price, planName) {
-            pendingPlan = { plan, tier, price, planName };
+            // Store in a local variable first
+            const selectedPlan = { plan, tier, price, planName };
+            pendingPlan = selectedPlan;
+            
+            addDebugLog(`📦 Stored plan data: ${JSON.stringify(selectedPlan)}`);
             
             document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
             document.getElementById('summaryPlanName').textContent = planName;
@@ -568,62 +572,63 @@
         function hideConfirmationModal() {
             const modal = document.getElementById('confirmationModal');
             modal.classList.remove('active');
-            pendingPlan = null;
+            // DON'T clear pendingPlan here! That was the bug!
+            // pendingPlan = null; // REMOVED - this was causing the error
+            addDebugLog(`Modal closed, keeping plan data: ${JSON.stringify(pendingPlan)}`);
         }
 
         async function initializePayment() {
+            addDebugLog('========================================');
+            addDebugLog('🚀 PAYMENT INITIALIZATION STARTED');
+            addDebugLog('========================================');
+            
+            // Check pendingPlan directly without clearing it
+            if (!pendingPlan) {
+                addDebugLog('❌ ERROR: No plan selected - pendingPlan is null');
+                showMessage('error', 'Error', 'No plan selected. Please try again.');
+                return;
+            }
+            
+            addDebugLog(`✅ pendingPlan exists: ${JSON.stringify(pendingPlan)}`);
+            
+            if (!currentUser || !currentUser.email) {
+                addDebugLog('❌ ERROR: User not logged in or email missing');
+                showMessage('error', 'Error', 'User not logged in');
+                window.location.href = 'login1.html';
+                return;
+            }
+            
+            addDebugLog(`📋 Plan: ${pendingPlan.plan}`);
+            addDebugLog(`📋 Tier: ${pendingPlan.tier}`);
+            addDebugLog(`💰 Amount: ₦${pendingPlan.price}`);
+            addDebugLog(`👤 Email: ${currentUser.email}`);
+            
+            // Close modal but KEEP the plan data
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('active');
+            
+            showLoading(true, 'Initializing payment...');
+            
+            const requestBody = {
+                email: currentUser.email,
+                amount: pendingPlan.price,
+                plan: pendingPlan.plan,
+                tier: pendingPlan.tier
+            };
+            
+            addDebugLog(`🌐 Request URL: ${BACKEND_URL}/api/initialize-payment`);
+            addDebugLog(`📦 Request Body: ${JSON.stringify(requestBody)}`);
+            addDebugLog(`📡 Sending request to backend...`);
+            
             try {
-                addDebugLog('========================================');
-                addDebugLog('🚀 PAYMENT INITIALIZATION STARTED');
-                addDebugLog('========================================');
-                
-                if (!pendingPlan) {
-                    addDebugLog('❌ ERROR: No plan selected');
-                    showMessage('error', 'Error', 'No plan selected');
-                    return;
-                }
-                
-                if (!currentUser || !currentUser.email) {
-                    addDebugLog('❌ ERROR: User not logged in or email missing');
-                    showMessage('error', 'Error', 'User not logged in');
-                    window.location.href = 'login1.html';
-                    return;
-                }
-                
-                addDebugLog(`📋 Plan: ${pendingPlan.plan}`);
-                addDebugLog(`📋 Tier: ${pendingPlan.tier}`);
-                addDebugLog(`💰 Amount: ₦${pendingPlan.price}`);
-                addDebugLog(`👤 Email: ${currentUser.email}`);
-                
-                hideConfirmationModal();
-                showLoading(true, 'Initializing payment...');
-                
-                const requestBody = {
-                    email: currentUser.email,
-                    amount: pendingPlan.price,
-                    plan: pendingPlan.plan,
-                    tier: pendingPlan.tier
-                };
-                
-                addDebugLog(`🌐 Request URL: ${BACKEND_URL}/api/initialize-payment`);
-                addDebugLog(`📦 Request Body: ${JSON.stringify(requestBody)}`);
-                addDebugLog(`📡 Sending request to backend...`);
-                
-                // Use fetch with timeout
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000);
-                
                 const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(requestBody),
-                    signal: controller.signal
+                    body: JSON.stringify(requestBody)
                 });
-                
-                clearTimeout(timeoutId);
                 
                 addDebugLog(`📥 Response status: ${response.status} ${response.statusText}`);
                 
@@ -647,14 +652,9 @@
                 }
             } catch (error) {
                 addDebugLog(`❌ EXCEPTION CAUGHT: ${error.name} - ${error.message}`);
-                if (error.name === 'AbortError') {
-                    addDebugLog(`❌ Request timeout after 30 seconds`);
-                    showMessage('error', 'Timeout', 'Request timed out. Please check your connection.');
-                } else {
-                    addDebugLog(`❌ Error details: ${error.stack}`);
-                    showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
-                }
+                addDebugLog(`❌ Error details: ${error.stack}`);
                 showLoading(false);
+                showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
             }
             
             addDebugLog('========================================');
@@ -806,6 +806,7 @@
 
         document.getElementById('confirmBtn').addEventListener('click', () => {
             addDebugLog('🖱️ CONFIRM button clicked - Starting payment');
+            addDebugLog(`📦 Current pendingPlan: ${JSON.stringify(pendingPlan)}`);
             initializePayment();
         });
 
