@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>OPay - Choose Plan</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#f8f9fc;min-height:100vh;padding-bottom:30px}
+        .header{background:white;padding:16px 16px 10px;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100}
+        .header-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+        .back-btn{background:none;border:none;font-size:20px;cursor:pointer;color:#333;padding:5px;width:40px}
+        .header-title{font-size:18px;font-weight:600;color:#1a1a1a;text-align:center;margin:0;flex:1}
+        .current-tier-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);margin:16px;padding:20px;border-radius:20px;color:white;text-align:center}
+        .current-tier-label{font-size:12px;opacity:0.8;margin-bottom:5px}
+        .current-tier-name{font-size:24px;font-weight:700}
+        .plan-card{background:white;margin:16px;border-radius:24px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:all 0.2s;cursor:pointer}
+        .plan-card:active{transform:scale(0.98)}
+        .plan-card.disabled{opacity:0.6;cursor:not-allowed}
+        .plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+        .plan-icon{font-size:40px}
+        .plan-price{font-size:24px;font-weight:700;color:#00B875}
+        .plan-price small{font-size:12px;font-weight:400;color:#888}
+        .plan-name{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:12px}
+        .plan-features{list-style:none;padding:0;margin-bottom:20px}
+        .plan-features li{padding:6px 0;font-size:12px;color:#666;display:flex;align-items:center;gap:8px}
+        .plan-features i{color:#00B875;font-size:12px;width:16px}
+        .upgrade-btn{width:100%;padding:14px;border-radius:30px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;border:none}
+        .upgrade-btn.active{background:#00B875;color:white}
+        .upgrade-btn.disabled{background:#e8f5e9;color:#00B875;cursor:default}
+        .upgrade-btn.vip{background:#FF6B35;color:white}
+        .payment-section{background:white;margin:16px;border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+        .payment-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:15px}
+        .payment-icons{display:flex;justify-content:center;gap:20px}
+        .payment-icons i{font-size:32px;color:#888}
+        .confirmation-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:3000;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transition:all 0.3s ease}
+        .confirmation-modal.active{visibility:visible;opacity:1}
+        .modal-container{background:white;width:320px;border-radius:32px;overflow:hidden;transform:scale(0.9);transition:transform 0.3s ease}
+        .confirmation-modal.active .modal-container{transform:scale(1)}
+        .modal-header{background:linear-gradient(135deg,#00B875,#009a62);padding:24px;text-align:center;color:white}
+        .modal-icon{font-size:38px;margin-bottom:12px}
+        .modal-title{font-size:20px;font-weight:500;margin-bottom:4px}
+        .modal-body{padding:20px}
+        .plan-summary{background:#f8f9fc;border-radius:20px;padding:16px;margin-bottom:16px}
+        .summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}
+        .summary-row:last-child{border-bottom:none}
+        .summary-label{font-size:13px;color:#888}
+        .summary-value{font-size:13px;font-weight:600;color:#1a1a1a}
+        .summary-amount{font-size:16px;font-weight:700;color:#00B875}
+        .payment-methods{display:flex;justify-content:center;gap:16px;margin:16px 0;padding:12px;background:#f8f9fc;border-radius:16px}
+        .payment-methods i{font-size:24px;color:#888}
+        .modal-buttons{display:flex;gap:12px;margin-top:20px}
+        .modal-btn{flex:1;padding:14px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;text-align:center;border:none}
+        .modal-btn.confirm{background:#00B875;color:white}
+        .modal-btn.cancel{background:#f0f2f5;color:#666}
+        .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:3500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;opacity:0;visibility:hidden;transition:all 0.3s ease}
+        .loading-overlay.active{opacity:1;visibility:visible}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,0.3);border-top-color:#00B875;border-radius:50%;animation:spin 1s linear infinite}
+        .loading-text{color:white;font-size:14px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Choose Your Plan</h1>
+            <div style="width: 40px;"></div>
+        </div>
+    </div>
+
+    <div id="planContent">
+        <div class="loading" style="text-align: center; padding: 50px;">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="confirmation-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon">💎</div>
+                <div class="modal-title" id="modalPlanName">Upgrade Plan</div>
+            </div>
+            <div class="modal-body">
+                <div class="plan-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Selected Plan</span>
+                        <span class="summary-value" id="summaryPlanName">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Amount</span>
+                        <span class="summary-amount" id="summaryAmount">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Payment Method</span>
+                        <span class="summary-value">Paystack</span>
+                    </div>
+                </div>
+                <div class="payment-methods">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn cancel" id="cancelBtn">Cancel</button>
+                    <button class="modal-btn confirm" id="confirmBtn">Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Redirecting to payment gateway...</div>
+    </div>
+
+    <script>
+    const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+    let currentUser = null;
+    let userTier = '1';
+    let pendingPlan = null;
+
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
+    }
+
+    function showMessage(icon, title, text) {
+        Swal.fire({ icon, title, text, confirmButtonColor: '#00B875' });
+    }
+
+    function showConfirmationModal(plan, tier, price, planName) {
+        pendingPlan = { plan, tier, price, planName };
+        document.getElementById('modalPlanName').innerHTML = `Upgrade to ${planName}`;
+        document.getElementById('summaryPlanName').innerHTML = planName;
+        document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
+        document.getElementById('confirmationModal').classList.add('active');
+    }
+
+    function hideConfirmationModal() {
+        document.getElementById('confirmationModal').classList.remove('active');
+        pendingPlan = null;
+    }
+
+    async function initializePayment() {
+        if (!pendingPlan) return;
+        if (!currentUser || !currentUser.email) {
+            showMessage('error', 'Login Required', 'Please login again');
+            setTimeout(() => window.location.href = 'login1.html', 2000);
+            return;
+        }
+        
+        hideConfirmationModal();
+        showLoading(true);
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: currentUser.email,
+                    amount: pendingPlan.price,
+                    plan: pendingPlan.plan,
+                    tier: pendingPlan.tier
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else {
+                showLoading(false);
+                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            showLoading(false);
+            showMessage('error', 'Error', 'Network error. Please try again.');
+        }
+    }
+
+    async function loadUser() {
+        const userData = localStorage.getItem('loggedInUser');
+        if (!userData) {
+            window.location.href = 'login1.html';
+            return null;
+        }
+        currentUser = JSON.parse(userData);
+        userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+        return currentUser;
+    }
+
+    function renderPlans() {
+        const container = document.getElementById('planContent');
+        const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
+                                 userTier === '2' ? '🥈 Basic Tier' : 
+                                 userTier === '3' ? '🥉 Premium Tier' : '👑 VIP Tier';
+        
+        container.innerHTML = `
+            <div class="current-tier-card">
+                <div class="current-tier-label">Your Current Tier</div>
+                <div class="current-tier-name">${currentTierName}</div>
+            </div>
+            <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">🥈</div>
+                    <div class="plan-price">₦30,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">Basic Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Transfer to OPay only</li>
+                    <li><i class="fas fa-check-circle"></i> Add money unlock</li>
+                    <li><i class="fas fa-check-circle"></i> View receipt & history</li>
+                    <li><i class="fas fa-check-circle"></i> Payment proof - no watermark</li>
+                    <li><i class="fas fa-check-circle"></i> Activate banner removed</li>
+                    <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
+                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
+                </ul>
+                <button class="upgrade-btn ${userTier >= 2 ? 'disabled' : 'active'}" ${userTier >= 2 ? 'disabled' : ''}>
+                    ${userTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
+                </button>
+            </div>
+            <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">🥉</div>
+                    <div class="plan-price">₦50,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">Premium Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Basic plus:</li>
+                    <li><i class="fas fa-check-circle"></i> History access, recent recipients</li>
+                    <li><i class="fas fa-check-circle"></i> OPay and bank transfer</li>
+                    <li><i class="fas fa-check-circle"></i> Custom sender name</li>
+                    <li><i class="fas fa-check-circle"></i> Edit receipt & custom status</li>
+                    <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
+                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
+                </ul>
+                <button class="upgrade-btn ${userTier >= 3 ? 'disabled' : 'active'}" ${userTier >= 3 ? 'disabled' : ''}>
+                    ${userTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
+                </button>
+            </div>
+            <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
+                <div class="plan-header">
+                    <div class="plan-icon">👑</div>
+                    <div class="plan-price">₦100,000 <small>/ one-time</small></div>
+                </div>
+                <div class="plan-name">VIP Plan</div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check-circle"></i> Everything in Basic and Premium plus:</li>
+                    <li><i class="fas fa-check-circle"></i> OPay Funder in-app transfers</li>
+                    <li><i class="fas fa-check-circle"></i> Statement of account generation</li>
+                    <li><i class="fas fa-check-circle"></i> Receivers receive alert</li>
+                    <li><i class="fas fa-check-circle"></i> Airtime & Data purchase</li>
+                    <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
+                    <li><i class="fas fa-check-circle"></i> No transaction limits</li>
+                </ul>
+                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
+                    ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
+                </button>
+            </div>
+            <div class="payment-section">
+                <div class="payment-title">Secure Payment Methods</div>
+                <div class="payment-icons">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-amex"></i>
+                    <i class="fas fa-university"></i>
+                </div>
+                <div style="font-size: 11px; color: #888; margin-top: 12px;">Payments are processed securely via Paystack</div>
+            </div>
+        `;
+
+        document.querySelectorAll('.plan-card').forEach(card => {
+            const btn = card.querySelector('.upgrade-btn');
+            if (btn && !btn.disabled) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const plan = card.getAttribute('data-plan');
+                    const tier = card.getAttribute('data-tier');
+                    const price = parseInt(card.getAttribute('data-price'));
+                    const name = card.getAttribute('data-name');
+                    showConfirmationModal(plan, tier, price, name);
+                });
+            }
+        });
+    }
+
+    document.getElementById('confirmBtn').onclick = () => initializePayment();
+    document.getElementById('cancelBtn').onclick = () => hideConfirmationModal();
+    document.getElementById('confirmationModal').onclick = (e) => {
+        if (e.target === document.getElementById('confirmationModal')) hideConfirmationModal();
+    };
+
+    async function init() {
+        await loadUser();
+        renderPlans();
+        console.log('Plan page loaded - User:', currentUser?.email, 'Tier:', userTier);
+    }
+    init();
+    </script>
+</body>
+</html>
