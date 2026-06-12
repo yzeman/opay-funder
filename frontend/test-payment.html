@@ -1,33 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Payment</title>
+    <title>Test Payment POST</title>
 </head>
 <body>
-    <button onclick="testPayment()">Test Payment</button>
+    <h1>Testing Payment Endpoint</h1>
+    <button onclick="testPost()">Click to Test Payment Endpoint</button>
     <pre id="result"></pre>
-
+    
     <script>
-    function testPayment() {
-        document.getElementById('result').innerText = 'Testing...';
+    async function testPost() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = 'Sending POST request...';
         
-        fetch('https://opay-backend-api-pncl.onrender.com/api/initialize-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: 'test@example.com',
-                amount: 1000,
-                plan: 'basic',
-                tier: '2'
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
-        })
-        .catch(err => {
-            document.getElementById('result').innerText = 'Error: ' + err.message;
-        });
+        try {
+            const response = await fetch('https://opay-backend-api-pncl.onrender.com/api/initialize-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: 'yze@gmail.com',
+                    amount: 30000,
+                    plan: 'basic',
+                    tier: '2'
+                })
+            });
+            
+            const data = await response.json();
+            resultDiv.innerHTML = JSON.stringify(data, null, 2);
+            
+            if (data.success && data.authorization_url) {
+                resultDiv.innerHTML += '\n\n✅ Success! Redirecting to Paystack...';
+                setTimeout(() => {
+                    window.location.href = data.authorization_url;
+                }, 2000);
+            }
+        } catch (error) {
+            resultDiv.innerHTML = 'Error: ' + error.message;
+        }
     }
     </script>
 </body>
