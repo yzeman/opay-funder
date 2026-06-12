@@ -19,9 +19,6 @@
             background: #f8f9fc;
             min-height: 100vh;
             padding-bottom: 30px;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
         }
 
         .header {
@@ -91,11 +88,6 @@
 
         .plan-card:active {
             transform: scale(0.98);
-        }
-
-        .plan-card.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
 
         .plan-header {
@@ -256,11 +248,6 @@
             margin-bottom: 4px;
         }
 
-        .modal-subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
         .modal-body {
             padding: 20px;
         }
@@ -341,15 +328,6 @@
         .modal-btn.cancel {
             background: #f0f2f5;
             color: #666;
-        }
-
-        .modal-btn.confirm:active {
-            transform: scale(0.98);
-            background: #009a62;
-        }
-
-        .modal-btn.cancel:active {
-            transform: scale(0.98);
         }
 
         .loading-overlay {
@@ -454,263 +432,262 @@
     </div>
 
     <script>
-    const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
-    let currentUser = null;
-    let userTier = '1';
-    let pendingPlan = null;
+        const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+        
+        let currentUser = null;
+        let userTier = '1';
+        let pendingPlan = null;
 
-    function showLoading(show) {
-        const overlay = document.getElementById('loadingOverlay');
-        if (show) {
-            overlay.classList.add('active');
-        } else {
-            overlay.classList.remove('active');
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
         }
-    }
 
-    function showMessage(icon, title, text) {
-        Swal.fire({ 
-            icon: icon, 
-            title: title, 
-            text: text, 
-            confirmButtonColor: '#00B875' 
-        });
-    }
-
-    function showConfirmationModal(plan, tier, price, planName) {
-        pendingPlan = { plan, tier, price, planName };
-        
-        document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
-        document.getElementById('summaryPlanName').textContent = planName;
-        document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
-        
-        const modal = document.getElementById('confirmationModal');
-        modal.classList.add('active');
-    }
-
-    function hideConfirmationModal() {
-        const modal = document.getElementById('confirmationModal');
-        modal.classList.remove('active');
-        pendingPlan = null;
-    }
-
-    async function initializePayment() {
-        if (!pendingPlan) {
-            showMessage('error', 'Error', 'No plan selected');
-            return;
+        function showMessage(icon, title, text) {
+            Swal.fire({ 
+                icon: icon, 
+                title: title, 
+                text: text, 
+                confirmButtonColor: '#00B875' 
+            });
         }
-        
-        if (!currentUser || !currentUser.email) {
-            showMessage('error', 'Error', 'User not logged in');
-            window.location.href = 'login1.html';
-            return;
+
+        function showConfirmationModal(plan, tier, price, planName) {
+            pendingPlan = { plan, tier, price, planName };
+            
+            document.getElementById('modalPlanName').textContent = `Upgrade to ${planName}`;
+            document.getElementById('summaryPlanName').textContent = planName;
+            document.getElementById('summaryAmount').innerHTML = `₦${price.toLocaleString()}`;
+            
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.add('active');
         }
-        
-        hideConfirmationModal();
-        showLoading(true);
-        
-        console.log('Initializing payment for:', {
-            email: currentUser.email,
-            amount: pendingPlan.price,
-            plan: pendingPlan.plan,
-            tier: pendingPlan.tier
-        });
-        
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: currentUser.email,
-                    amount: pendingPlan.price,
-                    plan: pendingPlan.plan,
-                    tier: pendingPlan.tier
-                })
+
+        function hideConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('active');
+            pendingPlan = null;
+        }
+
+        async function initializePayment() {
+            if (!pendingPlan) {
+                showMessage('error', 'Error', 'No plan selected');
+                return;
+            }
+            
+            if (!currentUser || !currentUser.email) {
+                showMessage('error', 'Error', 'User not logged in');
+                window.location.href = 'login1.html';
+                return;
+            }
+            
+            hideConfirmationModal();
+            showLoading(true);
+            
+            console.log('Initializing payment for:', {
+                email: currentUser.email,
+                amount: pendingPlan.price,
+                plan: pendingPlan.plan,
+                tier: pendingPlan.tier
             });
             
-            const data = await response.json();
-            console.log('Payment init response:', data);
-            
-            if (data.success) {
-                // Store pending payment info
-                localStorage.setItem('pendingPayment', JSON.stringify({
-                    plan: pendingPlan.plan,
-                    tier: pendingPlan.tier,
-                    amount: pendingPlan.price,
-                    reference: data.reference
-                }));
-                window.location.href = data.authorization_url;
-            } else {
-                showLoading(false);
-                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
-            }
-        } catch (error) {
-            console.error('Payment initialization error:', error);
-            showLoading(false);
-            showMessage('error', 'Error', error.message || 'Something went wrong. Please check your connection and try again.');
-        }
-    }
-
-    async function loadUser() {
-        const userData = localStorage.getItem('loggedInUser');
-        if (!userData) {
-            window.location.href = 'login1.html';
-            return null;
-        }
-        currentUser = JSON.parse(userData);
-        
-        // Get user tier from localStorage or fetch from server
-        userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
-        if (!userTier) {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: currentUser.email })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        amount: pendingPlan.price,
+                        plan: pendingPlan.plan,
+                        tier: pendingPlan.tier
+                    })
                 });
+                
                 const data = await response.json();
-                if (data.success && data.profile.user_tier) {
-                    userTier = data.profile.user_tier;
-                    localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
+                console.log('Payment init response:', data);
+                
+                if (data.success) {
+                    localStorage.setItem('pendingPayment', JSON.stringify({
+                        plan: pendingPlan.plan,
+                        tier: pendingPlan.tier,
+                        amount: pendingPlan.price,
+                        reference: data.reference
+                    }));
+                    window.location.href = data.authorization_url;
                 } else {
-                    userTier = '1';
+                    showLoading(false);
+                    showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
                 }
             } catch (error) {
-                userTier = '1';
+                console.error('Payment initialization error:', error);
+                showLoading(false);
+                showMessage('error', 'Error', error.message || 'Something went wrong. Please check your connection and try again.');
             }
         }
-        
-        console.log('User loaded:', { email: currentUser.email, tier: userTier });
-        return currentUser;
-    }
 
-    function renderPlans() {
-        const container = document.getElementById('planContent');
-        const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
-                                 userTier === '2' ? '🥈 Basic Tier' : 
-                                 userTier === '3' ? '🥉 Premium Tier' : 
-                                 userTier === 'VIP' ? '👑 VIP Tier' : '⭐ Free Tier';
-        
-        container.innerHTML = `
-            <div class="current-tier-card">
-                <div class="current-tier-label">Your Current Tier</div>
-                <div class="current-tier-name">${currentTierName}</div>
-            </div>
+        async function loadUser() {
+            const userData = localStorage.getItem('loggedInUser');
+            if (!userData) {
+                window.location.href = 'login1.html';
+                return null;
+            }
+            currentUser = JSON.parse(userData);
+            
+            userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
+            if (!userTier) {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: currentUser.email })
+                    });
+                    const data = await response.json();
+                    if (data.success && data.profile.user_tier) {
+                        userTier = data.profile.user_tier;
+                        localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
+                    } else {
+                        userTier = '1';
+                    }
+                } catch (error) {
+                    userTier = '1';
+                }
+            }
+            
+            console.log('User loaded:', { email: currentUser.email, tier: userTier });
+            return currentUser;
+        }
 
-            <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
-                <div class="plan-header">
-                    <div class="plan-icon">🥈</div>
-                    <div class="plan-price">₦30,000 <small>/ one-time</small></div>
+        function renderPlans() {
+            const container = document.getElementById('planContent');
+            const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
+                                     userTier === '2' ? '🥈 Basic Tier' : 
+                                     userTier === '3' ? '🥉 Premium Tier' : 
+                                     userTier === 'VIP' ? '👑 VIP Tier' : '⭐ Free Tier';
+            
+            container.innerHTML = `
+                <div class="current-tier-card">
+                    <div class="current-tier-label">Your Current Tier</div>
+                    <div class="current-tier-name">${currentTierName}</div>
                 </div>
-                <div class="plan-name">Basic Plan</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check-circle"></i> Transfer to OPay only</li>
-                    <li><i class="fas fa-check-circle"></i> Add money unlock</li>
-                    <li><i class="fas fa-check-circle"></i> View receipt & history</li>
-                    <li><i class="fas fa-check-circle"></i> Payment proof - no watermark</li>
-                    <li><i class="fas fa-check-circle"></i> Activate banner removed</li>
-                    <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
-                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
-                </ul>
-                <button class="upgrade-btn ${parseInt(userTier) >= 2 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 2 ? 'disabled' : ''}>
-                    ${parseInt(userTier) >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
-                </button>
-            </div>
 
-            <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
-                <div class="plan-header">
-                    <div class="plan-icon">🥉</div>
-                    <div class="plan-price">₦50,000 <small>/ one-time</small></div>
+                <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
+                    <div class="plan-header">
+                        <div class="plan-icon">🥈</div>
+                        <div class="plan-price">₦30,000 <small>/ one-time</small></div>
+                    </div>
+                    <div class="plan-name">Basic Plan</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> Transfer to OPay only</li>
+                        <li><i class="fas fa-check-circle"></i> Add money unlock</li>
+                        <li><i class="fas fa-check-circle"></i> View receipt & history</li>
+                        <li><i class="fas fa-check-circle"></i> Payment proof - no watermark</li>
+                        <li><i class="fas fa-check-circle"></i> Activate banner removed</li>
+                        <li><i class="fas fa-check-circle"></i> 10 times transfer daily</li>
+                        <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
+                    </ul>
+                    <button class="upgrade-btn ${parseInt(userTier) >= 2 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 2 ? 'disabled' : ''}>
+                        ${parseInt(userTier) >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
+                    </button>
                 </div>
-                <div class="plan-name">Premium Plan</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check-circle"></i> Everything in Basic plus:</li>
-                    <li><i class="fas fa-check-circle"></i> History access, recent recipients</li>
-                    <li><i class="fas fa-check-circle"></i> OPay and bank transfer</li>
-                    <li><i class="fas fa-check-circle"></i> Custom sender name</li>
-                    <li><i class="fas fa-check-circle"></i> Edit receipt & custom status</li>
-                    <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
-                    <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
-                </ul>
-                <button class="upgrade-btn ${parseInt(userTier) >= 3 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 3 ? 'disabled' : ''}>
-                    ${parseInt(userTier) >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
-                </button>
-            </div>
 
-            <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
-                <div class="plan-header">
-                    <div class="plan-icon">👑</div>
-                    <div class="plan-price">₦100,000 <small>/ one-time</small></div>
+                <div class="plan-card" data-plan="premium" data-tier="3" data-price="50000" data-name="Premium Plan">
+                    <div class="plan-header">
+                        <div class="plan-icon">🥉</div>
+                        <div class="plan-price">₦50,000 <small>/ one-time</small></div>
+                    </div>
+                    <div class="plan-name">Premium Plan</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> Everything in Basic plus:</li>
+                        <li><i class="fas fa-check-circle"></i> History access, recent recipients</li>
+                        <li><i class="fas fa-check-circle"></i> OPay and bank transfer</li>
+                        <li><i class="fas fa-check-circle"></i> Custom sender name</li>
+                        <li><i class="fas fa-check-circle"></i> Edit receipt & custom status</li>
+                        <li><i class="fas fa-check-circle"></i> Unlimited transfer daily</li>
+                        <li><i class="fas fa-check-circle"></i> Add Money limit ₦1,000,000</li>
+                    </ul>
+                    <button class="upgrade-btn ${parseInt(userTier) >= 3 ? 'disabled' : 'active'}" ${parseInt(userTier) >= 3 ? 'disabled' : ''}>
+                        ${parseInt(userTier) >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium →'}
+                    </button>
                 </div>
-                <div class="plan-name">VIP Plan</div>
-                <ul class="plan-features">
-                    <li><i class="fas fa-check-circle"></i> Everything in Basic and Premium plus:</li>
-                    <li><i class="fas fa-check-circle"></i> OPay Funder in-app transfers</li>
-                    <li><i class="fas fa-check-circle"></i> Statement of account generation</li>
-                    <li><i class="fas fa-check-circle"></i> Receivers receive alert</li>
-                    <li><i class="fas fa-check-circle"></i> Airtime & Data purchase</li>
-                    <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
-                    <li><i class="fas fa-check-circle"></i> No transaction limits</li>
-                </ul>
-                <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
-                    ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
-                </button>
-            </div>
 
-            <div class="payment-section">
-                <div class="payment-title">Secure Payment Methods</div>
-                <div class="payment-icons">
-                    <i class="fab fa-cc-visa"></i>
-                    <i class="fab fa-cc-mastercard"></i>
-                    <i class="fab fa-cc-amex"></i>
-                    <i class="fas fa-university"></i>
+                <div class="plan-card" data-plan="vip" data-tier="VIP" data-price="100000" data-name="VIP Plan">
+                    <div class="plan-header">
+                        <div class="plan-icon">👑</div>
+                        <div class="plan-price">₦100,000 <small>/ one-time</small></div>
+                    </div>
+                    <div class="plan-name">VIP Plan</div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> Everything in Basic and Premium plus:</li>
+                        <li><i class="fas fa-check-circle"></i> OPay Funder in-app transfers</li>
+                        <li><i class="fas fa-check-circle"></i> Statement of account generation</li>
+                        <li><i class="fas fa-check-circle"></i> Receivers receive alert</li>
+                        <li><i class="fas fa-check-circle"></i> Airtime & Data purchase</li>
+                        <li><i class="fas fa-check-circle"></i> Add money unlimited</li>
+                        <li><i class="fas fa-check-circle"></i> No transaction limits</li>
+                    </ul>
+                    <button class="upgrade-btn vip ${userTier === 'VIP' ? 'disabled' : 'active'}" ${userTier === 'VIP' ? 'disabled' : ''}>
+                        ${userTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP →'}
+                    </button>
                 </div>
-                <div style="font-size: 11px; color: #888; margin-top: 12px;">
-                    Payments are processed securely via Paystack
-                </div>
-            </div>
-        `;
 
-        document.querySelectorAll('.plan-card').forEach(card => {
-            const btn = card.querySelector('.upgrade-btn');
-            if (btn && !btn.disabled) {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const plan = card.getAttribute('data-plan');
-                    const tier = card.getAttribute('data-tier');
-                    const price = parseInt(card.getAttribute('data-price'));
-                    const name = card.getAttribute('data-name');
-                    
-                    showConfirmationModal(plan, tier, price, name);
-                });
+                <div class="payment-section">
+                    <div class="payment-title">Secure Payment Methods</div>
+                    <div class="payment-icons">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-amex"></i>
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div style="font-size: 11px; color: #888; margin-top: 12px;">
+                        Payments are processed securely via Paystack
+                    </div>
+                </div>
+            `;
+
+            document.querySelectorAll('.plan-card').forEach(card => {
+                const btn = card.querySelector('.upgrade-btn');
+                if (btn && !btn.disabled) {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const plan = card.getAttribute('data-plan');
+                        const tier = card.getAttribute('data-tier');
+                        const price = parseInt(card.getAttribute('data-price'));
+                        const name = card.getAttribute('data-name');
+                        
+                        showConfirmationModal(plan, tier, price, name);
+                    });
+                }
+            });
+        }
+
+        document.getElementById('confirmBtn').addEventListener('click', () => {
+            initializePayment();
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            hideConfirmationModal();
+        });
+
+        document.getElementById('confirmationModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('confirmationModal')) {
+                hideConfirmationModal();
             }
         });
-    }
 
-    document.getElementById('confirmBtn').addEventListener('click', () => {
-        initializePayment();
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-        hideConfirmationModal();
-    });
-
-    document.getElementById('confirmationModal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('confirmationModal')) {
-            hideConfirmationModal();
+        async function init() {
+            await loadUser();
+            renderPlans();
+            console.log('✅ Plan page loaded - User tier:', userTier);
         }
-    });
 
-    async function init() {
-        await loadUser();
-        renderPlans();
-        console.log('✅ Plan page loaded - User tier:', userTier);
-    }
-
-    init();
+        init();
     </script>
 </body>
 </html>
