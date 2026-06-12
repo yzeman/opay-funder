@@ -153,7 +153,7 @@
         pendingPlan = null;
     }
 
-    // USING FORM SUBMIT INSTEAD OF FETCH - MORE RELIABLE ON MOBILE
+    // EXACT SAME WORKING METHOD FROM YOUR TEST PAGE
     async function initializePayment() {
         if (!pendingPlan) return;
         
@@ -166,39 +166,32 @@
         hideConfirmationModal();
         showLoading(true);
         
-        // Create a form and submit it - this bypasses CORS issues
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `${BACKEND_URL}/api/initialize-payment`;
-        form.target = '_self';
-        
-        const emailField = document.createElement('input');
-        emailField.type = 'hidden';
-        emailField.name = 'email';
-        emailField.value = currentUser.email;
-        
-        const amountField = document.createElement('input');
-        amountField.type = 'hidden';
-        amountField.name = 'amount';
-        amountField.value = pendingPlan.price;
-        
-        const planField = document.createElement('input');
-        planField.type = 'hidden';
-        planField.name = 'plan';
-        planField.value = pendingPlan.plan;
-        
-        const tierField = document.createElement('input');
-        tierField.type = 'hidden';
-        tierField.name = 'tier';
-        tierField.value = pendingPlan.tier;
-        
-        form.appendChild(emailField);
-        form.appendChild(amountField);
-        form.appendChild(planField);
-        form.appendChild(tierField);
-        
-        document.body.appendChild(form);
-        form.submit();
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: currentUser.email,  // Uses logged-in user's email, not hardcoded!
+                    amount: pendingPlan.price,
+                    plan: pendingPlan.plan,
+                    tier: pendingPlan.tier
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else {
+                showLoading(false);
+                showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
+            }
+        } catch (error) {
+            showLoading(false);
+            showMessage('error', 'Error', error.message || 'Network error. Please try again.');
+        }
     }
 
     async function loadUser() {
@@ -209,6 +202,7 @@
         }
         currentUser = JSON.parse(userData);
         userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+        console.log('Logged in user:', currentUser.email);
         return currentUser;
     }
 
@@ -316,7 +310,7 @@
     async function init() {
         await loadUser();
         renderPlans();
-        console.log('Plan page loaded - User:', currentUser?.email, 'Tier:', userTier);
+        console.log('Plan page ready - User:', currentUser?.email);
     }
     init();
     </script>
