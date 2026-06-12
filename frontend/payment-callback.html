@@ -109,8 +109,6 @@
                 
                 if (data.success) {
                     localStorage.setItem(`user_tier_${user.email}`, data.tier);
-                    
-                    // Update user object
                     user.tier = data.tier;
                     localStorage.setItem('loggedInUser', JSON.stringify(user));
                     
