@@ -116,8 +116,7 @@
                         icon: 'success',
                         title: 'Payment Successful! 🎉',
                         text: data.message,
-                        confirmButtonColor: '#00B875',
-                        backdrop: true
+                        confirmButtonColor: '#00B875'
                     }).then(() => {
                         window.location.href = 'dashboard.html';
                     });
@@ -125,7 +124,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Verification Failed',
-                        text: data.message || 'Could not verify your payment. Please contact support.',
+                        text: data.message || 'Could not verify your payment.',
                         confirmButtonColor: '#00B875'
                     }).then(() => {
                         window.location.href = 'plan.html';
@@ -136,7 +135,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Network error. Please check your connection and try again.',
+                    text: 'Network error. Please check your connection.',
                     confirmButtonColor: '#00B875'
                 }).then(() => {
                     window.location.href = 'plan.html';
