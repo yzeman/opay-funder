@@ -153,9 +153,12 @@
         pendingPlan = null;
     }
 
-    // EXACT SAME WORKING METHOD FROM YOUR TEST PAGE
     async function initializePayment() {
-        if (!pendingPlan) return;
+        // FIX: Check if pendingPlan exists first
+        if (!pendingPlan) {
+            showMessage('error', 'Error', 'Please select a plan first');
+            return;
+        }
         
         if (!currentUser || !currentUser.email) {
             showMessage('error', 'Login Required', 'Please login again');
@@ -173,7 +176,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: currentUser.email,  // Uses logged-in user's email, not hardcoded!
+                    email: currentUser.email,
                     amount: pendingPlan.price,
                     plan: pendingPlan.plan,
                     tier: pendingPlan.tier
@@ -189,6 +192,7 @@
                 showMessage('error', 'Payment Error', data.message || 'Could not initialize payment');
             }
         } catch (error) {
+            console.error('Payment error:', error);
             showLoading(false);
             showMessage('error', 'Error', error.message || 'Network error. Please try again.');
         }
@@ -301,11 +305,24 @@
         });
     }
 
-    document.getElementById('confirmBtn').onclick = () => initializePayment();
-    document.getElementById('cancelBtn').onclick = () => hideConfirmationModal();
-    document.getElementById('confirmationModal').onclick = (e) => {
-        if (e.target === document.getElementById('confirmationModal')) hideConfirmationModal();
-    };
+    // Fix: Make sure event listeners are set after DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const modal = document.getElementById('confirmationModal');
+        
+        if (confirmBtn) {
+            confirmBtn.onclick = () => initializePayment();
+        }
+        if (cancelBtn) {
+            cancelBtn.onclick = () => hideConfirmationModal();
+        }
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) hideConfirmationModal();
+            };
+        }
+    });
 
     async function init() {
         await loadUser();
