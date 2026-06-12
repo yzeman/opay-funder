@@ -371,16 +371,20 @@
             to { transform: rotate(360deg); }
         }
 
-        .error-banner {
-            background: #fee;
-            border-left: 4px solid #f00;
-            padding: 12px;
+        .debug-panel {
+            background: #1a1a1a;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
             margin: 16px;
+            padding: 12px;
             border-radius: 8px;
             display: none;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
-        .error-banner.show {
+        .debug-panel.show {
             display: block;
         }
     </style>
@@ -396,13 +400,13 @@
         </div>
     </div>
 
-    <div id="errorBanner" class="error-banner"></div>
-
     <div id="planContent">
         <div class="loading" style="text-align: center; padding: 50px;">
             <i class="fas fa-spinner fa-spin"></i> Loading...
         </div>
     </div>
+
+    <div id="debugPanel" class="debug-panel"></div>
 
     <div id="confirmationModal" class="confirmation-modal">
         <div class="modal-container">
@@ -443,7 +447,7 @@
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Processing payment request...</div>
+        <div class="loading-text" id="loadingText">Processing payment request...</div>
     </div>
 
     <script>
@@ -453,19 +457,18 @@
         let userTier = '1';
         let pendingPlan = null;
 
-        function showError(message) {
-            const banner = document.getElementById('errorBanner');
-            banner.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-            banner.classList.add('show');
-            setTimeout(() => {
-                banner.classList.remove('show');
-            }, 5000);
+        function addDebugLog(message) {
+            const debugPanel = document.getElementById('debugPanel');
+            const timestamp = new Date().toLocaleTimeString();
+            debugPanel.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            debugPanel.classList.add('show');
+            console.log(message);
         }
 
         function showLoading(show, text = 'Processing payment request...') {
             const overlay = document.getElementById('loadingOverlay');
-            const loadingText = overlay.querySelector('.loading-text');
-            if (text) loadingText.textContent = text;
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = text;
             if (show) {
                 overlay.classList.add('active');
             } else {
@@ -500,119 +503,135 @@
         }
 
         async function initializePayment() {
+            addDebugLog('=== PAYMENT INITIALIZATION STARTED ===');
+            
             if (!pendingPlan) {
+                addDebugLog('ERROR: No plan selected');
                 showMessage('error', 'Error', 'No plan selected');
                 return;
             }
             
             if (!currentUser || !currentUser.email) {
+                addDebugLog('ERROR: User not logged in or email missing');
                 showMessage('error', 'Error', 'User not logged in');
                 window.location.href = 'login1.html';
                 return;
             }
             
+            addDebugLog(`Plan: ${pendingPlan.plan}`);
+            addDebugLog(`Tier: ${pendingPlan.tier}`);
+            addDebugLog(`Amount: ₦${pendingPlan.price}`);
+            addDebugLog(`Email: ${currentUser.email}`);
+            
             hideConfirmationModal();
             showLoading(true, 'Initializing payment...');
             
-            console.log('Initializing payment for:', {
+            const requestBody = {
                 email: currentUser.email,
                 amount: pendingPlan.price,
                 plan: pendingPlan.plan,
                 tier: pendingPlan.tier
-            });
+            };
+            
+            addDebugLog(`Request URL: ${BACKEND_URL}/api/initialize-payment`);
+            addDebugLog(`Request Body: ${JSON.stringify(requestBody)}`);
             
             try {
+                addDebugLog('Sending request to backend...');
+                
                 const response = await fetch(`${BACKEND_URL}/api/initialize-payment`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        email: currentUser.email,
-                        amount: pendingPlan.price,
-                        plan: pendingPlan.plan,
-                        tier: pendingPlan.tier
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
+                addDebugLog(`Response status: ${response.status} ${response.statusText}`);
                 
                 const data = await response.json();
-                console.log('Payment init response:', data);
+                addDebugLog(`Response data: ${JSON.stringify(data, null, 2)}`);
                 
                 if (data.success && data.authorization_url) {
+                    addDebugLog(`SUCCESS! Redirecting to: ${data.authorization_url}`);
                     showLoading(true, 'Redirecting to payment gateway...');
                     setTimeout(() => {
                         window.location.href = data.authorization_url;
-                    }, 500);
+                    }, 1000);
                 } else {
+                    addDebugLog(`ERROR: Payment initialization failed - ${data.message}`);
                     showLoading(false);
-                    const errorMsg = data.message || 'Could not initialize payment. Please try again.';
-                    showMessage('error', 'Payment Error', errorMsg);
-                    showError(errorMsg);
+                    showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
                 }
             } catch (error) {
-                console.error('Payment initialization error:', error);
+                addDebugLog(`EXCEPTION: ${error.message}`);
+                addDebugLog(`Stack: ${error.stack}`);
                 showLoading(false);
-                const errorMsg = error.message || 'Network error. Please check your connection.';
-                showMessage('error', 'Connection Error', errorMsg);
-                showError(errorMsg);
+                showMessage('error', 'Connection Error', error.message || 'Network error. Please check your connection.');
             }
         }
 
         async function testBackendConnection() {
+            addDebugLog('Testing backend connection...');
             try {
                 const response = await fetch(`${BACKEND_URL}/health`);
                 const data = await response.json();
-                console.log('Backend health check:', data);
+                addDebugLog(`Backend health: ${JSON.stringify(data)}`);
                 return data;
             } catch (error) {
-                console.error('Backend connection failed:', error);
-                showError('Cannot connect to payment server. Please try again later.');
+                addDebugLog(`Backend connection FAILED: ${error.message}`);
+                showMessage('error', 'Connection Error', 'Cannot connect to payment server. Please try again later.');
                 return null;
             }
         }
 
         async function loadUser() {
+            addDebugLog('Loading user data...');
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
+                addDebugLog('No user found in localStorage, redirecting to login');
                 window.location.href = 'login1.html';
                 return null;
             }
             currentUser = JSON.parse(userData);
+            addDebugLog(`User loaded: ${currentUser.email}`);
             
-            // Test backend connection first
             await testBackendConnection();
             
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
+            addDebugLog(`User tier from localStorage: ${userTier || 'not found'}`);
+            
             if (!userTier) {
                 try {
+                    addDebugLog('Fetching user tier from backend...');
                     const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: currentUser.email })
                     });
                     const data = await response.json();
+                    addDebugLog(`Profile response: ${JSON.stringify(data)}`);
                     if (data.success && data.profile && data.profile.user_tier) {
                         userTier = data.profile.user_tier;
                         localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
+                        addDebugLog(`User tier updated: ${userTier}`);
                     } else {
                         userTier = '1';
+                        addDebugLog(`Using default tier: ${userTier}`);
                     }
                 } catch (error) {
-                    console.error('Failed to fetch profile:', error);
+                    addDebugLog(`Failed to fetch profile: ${error.message}`);
                     userTier = '1';
                 }
             }
             
-            console.log('User loaded:', { email: currentUser.email, tier: userTier });
+            addDebugLog(`Final user tier: ${userTier}`);
             return currentUser;
         }
 
         function renderPlans() {
+            addDebugLog('Rendering plans...');
             const container = document.getElementById('planContent');
             const currentTierName = userTier === '1' ? '⭐ Free Tier' : 
                                      userTier === '2' ? '🥈 Basic Tier' : 
@@ -709,30 +728,38 @@
                         const price = parseInt(card.getAttribute('data-price'));
                         const name = card.getAttribute('data-name');
                         
+                        addDebugLog(`Plan selected: ${name} (${plan}, Tier ${tier}, ₦${price})`);
                         showConfirmationModal(plan, tier, price, name);
                     });
                 }
             });
+            
+            addDebugLog('Plans rendered successfully');
         }
 
         document.getElementById('confirmBtn').addEventListener('click', () => {
+            addDebugLog('Confirm button clicked, calling initializePayment()');
             initializePayment();
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
+            addDebugLog('Cancel button clicked');
             hideConfirmationModal();
         });
 
         document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
+                addDebugLog('Modal background clicked, closing');
                 hideConfirmationModal();
             }
         });
 
         async function init() {
+            addDebugLog('=== PAGE INITIALIZATION STARTED ===');
+            addDebugLog(`Backend URL: ${BACKEND_URL}`);
             await loadUser();
             renderPlans();
-            console.log('✅ Plan page loaded - User tier:', userTier);
+            addDebugLog('=== PAGE INITIALIZATION COMPLETE ===');
         }
 
         init();
