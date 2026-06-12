@@ -1,10 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Processing Payment...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Payment - OPay</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00B875;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h2 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Verifying Your Payment</h2>
+        <p>Please wait while we confirm your transaction...</p>
+    </div>
+
     <script>
         const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
         
@@ -12,21 +62,30 @@
             const urlParams = new URLSearchParams(window.location.search);
             const reference = urlParams.get('reference');
             
+            console.log('Verifying payment with reference:', reference);
+            
             if (!reference) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'No payment reference found'
+                    text: 'No payment reference found',
+                    confirmButtonColor: '#00B875'
                 }).then(() => {
                     window.location.href = 'plan.html';
                 });
                 return;
             }
             
-            // Get user email from localStorage
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
-                window.location.href = 'login1.html';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Session Expired',
+                    text: 'Please login again',
+                    confirmButtonColor: '#00B875'
+                }).then(() => {
+                    window.location.href = 'login1.html';
+                });
                 return;
             }
             
@@ -35,7 +94,10 @@
             try {
                 const response = await fetch(`${BACKEND_URL}/api/verify-payment`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({
                         reference: reference,
                         email: user.email
@@ -43,16 +105,21 @@
                 });
                 
                 const data = await response.json();
+                console.log('Verification response:', data);
                 
                 if (data.success) {
-                    // Store the tier in localStorage
                     localStorage.setItem(`user_tier_${user.email}`, data.tier);
+                    
+                    // Update user object
+                    user.tier = data.tier;
+                    localStorage.setItem('loggedInUser', JSON.stringify(user));
                     
                     Swal.fire({
                         icon: 'success',
-                        title: 'Payment Successful!',
+                        title: 'Payment Successful! 🎉',
                         text: data.message,
-                        confirmButtonColor: '#00B875'
+                        confirmButtonColor: '#00B875',
+                        backdrop: true
                     }).then(() => {
                         window.location.href = 'dashboard.html';
                     });
@@ -60,17 +127,19 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Verification Failed',
-                        text: data.message,
+                        text: data.message || 'Could not verify your payment. Please contact support.',
                         confirmButtonColor: '#00B875'
                     }).then(() => {
                         window.location.href = 'plan.html';
                     });
                 }
             } catch (error) {
+                console.error('Verification error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Something went wrong verifying payment'
+                    text: 'Network error. Please check your connection and try again.',
+                    confirmButtonColor: '#00B875'
                 }).then(() => {
                     window.location.href = 'plan.html';
                 });
@@ -79,9 +148,5 @@
         
         verifyPayment();
     </script>
-    <div style="text-align: center; padding: 50px;">
-        <h2>Verifying your payment...</h2>
-        <p>Please wait while we confirm your transaction.</p>
-    </div>
 </body>
 </html>
