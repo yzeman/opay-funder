@@ -7,9 +7,9 @@ dotenv.config();
 
 const app = express();
 
-// ============ COMPLETE CORS CONFIGURATION ============
+// CORS configuration
 app.use(cors({
-    origin: '*', // Allow all origins for testing
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token', 'Accept']
@@ -18,7 +18,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ============ INITIALIZE SUPABASE ============
+// Initialize Supabase
 const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_KEY
@@ -27,16 +27,16 @@ const supabase = createClient(
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const ADMIN_PASSWORD = 'adminkeyzer';
 
-// ============ VERIFY CONFIGURATION ============
+// Verify configuration
 console.log('=== SERVER CONFIGURATION ===');
-console.log('Paystack Secret Key:', PAYSTACK_SECRET_KEY ? '✅ SET' : '❌ MISSING');
-console.log('Supabase URL:', process.env.SUPABASE_URL ? '✅ SET' : '❌ MISSING');
-console.log('Supabase Key:', process.env.SUPABASE_SERVICE_KEY ? '✅ SET' : '❌ MISSING');
+console.log('Paystack Secret Key:', PAYSTACK_SECRET_KEY ? 'SET (length: ' + PAYSTACK_SECRET_KEY.length + ')' : '❌ MISSING');
+console.log('Supabase URL:', process.env.SUPABASE_URL ? 'SET' : '❌ MISSING');
+console.log('Supabase Key:', process.env.SUPABASE_SERVICE_KEY ? 'SET' : '❌ MISSING');
 console.log('=============================');
 
 const activeSessions = new Map();
 
-// ============ HEALTH CHECK ============
+// Health check
 app.get('/', (req, res) => {
     res.json({ 
         message: 'OPay Backend API is running!',
@@ -53,6 +53,145 @@ app.get('/health', (req, res) => {
         paystackConfigured: !!PAYSTACK_SECRET_KEY,
         uptime: process.uptime()
     });
+});
+
+// Test endpoint
+app.post('/api/test', (req, res) => {
+    console.log('Test endpoint hit!');
+    res.json({ success: true, message: 'Backend is working!', received: req.body });
+});
+
+// ============ FIXED PAYMENT INITIALIZATION ============
+app.post('/api/initialize-payment', async (req, res) => {
+    const { email, amount, plan, tier } = req.body;
+    
+    console.log('=== PAYMENT INITIALIZATION REQUEST ===');
+    console.log('Email:', email);
+    console.log('Amount:', amount);
+    console.log('Plan:', plan);
+    console.log('Tier:', tier);
+    console.log('Paystack Key exists:', !!PAYSTACK_SECRET_KEY);
+    
+    // Validate inputs
+    if (!PAYSTACK_SECRET_KEY) {
+        console.error('ERROR: PAYSTACK_SECRET_KEY is missing!');
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Payment system not configured. Please contact support.' 
+        });
+    }
+    
+    if (!email) {
+        console.error('ERROR: Email is missing');
+        return res.status(400).json({ 
+            success: false, 
+            message: 'User email is required. Please login again.' 
+        });
+    }
+    
+    if (!amount || amount <= 0) {
+        console.error('ERROR: Invalid amount:', amount);
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid payment amount.' 
+        });
+    }
+    
+    try {
+        const amountInKobo = Math.round(amount * 100);
+        console.log('Amount in kobo:', amountInKobo);
+        
+        const requestBody = {
+            email: email,
+            amount: amountInKobo,
+            currency: 'NGN',
+            metadata: {
+                plan: plan,
+                tier: tier,
+                email: email
+            },
+            callback_url: 'https://opay-funder.onrender.com/dashboard.html'
+        };
+        
+        console.log('Sending to Paystack:', JSON.stringify(requestBody, null, 2));
+        
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const data = await response.json();
+        console.log('Paystack Response Status:', response.status);
+        console.log('Paystack Response Data:', JSON.stringify(data, null, 2));
+        
+        if (data.status === true && data.data && data.data.authorization_url) {
+            console.log('✅ Payment initialization successful!');
+            console.log('Authorization URL:', data.data.authorization_url);
+            res.json({
+                success: true,
+                authorization_url: data.data.authorization_url,
+                reference: data.data.reference
+            });
+        } else {
+            console.error('❌ Paystack error:', data.message);
+            res.status(400).json({ 
+                success: false, 
+                message: data.message || 'Payment initialization failed' 
+            });
+        }
+    } catch (error) {
+        console.error('❌ Fatal error in /api/initialize-payment:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message || 'Internal server error' 
+        });
+    }
+});
+
+// ============ VERIFY PAYMENT ============
+app.post('/api/verify-payment', async (req, res) => {
+    const { reference, email } = req.body;
+    
+    console.log('Verifying payment:', reference);
+    
+    if (!PAYSTACK_SECRET_KEY) {
+        return res.status(500).json({ success: false, message: 'Payment system not configured' });
+    }
+    
+    try {
+        const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status && data.data.status === 'success') {
+            const tier = data.data.metadata.tier;
+            const plan = data.data.metadata.plan;
+            
+            console.log(`✅ Payment verified! User upgraded to ${plan}`);
+            
+            res.json({
+                success: true,
+                message: `Successfully upgraded to ${plan} plan!`,
+                tier: tier
+            });
+        } else {
+            console.log('❌ Payment verification failed:', data.message);
+            res.json({ success: false, message: 'Payment verification failed' });
+        }
+    } catch (error) {
+        console.error('Verify error:', error);
+        res.json({ success: false, message: error.message });
+    }
 });
 
 // ============ GET BALANCE ============
@@ -202,9 +341,7 @@ app.post('/api/get-user-by-account', async (req, res) => {
 
 // ============ RESOLVE ACCOUNT NAME ============
 app.post('/api/resolve-account', async (req, res) => {
-    console.log('Resolve account:', req.body.account_number);
     const { account_number, bank_code } = req.body;
-    
     let bankCode = bank_code === 'opay' ? '999992' : (bank_code || '999992');
     
     try {
@@ -229,7 +366,6 @@ app.post('/api/resolve-account', async (req, res) => {
             res.json({ success: false, message: data.message || 'Account not found' });
         }
     } catch (error) {
-        console.error('API Error:', error);
         res.json({ success: false, message: 'Network error' });
     }
 });
@@ -246,7 +382,6 @@ const BANK_CODES = {
     'Zenith Bank': '057'
 };
 
-// ============ GET BANK CODE ============
 app.post('/api/get-bank-code', async (req, res) => {
     const { bank_name } = req.body;
     const bankCode = BANK_CODES[bank_name] || null;
@@ -258,7 +393,6 @@ app.post('/api/get-bank-code', async (req, res) => {
     }
 });
 
-// ============ GET ALL BANKS ============
 app.get('/api/banks', async (req, res) => {
     const banks = Object.entries(BANK_CODES).map(([name, code]) => ({
         code: code,
@@ -304,7 +438,6 @@ app.post('/api/check-account', async (req, res) => {
 
 // ============ CREATE USER ============
 app.post('/api/create-user', async (req, res) => {
-    console.log('Create user:', req.body.email);
     const { account_number, account_name, email, password_code } = req.body;
     const activationCode = Math.floor(10000 + Math.random() * 90000).toString();
     
@@ -345,21 +478,17 @@ app.post('/api/create-user', async (req, res) => {
         
         if (error) throw error;
         
-        console.log(`User created: ${account_name} (${email})`);
-        
         res.json({ 
             success: true, 
             message: 'Account created! Payment required for activation.'
         });
     } catch (error) {
-        console.error('Error:', error.message);
         res.json({ success: false, message: error.message });
     }
 });
 
 // ============ LOGIN ============
 app.post('/api/login', async (req, res) => {
-    console.log('Login:', req.body.account_number);
     const { account_number, password_code } = req.body;
     
     try {
@@ -384,118 +513,6 @@ app.post('/api/login', async (req, res) => {
         }
     } catch (error) {
         res.json({ success: false, message: 'Database error' });
-    }
-});
-
-// ============ PAYSTACK PAYMENT INITIALIZATION ============
-app.post('/api/initialize-payment', async (req, res) => {
-    const { email, amount, plan, tier } = req.body;
-    
-    console.log('=== PAYMENT INITIALIZATION ===');
-    console.log('Email:', email);
-    console.log('Amount:', amount);
-    console.log('Plan:', plan);
-    console.log('Tier:', tier);
-    console.log('Paystack Key:', PAYSTACK_SECRET_KEY ? 'Present' : 'MISSING!');
-    
-    if (!PAYSTACK_SECRET_KEY) {
-        console.error('PAYSTACK_SECRET_KEY is missing!');
-        return res.json({ success: false, message: 'Payment system not configured. Please contact support.' });
-    }
-    
-    if (!email) {
-        console.error('Email is missing!');
-        return res.json({ success: false, message: 'User email is required. Please login again.' });
-    }
-    
-    if (!amount || amount <= 0) {
-        console.error('Invalid amount:', amount);
-        return res.json({ success: false, message: 'Invalid payment amount.' });
-    }
-    
-    try {
-        const requestBody = {
-            email: email,
-            amount: Math.round(amount * 100),
-            currency: 'NGN',
-            metadata: {
-                plan: plan,
-                tier: tier,
-                custom_fields: [
-                    { display_name: "Plan", variable_name: "plan", value: plan },
-                    { display_name: "Tier", variable_name: "tier", value: tier }
-                ]
-            },
-            callback_url: 'https://opay-funder.onrender.com/dashboard.html'
-        };
-        
-        console.log('Paystack request:', JSON.stringify(requestBody, null, 2));
-        
-        const response = await fetch('https://api.paystack.co/transaction/initialize', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-        });
-        
-        const data = await response.json();
-        console.log('Paystack response status:', data.status);
-        console.log('Paystack message:', data.message);
-        
-        if (data.status) {
-            console.log('Authorization URL:', data.data.authorization_url);
-            res.json({
-                success: true,
-                authorization_url: data.data.authorization_url,
-                reference: data.data.reference
-            });
-        } else {
-            console.error('Paystack error:', data.message);
-            res.json({ success: false, message: data.message });
-        }
-    } catch (error) {
-        console.error('Payment initialization error:', error);
-        res.json({ success: false, message: error.message });
-    }
-});
-
-// ============ VERIFY PAYMENT ============
-app.post('/api/verify-payment', async (req, res) => {
-    const { reference, email } = req.body;
-    
-    console.log('Verifying payment:', reference);
-    
-    try {
-        const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.status && data.data.status === 'success') {
-            const tier = data.data.metadata.tier;
-            const plan = data.data.metadata.plan;
-            
-            console.log(`Payment verified! User upgraded to ${plan} (Tier ${tier})`);
-            
-            res.json({
-                success: true,
-                message: `Successfully upgraded to ${plan} plan!`,
-                tier: tier
-            });
-        } else {
-            console.log('Payment verification failed:', data.message);
-            res.json({ success: false, message: 'Payment verification failed' });
-        }
-    } catch (error) {
-        console.error('Verify error:', error);
-        res.json({ success: false, message: error.message });
     }
 });
 
@@ -556,7 +573,6 @@ app.get('/api/admin/dashboard', verifyAdminSession, async (req, res) => {
             users: users || []
         });
     } catch (error) {
-        console.error('Admin dashboard error:', error);
         res.json({ success: false, message: error.message });
     }
 });
@@ -621,7 +637,6 @@ app.post('/api/update-last-seen', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`\n✅ Server running on port ${PORT}`);
-    console.log(`✅ Backend URL: http://localhost:${PORT}`);
-    console.log(`✅ Health check: http://localhost:${PORT}/health`);
+    console.log(`✅ Health check: https://opay-backend-api-pncl.onrender.com/health`);
     console.log(`✅ Paystack configured: ${PAYSTACK_SECRET_KEY ? 'YES' : 'NO'}\n`);
 });
