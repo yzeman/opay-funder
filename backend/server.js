@@ -17,7 +17,7 @@ const supabase = createClient(
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const ADMIN_PASSWORD = 'adminkeyzer';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://your-frontend-link.onrender.com';
+const FRONTEND_URL = 'https://opay-funder.onrender.com';
 
 const activeSessions = new Map();
 
@@ -858,9 +858,6 @@ app.post('/api/paystack-webhook', async (req, res) => {
     const event = req.body;
     
     console.log('📨 Webhook received:', event.event);
-    
-    // Verify signature (optional but recommended for live mode)
-    const signature = req.headers['x-paystack-signature'];
     
     if (event.event === 'charge.success') {
         const { reference, metadata, customer } = event.data;
