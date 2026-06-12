@@ -31,6 +31,7 @@
             -ms-user-select: none;
             text-decoration: none !important;
             -webkit-tap-highlight-color: transparent; 
+            -webkit-text-decoration: none !important;
         }
 
         /* Fixed Header */
@@ -457,20 +458,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Fallback icon for missing images */
-        .fallback-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -610,15 +597,6 @@
         return sessionId;
     }
 
-    // Get bank logo with fallback to colored circle with letter
-    function getBankLogoElement(bankName, bankInitial) {
-        // Create a div with bank initial as fallback
-        const fallbackDiv = document.createElement('div');
-        fallbackDiv.className = 'fallback-icon';
-        fallbackDiv.textContent = bankInitial || bankName.charAt(0);
-        return fallbackDiv;
-    }
-
     // Share receipt as image
     async function shareReceiptAsImage() {
         const receiptContainer = document.querySelector('.content-card');
@@ -640,29 +618,12 @@
             clone.style.padding = '50px 20px 20px 20px';
             clone.style.boxShadow = 'none';
             
-            // Replace img with fallback if needed
-            const imgElement = clone.querySelector('.bank-logo-circle img');
-            if (imgElement && (!imgElement.src || imgElement.src.includes('undefined') || imgElement.src === '')) {
-                const bankName = imgElement.getAttribute('data-bank') || 'OPay';
-                const initial = bankName.charAt(0);
-                const fallbackDiv = document.createElement('div');
-                fallbackDiv.className = 'fallback-icon';
-                fallbackDiv.textContent = initial;
-                fallbackDiv.style.width = '45px';
-                fallbackDiv.style.height = '45px';
-                fallbackDiv.style.borderRadius = '50%';
-                fallbackDiv.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                fallbackDiv.style.display = 'flex';
-                fallbackDiv.style.alignItems = 'center';
-                fallbackDiv.style.justifyContent = 'center';
-                fallbackDiv.style.color = 'white';
-                fallbackDiv.style.fontSize = '20px';
-                fallbackDiv.style.fontWeight = 'bold';
-                
-                const parent = imgElement.parentNode;
-                parent.removeChild(imgElement);
-                parent.appendChild(fallbackDiv);
-            }
+            const images = clone.querySelectorAll('img');
+            images.forEach(img => {
+                if (img.src && (img.src.includes('wikimedia') || img.src.includes('flaticon') || img.src.includes('upload'))) {
+                    img.src = 'images/opay.png';
+                }
+            });
             
             document.body.appendChild(clone);
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -671,8 +632,8 @@
                 scale: 2,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true,
-                allowTaint: false
+                useCORS: false,
+                allowTaint: true
             });
             
             document.body.removeChild(clone);
@@ -842,9 +803,11 @@
         });
     }
 
+    // EDIT STATUS - With proper colors for Pending (Orange) and Failed (Red)
     function editStatus(element, currentStatus, tx) {
         if (!canEdit) return;
         
+        // Map current status text to value
         let currentStatusValue = 'success';
         if (currentStatus === 'Pending') currentStatusValue = 'pending';
         if (currentStatus === 'Failed') currentStatusValue = 'failed';
@@ -865,10 +828,14 @@
                         const newStatus = badge.getAttribute('data-status');
                         const newLabel = badge.innerText;
                         
+                        // Update tx object
                         tx.status = newStatus;
+                        
+                        // Update the displayed status badge with proper class
                         element.textContent = newLabel;
                         element.className = `status-badge ${newStatus}`;
                         
+                        // Apply proper styling for pending/failed
                         if (newStatus === 'pending') {
                             element.style.background = '#fff3cd';
                             element.style.color = '#ff9800';
@@ -914,8 +881,22 @@
         const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
         const isBankTransfer = tx.category === 'Transfer to' && tx.bank && tx.bank !== 'OPay';
         
-        // Get bank initial for fallback
-        const bankInitial = tx.bank ? tx.bank.charAt(0) : 'O';
+        const bankLogos = {
+            'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
+            'OPay': 'images/opay.png',
+            'OPay Digital Bank': 'images/opay.png',
+            'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
+            'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
+            'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
+            'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
+            'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
+        };
+        
+        let bankLogo = bankLogos[tx.bank];
+        if (!bankLogo) {
+            const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
+            bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
+        }
         
         let transactionRef = tx.ref;
         let sessionId = tx.sessionId;
@@ -934,9 +915,7 @@
         let html = `
             <div class="logo-wrapper">
                 <div class="bank-logo-circle">
-                    <div class="fallback-icon" style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold;">
-                        ${bankInitial}
-                    </div>
+                    <img src="${bankLogo}" alt="${tx.bank}" onerror="this.src='images/opay.png'">
                 </div>
             </div>
             
@@ -983,8 +962,8 @@
                         <div class="detail-row">
                             <span class="detail-label">Recipient Details</span>
                             <div class="detail-value recipient-info">
-                                <div class="recipient-name" id="recipientNameDetail" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient Name'}</div>
-                                <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                                <div class="recipient-name" id="recipientNameDetail" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient Name'}</div>
+                                <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
                             </div>
                         </div>
                         
@@ -1003,7 +982,7 @@
                         
                         <div class="detail-row">
                             <span class="detail-label">Transaction Date</span>
-                            <span class="detail-value" id="transactionDateSpan" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.date}</span>
+                            <span class="detail-value" id="transactionDateSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.date}</span>
                         </div>
                         
                         ${sessionId && isBankTransfer ? `
@@ -1024,16 +1003,19 @@
         
         // Add edit listeners only for Tier 3 and VIP
         if (canEdit) {
+            // Edit Amount
             const amountElement = document.getElementById('amountDisplay');
             if (amountElement) {
                 amountElement.addEventListener('click', () => editAmount(amountElement, tx.amount, tx));
             }
             
+            // Edit Status
             const statusElement = document.getElementById('statusSpan');
             if (statusElement) {
                 statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
             }
             
+            // Edit Recipient Name
             const recipientNameDetail = document.getElementById('recipientNameDetail');
             if (recipientNameDetail) {
                 recipientNameDetail.addEventListener('click', () => {
@@ -1042,6 +1024,7 @@
                 });
             }
             
+            // Edit Account Number
             const accountSpan = document.getElementById('accountNumberSpan');
             if (accountSpan) {
                 accountSpan.addEventListener('click', () => {
@@ -1050,6 +1033,7 @@
                 });
             }
             
+            // Edit Transaction Date
             const dateSpan = document.getElementById('transactionDateSpan');
             if (dateSpan) {
                 dateSpan.addEventListener('click', () => {
@@ -1065,10 +1049,8 @@
         window.open('https://wa.link/ctaxj9', '_blank');
     });
 
-    // Report Issue button
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
-        window.open('https://wa.link/ctaxj9', '_blank');
-    });
+    // Report Issue button - no action
+    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {});
 
     // Share Receipt button
     document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
