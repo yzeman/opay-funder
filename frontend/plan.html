@@ -370,6 +370,19 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .error-banner {
+            background: #fee;
+            border-left: 4px solid #f00;
+            padding: 12px;
+            margin: 16px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error-banner.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -382,6 +395,8 @@
             <div style="width: 40px;"></div>
         </div>
     </div>
+
+    <div id="errorBanner" class="error-banner"></div>
 
     <div id="planContent">
         <div class="loading" style="text-align: center; padding: 50px;">
@@ -428,7 +443,7 @@
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Redirecting to payment gateway...</div>
+        <div class="loading-text">Processing payment request...</div>
     </div>
 
     <script>
@@ -438,8 +453,19 @@
         let userTier = '1';
         let pendingPlan = null;
 
-        function showLoading(show) {
+        function showError(message) {
+            const banner = document.getElementById('errorBanner');
+            banner.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            banner.classList.add('show');
+            setTimeout(() => {
+                banner.classList.remove('show');
+            }, 5000);
+        }
+
+        function showLoading(show, text = 'Processing payment request...') {
             const overlay = document.getElementById('loadingOverlay');
+            const loadingText = overlay.querySelector('.loading-text');
+            if (text) loadingText.textContent = text;
             if (show) {
                 overlay.classList.add('active');
             } else {
@@ -486,7 +512,7 @@
             }
             
             hideConfirmationModal();
-            showLoading(true);
+            showLoading(true, 'Initializing payment...');
             
             console.log('Initializing payment for:', {
                 email: currentUser.email,
@@ -510,25 +536,43 @@
                     })
                 });
                 
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
                 console.log('Payment init response:', data);
                 
-                if (data.success) {
-                    localStorage.setItem('pendingPayment', JSON.stringify({
-                        plan: pendingPlan.plan,
-                        tier: pendingPlan.tier,
-                        amount: pendingPlan.price,
-                        reference: data.reference
-                    }));
-                    window.location.href = data.authorization_url;
+                if (data.success && data.authorization_url) {
+                    showLoading(true, 'Redirecting to payment gateway...');
+                    setTimeout(() => {
+                        window.location.href = data.authorization_url;
+                    }, 500);
                 } else {
                     showLoading(false);
-                    showMessage('error', 'Payment Error', data.message || 'Could not initialize payment. Please try again.');
+                    const errorMsg = data.message || 'Could not initialize payment. Please try again.';
+                    showMessage('error', 'Payment Error', errorMsg);
+                    showError(errorMsg);
                 }
             } catch (error) {
                 console.error('Payment initialization error:', error);
                 showLoading(false);
-                showMessage('error', 'Error', error.message || 'Something went wrong. Please check your connection and try again.');
+                const errorMsg = error.message || 'Network error. Please check your connection.';
+                showMessage('error', 'Connection Error', errorMsg);
+                showError(errorMsg);
+            }
+        }
+
+        async function testBackendConnection() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                console.log('Backend health check:', data);
+                return data;
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                showError('Cannot connect to payment server. Please try again later.');
+                return null;
             }
         }
 
@@ -540,6 +584,9 @@
             }
             currentUser = JSON.parse(userData);
             
+            // Test backend connection first
+            await testBackendConnection();
+            
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`);
             if (!userTier) {
                 try {
@@ -549,13 +596,14 @@
                         body: JSON.stringify({ email: currentUser.email })
                     });
                     const data = await response.json();
-                    if (data.success && data.profile.user_tier) {
+                    if (data.success && data.profile && data.profile.user_tier) {
                         userTier = data.profile.user_tier;
                         localStorage.setItem(`user_tier_${currentUser.email}`, userTier);
                     } else {
                         userTier = '1';
                     }
                 } catch (error) {
+                    console.error('Failed to fetch profile:', error);
                     userTier = '1';
                 }
             }
