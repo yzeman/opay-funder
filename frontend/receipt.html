@@ -31,7 +31,6 @@
             -ms-user-select: none;
             text-decoration: none !important;
             -webkit-tap-highlight-color: transparent; 
-            -webkit-text-decoration: none !important;
         }
 
         /* Fixed Header */
@@ -515,6 +514,70 @@
     const canEdit = getUserTier();
     // ===================================
 
+    // Bank Logo Mapping - Using local images (OPay style)
+    const bankLogoMap = {
+        'Access Bank': 'images/access.png',
+        'Access Bank Plc': 'images/access.png',
+        'Citibank Nigeria': 'images/citibank.png',
+        'Ecobank Nigeria': 'images/ecobank.png',
+        'Ecobank': 'images/ecobank.png',
+        'FCMB': 'images/fcmb.png',
+        'Fidelity Bank': 'images/fidelity.png',
+        'First Bank of Nigeria': 'images/firstbank.png',
+        'First Bank': 'images/firstbank.png',
+        'Globus Bank': 'images/globus.png',
+        'GTBank': 'images/gtbank.png',
+        'Guaranty Trust Bank': 'images/gtbank.png',
+        'Heritage Bank': 'images/heritage.png',
+        'Jaiz Bank': 'images/jaiz.png',
+        'Keystone Bank': 'images/keystone.png',
+        'Polaris Bank': 'images/polaris.png',
+        'Providus Bank': 'images/providus.png',
+        'Stanbic IBTC Bank': 'images/stanbic.png',
+        'Standard Chartered Bank': 'images/standardchartered.png',
+        'Sterling Bank': 'images/sterling.png',
+        'SunTrust Bank': 'images/suntrust.png',
+        'Titan Trust Bank': 'images/titantrust.png',
+        'UBA': 'images/uba.png',
+        'United Bank for Africa': 'images/uba.png',
+        'Union Bank': 'images/union.png',
+        'Unity Bank': 'images/unity.png',
+        'Wema Bank': 'images/wema.png',
+        'Zenith Bank': 'images/zenith.png',
+        'OPay': 'images/opay.png',
+        'OPay Digital Bank': 'images/opay.png',
+        'Moniepoint': 'images/moniepoint.png',
+        'PalmPay': 'images/palmpay.png',
+        'Paga': 'images/paga.png',
+        'Kuda Bank': 'images/kuda.png',
+        'Kuda': 'images/kuda.png',
+        'Carbon': 'images/carbon.png',
+        'V Bank': 'images/vbank.png',
+        'Sparkle': 'images/sparkle.png',
+        'FairMoney': 'images/fairmoney.png'
+    };
+
+    function getBankLogo(bankName) {
+        // Clean up bank name for matching
+        let cleanName = bankName || '';
+        
+        // Direct match
+        if (bankLogoMap[cleanName]) {
+            return bankLogoMap[cleanName];
+        }
+        
+        // Partial match
+        for (const [key, value] of Object.entries(bankLogoMap)) {
+            if (cleanName.toLowerCase().includes(key.toLowerCase()) || 
+                key.toLowerCase().includes(cleanName.toLowerCase())) {
+                return value;
+            }
+        }
+        
+        // Default to OPay logo if not found
+        return 'images/opay.png';
+    }
+
     // Text indicator function
     function showTextIndicator(message) {
         const indicator = document.getElementById('textIndicator');
@@ -618,13 +681,6 @@
             clone.style.padding = '50px 20px 20px 20px';
             clone.style.boxShadow = 'none';
             
-            const images = clone.querySelectorAll('img');
-            images.forEach(img => {
-                if (img.src && (img.src.includes('wikimedia') || img.src.includes('flaticon') || img.src.includes('upload'))) {
-                    img.src = 'images/opay.png';
-                }
-            });
-            
             document.body.appendChild(clone);
             await new Promise(resolve => setTimeout(resolve, 100));
             
@@ -632,7 +688,7 @@
                 scale: 2,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: false,
+                useCORS: true,
                 allowTaint: true
             });
             
@@ -803,14 +859,8 @@
         });
     }
 
-    // EDIT STATUS - With proper colors for Pending (Orange) and Failed (Red)
     function editStatus(element, currentStatus, tx) {
         if (!canEdit) return;
-        
-        // Map current status text to value
-        let currentStatusValue = 'success';
-        if (currentStatus === 'Pending') currentStatusValue = 'pending';
-        if (currentStatus === 'Failed') currentStatusValue = 'failed';
         
         Swal.fire({
             title: 'Change Status',
@@ -828,14 +878,10 @@
                         const newStatus = badge.getAttribute('data-status');
                         const newLabel = badge.innerText;
                         
-                        // Update tx object
                         tx.status = newStatus;
-                        
-                        // Update the displayed status badge with proper class
                         element.textContent = newLabel;
                         element.className = `status-badge ${newStatus}`;
                         
-                        // Apply proper styling for pending/failed
                         if (newStatus === 'pending') {
                             element.style.background = '#fff3cd';
                             element.style.color = '#ff9800';
@@ -881,22 +927,8 @@
         const isOPayTransfer = tx.bank === 'OPay' || tx.bank === 'OPay Digital Bank';
         const isBankTransfer = tx.category === 'Transfer to' && tx.bank && tx.bank !== 'OPay';
         
-        const bankLogos = {
-            'Polaris Bank Plc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Polaris_Bank_logo.svg/200px-Polaris_Bank_logo.svg.png',
-            'OPay': 'images/opay.png',
-            'OPay Digital Bank': 'images/opay.png',
-            'GTBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Guaranty_Trust_Bank_logo.svg/200px-Guaranty_Trust_Bank_logo.svg.png',
-            'First Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/First_Bank_of_Nigeria_logo.svg/200px-First_Bank_of_Nigeria_logo.svg.png',
-            'UBA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/United_Bank_for_Africa_logo.svg/200px-United_Bank_for_Africa_logo.svg.png',
-            'Zenith Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Zenith_Bank_logo.svg/200px-Zenith_Bank_logo.svg.png',
-            'Access Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Access_Bank_logo.svg/200px-Access_Bank_logo.svg.png'
-        };
-        
-        let bankLogo = bankLogos[tx.bank];
-        if (!bankLogo) {
-            const bankKey = Object.keys(bankLogos).find(key => key.toLowerCase() === (tx.bank || '').toLowerCase());
-            bankLogo = bankKey ? bankLogos[bankKey] : 'images/opay.png';
-        }
+        // Get correct bank logo using local images
+        const bankLogo = getBankLogo(tx.bank);
         
         let transactionRef = tx.ref;
         let sessionId = tx.sessionId;
@@ -962,8 +994,8 @@
                         <div class="detail-row">
                             <span class="detail-label">Recipient Details</span>
                             <div class="detail-value recipient-info">
-                                <div class="recipient-name" id="recipientNameDetail" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient Name'}</div>
-                                <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
+                                <div class="recipient-name" id="recipientNameDetail" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.fromTo || 'Recipient Name'}</div>
+                                <div class="recipient-bank">${tx.bank || 'OPay'} | <span id="accountNumberSpan" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.accountNumber || (tx.bank === 'OPay' ? tx.recipientPhone || '816 977 2140' : 'Account Number')}</span></div>
                             </div>
                         </div>
                         
@@ -982,7 +1014,7 @@
                         
                         <div class="detail-row">
                             <span class="detail-label">Transaction Date</span>
-                            <span class="detail-value" id="transactionDateSpan" class="${canEdit ? 'editable' : ''}" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.date}</span>
+                            <span class="detail-value" id="transactionDateSpan" style="cursor: ${canEdit ? 'pointer' : 'default'};">${tx.date}</span>
                         </div>
                         
                         ${sessionId && isBankTransfer ? `
@@ -1003,19 +1035,16 @@
         
         // Add edit listeners only for Tier 3 and VIP
         if (canEdit) {
-            // Edit Amount
             const amountElement = document.getElementById('amountDisplay');
             if (amountElement) {
                 amountElement.addEventListener('click', () => editAmount(amountElement, tx.amount, tx));
             }
             
-            // Edit Status
             const statusElement = document.getElementById('statusSpan');
             if (statusElement) {
                 statusElement.addEventListener('click', () => editStatus(statusElement, statusText, tx));
             }
             
-            // Edit Recipient Name
             const recipientNameDetail = document.getElementById('recipientNameDetail');
             if (recipientNameDetail) {
                 recipientNameDetail.addEventListener('click', () => {
@@ -1024,7 +1053,6 @@
                 });
             }
             
-            // Edit Account Number
             const accountSpan = document.getElementById('accountNumberSpan');
             if (accountSpan) {
                 accountSpan.addEventListener('click', () => {
@@ -1033,7 +1061,6 @@
                 });
             }
             
-            // Edit Transaction Date
             const dateSpan = document.getElementById('transactionDateSpan');
             if (dateSpan) {
                 dateSpan.addEventListener('click', () => {
@@ -1049,8 +1076,10 @@
         window.open('https://wa.link/ctaxj9', '_blank');
     });
 
-    // Report Issue button - no action
-    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {});
+    // Report Issue button
+    document.getElementById('reportIssueBtn')?.addEventListener('click', () => {
+        window.open('https://wa.link/ctaxj9', '_blank');
+    });
 
     // Share Receipt button
     document.getElementById('shareReceiptBtn')?.addEventListener('click', () => {
