@@ -112,13 +112,6 @@
             margin: 16px 16px 12px;
         }
 
-        .section-titles {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin: 1px 0px 8px;
-        }
-
         .input-container {
             background: white;
             margin: 0 16px;
@@ -444,7 +437,8 @@
         .recent-avatar img {
             width: 24px;
             height: 24px;
-            object-fit: contain;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .recent-details {
@@ -713,6 +707,51 @@
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     
+    // Bank Logo Map for Recent Items
+    const bankLogoMap = {
+        'Access Bank': 'images/access.png',
+        'Citibank Nigeria': 'images/citibank.png',
+        'Ecobank Nigeria': 'images/ecobank.png',
+        'Ecobank': 'images/ecobank.png',
+        'FCMB': 'images/fcmb.png',
+        'Fidelity Bank': 'images/fidelity.png',
+        'First Bank of Nigeria': 'images/firstbank.png',
+        'First Bank': 'images/firstbank.png',
+        'Globus Bank': 'images/globus.png',
+        'GTBank': 'images/gt.png',
+        'Guaranty Trust Bank': 'images/gt.png',
+        'Heritage Bank': 'images/heritage.png',
+        'Jaiz Bank': 'images/jaiz.png',
+        'Keystone Bank': 'images/keystone.png',
+        'Polaris Bank': 'images/polaris.png',
+        'Providus Bank': 'images/providus.png',
+        'Stanbic IBTC Bank': 'images/stanbic.png',
+        'Standard Chartered Bank': 'images/standardchartered.png',
+        'Sterling Bank': 'images/sterling.png',
+        'SunTrust Bank': 'images/suntrust.png',
+        'Titan Trust Bank': 'images/titantrust.png',
+        'UBA': 'images/uba.png',
+        'United Bank for Africa': 'images/uba.png',
+        'Union Bank': 'images/union.png',
+        'Unity Bank': 'images/unity.png',
+        'Wema Bank': 'images/wema.png',
+        'Zenith Bank': 'images/zenith.png',
+        'OPay': 'images/opay.png',
+        'Moniepoint': 'images/moniepoint.png',
+        'PalmPay': 'images/palmpay.png',
+        'Paga': 'images/paga.png',
+        'Kuda Bank': 'images/kuda.png',
+        'Kuda': 'images/kuda.png',
+        'Carbon': 'images/carbon.png',
+        'V Bank': 'images/vbank.png',
+        'Sparkle': 'images/sparkle.png',
+        'FairMoney': 'images/fairmoney.png'
+    };
+
+    function getBankLogo(bankName) {
+        return bankLogoMap[bankName] || 'images/opay.png';
+    }
+
     // DOM Elements
     const accountInput = document.getElementById('accountInput');
     const bankSelectBtn = document.getElementById('bankSelectBtn');
@@ -732,8 +771,7 @@
     let selectedBankName = null;
     let currentUserTier = '1';
 
-    // ========== ALL BANKS (COMMERCIAL + DIGITAL WALLETS) ==========
-    // Commercial Banks
+    // ========== ALL BANKS ==========
     const commercialBanks = [
         { code: '044', name: 'Access Bank', logo: 'images/access.png' },
         { code: '023', name: 'Citibank Nigeria', logo: 'images/citibank.png' },
@@ -760,7 +798,6 @@
         { code: '057', name: 'Zenith Bank', logo: 'images/zenith.png' }
     ];
 
-    // Digital Wallets
     const digitalWallets = [
         { code: '999991', name: 'OPay', logo: 'images/opay.png' },
         { code: '999992', name: 'Moniepoint', logo: 'images/moniepoint.png' },
@@ -773,11 +810,8 @@
         { code: '999999', name: 'FairMoney', logo: 'images/fairmoney.png' }
     ];
 
-    // Sort banks alphabetically
     commercialBanks.sort((a, b) => a.name.localeCompare(b.name));
     digitalWallets.sort((a, b) => a.name.localeCompare(b.name));
-    
-    // Combine all banks
     const ALL_BANKS = [...commercialBanks, ...digitalWallets];
 
     // ========== TIER CHECK ==========
@@ -794,7 +828,6 @@
         return false;
     }
 
-    // Check access on page load
     if (!canAccessToBank()) {
         setTimeout(() => {
             showUpgradeModalAndRedirect();
@@ -803,63 +836,34 @@
 
     function showUpgradeModalAndRedirect() {
         let currentTier = currentUserTier || '1';
-        
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 3000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-        
+        overlay.style.cssText = `position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); z-index:3000; display:flex; align-items:center; justify-content:center;`;
         overlay.innerHTML = `
-            <div style="background: white; width: 320px; border-radius: 28px; padding: 30px 20px; text-align: center;">
-                <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
-                <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Access Restricted</div>
-                <div style="font-size: 13px; color: #888; margin-bottom: 20px;">
+            <div style="background:white; width:320px; border-radius:28px; padding:30px 20px; text-align:center;">
+                <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+                <div style="font-size:20px; font-weight:700; margin-bottom:8px;">Access Restricted</div>
+                <div style="font-size:13px; color:#888; margin-bottom:20px;">
                     Bank transfers are only available for Tier 3 (Premium) and VIP users.
-                    <br><br>
-                    Your current tier: ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    <br><br>Your current tier: ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
                 </div>
-                <button id="upgradeNowBtn" style="width: 100%; padding: 14px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer;">Upgrade Now</button>
-                <button id="goBackBtn" style="width: 100%; margin-top: 10px; padding: 12px; background: #f0f2f5; color: #666; border: none; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer;">Go Back</button>
+                <button id="upgradeNowBtn" style="width:100%; padding:14px; background:#00B875; color:white; border:none; border-radius:30px; cursor:pointer;">Upgrade Now</button>
+                <button id="goBackBtn" style="width:100%; margin-top:10px; padding:12px; background:#f0f2f5; color:#666; border:none; border-radius:30px; cursor:pointer;">Go Back</button>
             </div>
         `;
-        
         document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        document.getElementById('upgradeNowBtn')?.addEventListener('click', () => {
-            window.location.href = 'plan.html';
-        });
-        
-        document.getElementById('goBackBtn')?.addEventListener('click', () => {
-            window.location.href = 'dashboard.html';
-        });
+        document.getElementById('upgradeNowBtn')?.addEventListener('click', () => window.location.href = 'plan.html');
+        document.getElementById('goBackBtn')?.addEventListener('click', () => window.location.href = 'dashboard.html');
     }
 
-    // Populate bank list
     function populateBanks(searchTerm = '') {
-        const filteredBanks = ALL_BANKS.filter(bank => 
-            bank.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
+        const filteredBanks = ALL_BANKS.filter(bank => bank.name.toLowerCase().includes(searchTerm.toLowerCase()));
         if (filteredBanks.length === 0) {
-            bankList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">No banks found</div>';
+            bankList.innerHTML = '<div style="padding:20px; text-align:center; color:#888;">No banks found</div>';
             return;
         }
-        
         bankList.innerHTML = filteredBanks.map(bank => `
             <div class="bank-item" data-bank-code="${bank.code}" data-bank-name="${bank.name}">
-                <img src="${bank.logo}" alt="${bank.name}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                <img src="${bank.logo}" alt="${bank.name}" onerror="this.src='images/opay.png'">
                 <div class="bank-item-name">${bank.name}</div>
                 <div class="bank-item-code">${bank.code}</div>
             </div>
@@ -867,16 +871,12 @@
         
         document.querySelectorAll('.bank-item').forEach(item => {
             item.addEventListener('click', () => {
-                const bankCode = item.getAttribute('data-bank-code');
-                const bankName = item.getAttribute('data-bank-name');
-                selectedBank = bankCode;
-                selectedBankName = bankName;
-                selectedBankText.textContent = bankName;
+                selectedBank = item.getAttribute('data-bank-code');
+                selectedBankName = item.getAttribute('data-bank-name');
+                selectedBankText.textContent = selectedBankName;
                 selectedBankText.classList.remove('placeholder');
                 closeBankSheetFunc();
-                if (accountInput.value.length === 10) {
-                    verifyAccount();
-                }
+                if (accountInput.value.length === 10) verifyAccount();
             });
         });
     }
@@ -896,24 +896,19 @@
         messageIndicator.textContent = text;
         messageIndicator.className = `message-indicator ${type}`;
         messageIndicator.style.display = 'block';
-        setTimeout(() => {
-            messageIndicator.style.display = 'none';
-        }, 3000);
+        setTimeout(() => messageIndicator.style.display = 'none', 3000);
     }
 
     async function verifyAccount() {
         const accountNumber = accountInput.value;
-        
         if (accountNumber.length !== 10) {
             accountNameDisplay.style.display = 'none';
             return;
         }
-        
         if (!selectedBank) {
             showMessage('Please select a bank first', 'warning');
             return;
         }
-        
         accountNameDisplay.style.display = 'flex';
         verifiedNameSpan.textContent = 'Verifying...';
         verifiedAccountSpan.textContent = accountNumber;
@@ -922,34 +917,23 @@
             const response = await fetch(`${BACKEND_URL}/api/resolve-account`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    account_number: accountNumber, 
-                    bank_code: selectedBank 
-                })
+                body: JSON.stringify({ account_number: accountNumber, bank_code: selectedBank })
             });
-            
             const data = await response.json();
-            
             if (data.success) {
                 currentFoundName = data.account_name;
                 currentFoundAccount = accountNumber;
                 verifiedNameSpan.textContent = data.account_name;
-                verifiedAccountSpan.textContent = accountNumber;
                 showMessage('✓ Account verified successfully', 'success');
             } else {
                 currentFoundName = null;
-                currentFoundAccount = null;
                 verifiedNameSpan.textContent = 'Account not found';
-                verifiedAccountSpan.textContent = accountNumber;
-                showMessage('❌ Account not found. Please check the account number.', 'error');
+                showMessage('❌ Account not found', 'error');
             }
         } catch (error) {
-            console.error('Verification error:', error);
             currentFoundName = null;
-            currentFoundAccount = null;
             verifiedNameSpan.textContent = 'Verification failed';
-            verifiedAccountSpan.textContent = accountNumber;
-            showMessage('❌ Network error. Please try again.', 'error');
+            showMessage('❌ Network error', 'error');
         }
     }
 
@@ -958,8 +942,7 @@
         if (userData) {
             try {
                 const user = JSON.parse(userData);
-                const savedTier = localStorage.getItem(`user_tier_${user.email}`);
-                currentUserTier = savedTier || '1';
+                currentUserTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
             } catch(e) {}
         }
     }
@@ -977,28 +960,19 @@
             window.location.href = 'tobank-amount.html';
         } else if (!selectedBank) {
             showMessage('Please select a bank first', 'warning');
-        } else if (!currentFoundName) {
+        } else {
             showMessage('Please verify account number first', 'warning');
         }
-    }
-
-    function getBankLogo(bankName) {
-        const bank = ALL_BANKS.find(b => b.name === bankName);
-        return bank ? bank.logo : 'images/opay.png';
     }
 
     let debounceTimer;
     accountInput.addEventListener('input', function(e) {
         let val = this.value.replace(/\D/g, '').slice(0, 10);
         this.value = val;
-        
         clearTimeout(debounceTimer);
-        
         if (val.length === 10) {
             if (selectedBank) {
-                debounceTimer = setTimeout(() => {
-                    verifyAccount();
-                }, 500);
+                debounceTimer = setTimeout(() => verifyAccount(), 500);
             } else {
                 accountNameDisplay.style.display = 'none';
                 showMessage('Please select a bank first', 'warning');
@@ -1006,33 +980,18 @@
         } else {
             accountNameDisplay.style.display = 'none';
             currentFoundName = null;
-            currentFoundAccount = null;
         }
     });
 
     bankSelectBtn.addEventListener('click', openBankSheet);
     closeBankSheet.addEventListener('click', closeBankSheetFunc);
-    
-    bankSheet.addEventListener('click', (e) => {
-        if (e.target === bankSheet) {
-            closeBankSheetFunc();
-        }
-    });
-    
-    bankSearchInput.addEventListener('input', (e) => {
-        populateBanks(e.target.value);
-    });
-
-    accountNameDisplay.addEventListener('click', () => {
-        if (currentFoundName && currentFoundAccount && selectedBank) {
-            goToAmountPage();
-        }
-    });
+    bankSheet.addEventListener('click', (e) => { if (e.target === bankSheet) closeBankSheetFunc(); });
+    bankSearchInput.addEventListener('input', (e) => populateBanks(e.target.value));
+    accountNameDisplay.addEventListener('click', () => { if (currentFoundName && currentFoundAccount && selectedBank) goToAmountPage(); });
 
     function loadRecents() {
         const recents = JSON.parse(localStorage.getItem('bankRecents') || '[]');
         const recentsList = document.getElementById('recentsList');
-        
         const displayRecents = recents.slice(0, 3);
         
         if (displayRecents.length === 0) {
@@ -1042,7 +1001,7 @@
                 <div class="recent-item" data-name="${recent.name}" data-account="${recent.account}" data-bank="${recent.bank}">
                     <div class="recent-info">
                         <div class="recent-avatar">
-                            <img src="images/bank-icon.png" alt="Bank" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1108/1108564.png'">
+                            <img src="${getBankLogo(recent.bank)}" alt="${recent.bank}" onerror="this.src='images/opay.png'">
                         </div>
                         <div class="recent-details">
                             <div class="recent-name">${recent.name}</div>
@@ -1073,7 +1032,6 @@
             showMessage('No recent transfers available', 'warning');
             return;
         }
-        
         Swal.fire({
             title: 'Recent Transfers',
             html: recents.map(r => `
@@ -1090,129 +1048,50 @@
         });
     });
 
-    document.getElementById('askLink').addEventListener('click', (e) => {
-        e.preventDefault();
-        showMessage('💡 Ask recipient to share their bank account number and bank name', 'info');
-    });
-
+    document.getElementById('askLink').addEventListener('click', (e) => { e.preventDefault(); showMessage('💡 Ask recipient to share their bank account number and bank name', 'info'); });
     document.getElementById('historyLink').addEventListener('click', (e) => {
         e.preventDefault();
-        const canAccessHistory = currentUserTier === '3' || currentUserTier === 3 || currentUserTier === 'VIP';
-        if (canAccessHistory) {
+        if (currentUserTier === '3' || currentUserTier === 3 || currentUserTier === 'VIP') {
             window.location.href = 'transaction.html';
         } else {
             showUpgradeModal();
         }
     });
-
-    document.getElementById('contactsCard').addEventListener('click', () => {
-        showMessage('ℹ️ See contacts using OPay feature coming soon', 'info');
-    });
-    
-    document.getElementById('eventCard').addEventListener('click', () => {
-        showMessage('🎫 Super Voucher Package: Claim 15 Discounts with ₦99 on any Bill', 'info');
-    });
+    document.getElementById('contactsCard').addEventListener('click', () => showMessage('ℹ️ See contacts using OPay feature coming soon', 'info'));
+    document.getElementById('eventCard').addEventListener('click', () => showMessage('🎫 Super Voucher Package: Claim 15 Discounts with ₦99 on any Bill', 'info'));
 
     function showUpgradeModal() {
         let currentTier = currentUserTier || '1';
-        
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: flex;
-            align-items: flex-end;
-        `;
-        
+        overlay.style.cssText = `position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:2000; display:flex; align-items:flex-end;`;
         overlay.innerHTML = `
-            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                    <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
-                    <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
-                </div>
-                
-                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
-                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
-                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                        ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
-                    </span>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Premium ></button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Upgrade to VIP ></button>
-                </div>
-                
-                <div style="padding: 16px 20px 30px;">
-                    <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
-                </div>
+            <div style="background:white; width:100%; border-radius:28px 28px 0 0; max-height:85vh; overflow-y:auto;">
+                <div style="text-align:center; padding:20px;"><div style="width:40px; height:4px; background:#ddd; border-radius:2px; margin:0 auto 16px;"></div><div style="font-size:22px; font-weight:700;">Upgrade Your Plan</div><div style="font-size:13px; color:#888;">Choose a plan to unlock more features</div></div>
+                <div style="margin:0 16px 12px; background:#f0f2f5; border-radius:12px; padding:10px; text-align:center;"><span style="font-size:12px; color:#666;">Your Current Tier: </span><span style="font-size:14px; font-weight:700; color:#00B875;">${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}</span></div>
+                <div style="margin:12px 16px; border-radius:20px; padding:16px; border:1px solid #eee;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><span style="font-size:28px;">🥈</span> <strong>Basic Plan</strong></div><div style="font-size:20px; font-weight:700; color:#00B875;">₦30,000</div></div><button class="plan-btn" data-plan="basic" data-tier="2" style="width:100%; margin-top:12px; padding:12px; background:#00B875; color:white; border:none; border-radius:30px;">Upgrade to Basic ></button></div>
+                <div style="margin:12px 16px; border-radius:20px; padding:16px; border:1px solid #eee;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><span style="font-size:28px;">🥉</span> <strong>Premium Plan</strong></div><div style="font-size:20px; font-weight:700; color:#00B875;">₦50,000</div></div><button class="plan-btn" data-plan="premium" data-tier="3" style="width:100%; margin-top:12px; padding:12px; background:#00B875; color:white; border:none; border-radius:30px;">Upgrade to Premium ></button></div>
+                <div style="margin:12px 16px; border-radius:20px; padding:16px; border:2px solid #FFD700;"><div style="display:flex; justify-content:space-between; align-items:center;"><div><span style="font-size:28px;">👑</span> <strong style="color:#FF6B35;">VIP Plan</strong></div><div style="font-size:20px; font-weight:700; color:#FF6B35;">₦100,000</div></div><button class="plan-btn" data-plan="vip" data-tier="VIP" style="width:100%; margin-top:12px; padding:12px; background:#FF6B35; color:white; border:none; border-radius:30px;">Upgrade to VIP ></button></div>
+                <div style="padding:16px 20px 30px;"><button id="closeUpgradeSheet" style="width:100%; padding:14px; background:#f0f2f5; border:none; border-radius:30px;">Close</button></div>
             </div>
         `;
-        
         document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
-            overlay.remove();
-            document.body.style.overflow = '';
-        });
-        
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                document.body.style.overflow = '';
-            }
-        });
-        
+        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => overlay.remove());
         overlay.querySelectorAll('.plan-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const plan = btn.getAttribute('data-plan');
                 const tier = btn.getAttribute('data-tier');
-                localStorage.setItem('selected_plan', JSON.stringify({
-                    plan: plan,
-                    tier: tier,
-                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
-                }));
+                localStorage.setItem('selected_plan', JSON.stringify({ plan, tier, price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000) }));
                 window.location.href = 'plan.html';
             });
         });
     }
 
-    // Initialize
     function init() {
         getCurrentUserTier();
         loadRecents();
         console.log('✅ To Bank page initialized with', ALL_BANKS.length, 'banks');
     }
-    
     init();
     </script>
 </body>
