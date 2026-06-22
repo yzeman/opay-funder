@@ -21,18 +21,6 @@
         th { background: #f8f9fa; font-weight: 600; position: sticky; top: 0; cursor: pointer; }
         th:hover { background: #e8eaed; }
         .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.5; }
-        th.active .sort-icon { opacity: 1; color: #00B875; }
-        .copy-btn, .delete-btn, .tier-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; transition: all 0.2s; }
-        .copy-btn { background: #00B875; color: white; }
-        .copy-btn:hover { background: #009a62; }
-        .delete-btn { background: #dc3545; color: white; }
-        .delete-btn:hover { background: #c82333; }
-        .tier-btn { background: #6c757d; color: white; }
-        .tier-btn:hover { background: #5a6268; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
-        .search-box { margin-bottom: 20px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
-        .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
-        .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
         .tier-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .tier-badge.tier-1 { background: #e8e8e8; color: #666; }
         .tier-badge.tier-2 { background: #d4edda; color: #155724; }
@@ -46,8 +34,18 @@
         .tier-card.selected { border-color: #00B875; background: #f0fdf4; }
         .tier-info { font-size: 11px; color: #888; margin-top: 2px; }
         .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .status-badge.active { background: #d4edda; color: #155724; }
-        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.paid { background: #d4edda; color: #155724; }
+        .status-badge.free { background: #f8f9fa; color: #666; }
+        .search-box { margin-bottom: 20px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+        .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
+        .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
+        .delete-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+        .delete-btn:hover { background: #c82333; }
+        .tier-btn { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; transition: all 0.2s; }
+        .tier-btn:hover { background: #5a6268; }
+        .copy-btn { background: #00B875; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; }
+        .copy-btn:hover { background: #009a62; }
     </style>
 </head>
 <body>
@@ -276,7 +274,6 @@
                     
                     const totalUsers = data.users.length;
                     
-                    // Count paid users (Tier 2, 3, VIP) and free users (Tier 1)
                     let paidCount = 0;
                     let freeCount = 0;
                     
@@ -346,9 +343,9 @@
         
         function getStatusDisplay(tier) {
             if (tier === '1' || tier === 1 || !tier) {
-                return '<span class="status-badge pending">Free User</span>';
+                return '<span class="status-badge free">Free User</span>';
             } else {
-                return '<span class="status-badge active">Paid User</span>';
+                return '<span class="status-badge paid">Paid User</span>';
             }
         }
         
@@ -538,8 +535,10 @@
                     const data = await response.json();
                     
                     if (data.success) {
+                        // Update localStorage
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
                         
+                        // Update the user in the local array
                         const userIndex = allUsers.findIndex(u => u.id === pendingUserData.userId);
                         if (userIndex !== -1) {
                             allUsers[userIndex].user_tier = selectedTier;
@@ -554,11 +553,11 @@
                         if (modalInstance) modalInstance.hide();
                         loadDashboardData();
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to assign tier' });
                     }
                 } catch (error) {
                     console.error('Assign tier error:', error);
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier. Please try again.' });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier. Please check backend logs.' });
                 }
             }
         }
