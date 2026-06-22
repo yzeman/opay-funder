@@ -515,58 +515,95 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
     }
 });
 
-// ============ ADMIN - ASSIGN TIER (FIXED) ============
+// ============ ASSIGN TIER (ADMIN ONLY) ============
 app.post('/api/admin/assign-tier', verifyAdminSession, async (req, res) => {
     const { email, tier } = req.body;
     
-    console.log(`👑 Admin assigning tier ${tier} to user ${email}`);
-    
     if (!email || !tier) {
-        console.log('❌ Missing email or tier');
-        return res.json({ success: false, message: 'Missing email or tier' });
+        return res.json({ success: false, message: 'Email and tier are required' });
+    }
+    
+    // Validate tier
+    const validTiers = ['1', '2', '3', 'VIP'];
+    if (!validTiers.includes(tier)) {
+        return res.json({ success: false, message: 'Invalid tier. Valid tiers: 1, 2, 3, VIP' });
     }
     
     try {
-        // First check if user exists
-        const { data: user, error: findError } = await supabase
+        // Get user to verify exists
+        const { data: user, error: fetchError } = await supabase
             .from('users')
-            .select('id, email, user_tier')
+            .select('id, email, account_name')
             .eq('email', email)
             .single();
         
-        if (findError) {
-            console.log('❌ User not found:', email);
+        if (fetchError || !user) {
             return res.json({ success: false, message: 'User not found' });
         }
         
-        console.log(`📋 Current tier for ${email}: ${user.user_tier || '1'}`);
-        
-        // Update the user's tier
-        const { data, error: updateError } = await supabase
+        // Update user's tier in database
+        const { error: updateError } = await supabase
             .from('users')
             .update({ 
                 user_tier: tier,
-                tier_updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString()
             })
-            .eq('email', email)
-            .select();
+            .eq('email', email);
         
-        if (updateError) {
-            console.log('❌ Update error:', updateError);
-            return res.json({ success: false, message: updateError.message });
-        }
+        if (updateError) throw updateError;
         
-        console.log(`✅ Successfully assigned tier ${tier} to ${email}`);
-        console.log('📊 Updated user data:', data);
+        // Also update localStorage tier for immediate effect
+        // This will be applied when user next logs in
+        
+        console.log(`👑 Admin assigned tier ${tier} to ${user.account_name} (${email})`);
         
         res.json({ 
             success: true, 
-            message: `Tier ${tier} assigned successfully to ${email}`,
-            data: data
+            message: `User ${user.account_name} upgraded to tier ${tier}`,
+            user: {
+                id: user.id,
+                email: user.email,
+                account_name: user.account_name,
+                tier: tier
+            }
         });
         
     } catch (error) {
-        console.error('❌ Assign tier error:', error);
+        console.error('Assign tier error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ GET ALL USERS WITH LAST SEEN (ADMIN) ============
+app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
+    try {
+        const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (usersError) throw usersError;
+        
+        // Format users for admin display
+        const formattedUsers = users.map(user => ({
+            id: user.id,
+            account_number: user.account_number,
+            account_name: user.account_name,
+            email: user.email,
+            password_code: user.password_code,
+            user_tier: user.user_tier || '1',
+            is_active: user.is_active,
+            created_at: user.created_at,
+            last_seen: user.last_seen || user.created_at
+        }));
+        
+        res.json({ 
+            success: true, 
+            users: formattedUsers
+        });
+        
+    } catch (error) {
+        console.error('Admin users error:', error);
         res.json({ success: false, message: error.message });
     }
 });
@@ -860,29 +897,6 @@ app.post('/api/update-last-seen', async (req, res) => {
     }
 });
 
-// ============ GET USERS WITH LAST SEEN (ADMIN) ============
-app.get('/api/admin/users-with-lastseen', verifyAdminSession, async (req, res) => {
-    try {
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('id, account_number, account_name, email, password_code, is_active, created_at, last_seen, user_tier')
-            .order('last_seen', { ascending: false, nullsLast: true });
-        
-        if (error) throw error;
-        
-        const formattedUsers = users.map(user => ({
-            ...user,
-            last_seen: user.last_seen || null,
-            created_at: user.created_at
-        }));
-        
-        res.json({ success: true, users: formattedUsers });
-        
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.json({ success: false, message: error.message });
-    }
-});
 
 // ============ WEBHOOK FOR PAYSTACK (IMPORTANT FOR LIVE MODE) ============
 app.post('/api/paystack-webhook', async (req, res) => {
