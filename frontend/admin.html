@@ -30,8 +30,6 @@
         .tier-btn { background: #6c757d; color: white; }
         .tier-btn:hover { background: #5a6268; }
         .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
-        .status-active { color: #00B875; font-weight: 600; }
-        .status-inactive { color: #dc3545; font-weight: 600; }
         .search-box { margin-bottom: 20px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
         .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
         .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
@@ -47,6 +45,9 @@
         .tier-card:hover { border-color: #00B875; transform: translateY(-2px); }
         .tier-card.selected { border-color: #00B875; background: #f0fdf4; }
         .tier-info { font-size: 11px; color: #888; margin-top: 2px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-badge.active { background: #d4edda; color: #155724; }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
@@ -85,16 +86,16 @@
                     </div>
                     <div class="col-md-3">
                         <div class="stats-card">
-                            <i class="fas fa-check-circle"></i>
-                            <div class="stats-number" id="activeUsers">0</div>
-                            <div>Active Users</div>
+                            <i class="fas fa-crown"></i>
+                            <div class="stats-number" id="paidUsers">0</div>
+                            <div>Paid Users (Tier 2+)</div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="stats-card">
-                            <i class="fas fa-clock"></i>
-                            <div class="stats-number" id="inactiveUsers">0</div>
-                            <div>Pending Activation</div>
+                            <i class="fas fa-star"></i>
+                            <div class="stats-number" id="freeUsers">0</div>
+                            <div>Free Users (Tier 1)</div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -123,7 +124,7 @@
                                 <th>Account Name</th>
                                 <th>Email</th>
                                 <th>Password</th>
-                                <th>Current Tier</th>
+                                <th onclick="sortBy('user_tier')" style="cursor: pointer;">Tier <i class="fas fa-sort sort-icon" id="sort-user_tier"></i></th>
                                 <th>Status</th>
                                 <th onclick="sortBy('created_at')" style="cursor: pointer;">Created At <i class="fas fa-sort sort-icon" id="sort-created_at"></i></th>
                                 <th onclick="sortBy('last_seen')" style="cursor: pointer;">Last Seen <i class="fas fa-sort sort-icon" id="sort-last_seen"></i></th>
@@ -148,7 +149,7 @@
                 <div class="modal-body" style="padding: 20px;">
                     <p id="modalUserInfo" style="margin-bottom: 20px; color: #888;"></p>
                     <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                        <i class="fas fa-info-circle"></i> Tier will be applied immediately and user will see the upgrade on their next login.
+                        <i class="fas fa-info-circle"></i> Tier will be applied immediately. User will see the upgrade on their next login.
                     </p>
                     <div class="row g-3">
                         <div class="col-6">
@@ -156,7 +157,7 @@
                                 <div style="font-size: 40px;">🥈</div>
                                 <div style="font-weight: 700;">Basic Plan</div>
                                 <div style="font-size: 12px; color: #888;">Tier 2</div>
-                                <div class="tier-info">Access to basic features</div>
+                                <div class="tier-info">Bank transfers, receipt editing</div>
                             </div>
                         </div>
                         <div class="col-6">
@@ -164,7 +165,7 @@
                                 <div style="font-size: 40px;">🥉</div>
                                 <div style="font-weight: 700;">Premium Plan</div>
                                 <div style="font-size: 12px; color: #888;">Tier 3</div>
-                                <div class="tier-info">Access to all features</div>
+                                <div class="tier-info">All features + transaction history</div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -172,7 +173,7 @@
                                 <div style="font-size: 40px;">👑</div>
                                 <div style="font-weight: 700;">VIP Plan</div>
                                 <div style="font-size: 12px; color: #888;">VIP Tier</div>
-                                <div class="tier-info">Unlimited access + priority</div>
+                                <div class="tier-info">Unlimited access + priority support</div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -180,7 +181,7 @@
                                 <div style="font-size: 40px;">🗑️</div>
                                 <div style="font-weight: 700;">Remove Plan</div>
                                 <div style="font-size: 12px; color: #888;">Reset to Free Tier</div>
-                                <div class="tier-info">User will lose all premium features</div>
+                                <div class="tier-info">User loses all premium features</div>
                             </div>
                         </div>
                     </div>
@@ -274,12 +275,23 @@
                     allUsers = data.users;
                     
                     const totalUsers = data.users.length;
-                    const activeUsers = data.users.filter(u => u.is_active === true).length;
-                    const inactiveUsers = totalUsers - activeUsers;
+                    
+                    // Count paid users (Tier 2, 3, VIP) and free users (Tier 1)
+                    let paidCount = 0;
+                    let freeCount = 0;
+                    
+                    data.users.forEach(user => {
+                        const tier = user.user_tier || '1';
+                        if (tier === '1' || tier === 1) {
+                            freeCount++;
+                        } else {
+                            paidCount++;
+                        }
+                    });
                     
                     document.getElementById('totalUsers').textContent = totalUsers;
-                    document.getElementById('activeUsers').textContent = activeUsers;
-                    document.getElementById('inactiveUsers').textContent = inactiveUsers;
+                    document.getElementById('paidUsers').textContent = paidCount;
+                    document.getElementById('freeUsers').textContent = freeCount;
                     
                     const dbSizeKB = (totalUsers * 0.5).toFixed(2);
                     document.getElementById('dbSize').textContent = `${dbSizeKB} KB`;
@@ -306,39 +318,20 @@
             const diffMins = Math.floor(diffSeconds / 60);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
-            const diffWeeks = Math.floor(diffDays / 7);
-            const diffMonths = Math.floor(diffDays / 30);
-            const diffYears = Math.floor(diffDays / 365);
             
             if (diffSeconds < 5) {
-                return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> now</span>';
+                return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> Online now</span>';
             } else if (diffSeconds < 60) {
-                return `<span class="last-seen-recent">${diffSeconds} sec${diffSeconds !== 1 ? 's' : ''} ago</span>`;
+                return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
             } else if (diffMins < 60) {
-                if (diffMins === 1) return '<span class="last-seen-recent">1 min ago</span>';
-                return `<span class="last-seen-recent">${diffMins} mins ago</span>`;
+                return `<span class="last-seen-recent">${diffMins} min${diffMins !== 1 ? 's' : ''} ago</span>`;
             } else if (diffHours < 24) {
-                if (diffHours === 1) return '<span class="last-seen-recent">1 hour ago</span>';
-                return `<span class="last-seen-recent">${diffHours} hours ago</span>`;
+                return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
             } else if (diffDays === 1) {
-                return '<span class="last-seen-old">yesterday</span>';
+                return '<span class="last-seen-old">Yesterday</span>';
             } else if (diffDays < 7) {
                 return `<span class="last-seen-old">${diffDays} days ago</span>`;
-            } else if (diffWeeks === 1) {
-                return '<span class="last-seen-old">last week</span>';
-            } else if (diffWeeks < 4) {
-                return `<span class="last-seen-old">${diffWeeks} weeks ago</span>`;
-            } else if (diffMonths === 1) {
-                return '<span class="last-seen-old">last month</span>';
-            } else if (diffMonths < 12) {
-                return `<span class="last-seen-old">${diffMonths} months ago</span>`;
-            } else if (diffYears < 1) {
-                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                return `<span class="last-seen-old">${monthNames[lastSeenDate.getMonth()]}</span>`;
             } else {
-                if (diffYears === 1) {
-                    return '<span class="last-seen-old">last year</span>';
-                }
                 return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>`;
             }
         }
@@ -351,6 +344,14 @@
             return '<span class="tier-badge tier-1">⭐ Free</span>';
         }
         
+        function getStatusDisplay(tier) {
+            if (tier === '1' || tier === 1 || !tier) {
+                return '<span class="status-badge pending">Free User</span>';
+            } else {
+                return '<span class="status-badge active">Paid User</span>';
+            }
+        }
+        
         function sortAndRenderUsers() {
             const sortedUsers = [...allUsers].sort((a, b) => {
                 let aVal, bVal;
@@ -361,6 +362,10 @@
                 } else if (currentSort.field === 'created_at') {
                     aVal = new Date(a.created_at).getTime();
                     bVal = new Date(b.created_at).getTime();
+                } else if (currentSort.field === 'user_tier') {
+                    const tierOrder = { '1': 1, '2': 2, '3': 3, 'VIP': 4 };
+                    aVal = tierOrder[a.user_tier || '1'] || 1;
+                    bVal = tierOrder[b.user_tier || '1'] || 1;
                 } else {
                     aVal = a[currentSort.field];
                     bVal = b[currentSort.field];
@@ -401,33 +406,26 @@
             const tbody = document.getElementById('usersTableBody');
             
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">No users found</td></tr>';
                 return;
             }
             
             tbody.innerHTML = users.map(user => {
-                // Get tier from user object if available, otherwise from localStorage as fallback
-                let userTier = user.user_tier || '1';
-                
-                // If user_tier is not in the user object, check localStorage
-                if (!user.user_tier) {
-                    const storedTier = localStorage.getItem(`user_tier_${user.email}`);
-                    userTier = storedTier || '1';
-                }
+                const userTier = user.user_tier || '1';
                 
                 return `
                     <tr>
                         <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
-                        <td>${user.id}</td>
+                        <td style="font-size: 11px;">${user.id}</td>
                         <td><strong>${user.account_number}</strong></td>
                         <td>${user.account_name}</td>
-                        <td>${user.email}</td>
-                        <td><code>${user.password_code}</code></td>
+                        <td style="font-size: 12px;">${user.email}</td>
+                        <td><code style="font-size: 11px;">${user.password_code}</code></td>
                         <td>${getTierDisplay(userTier)}</td>
-                        <td>${user.is_active ? '<span class="status-active"><i class="fas fa-check-circle"></i> Active</span>' : '<span class="status-inactive"><i class="fas fa-hourglass-half"></i> Pending</span>'}</td>
+                        <td>${getStatusDisplay(userTier)}</td>
                         <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
                         <td>${formatLastSeen(user.last_seen)}</td>
-                        <td class="action-buttons">
+                        <td class="action-buttons" style="white-space: nowrap;">
                             <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
                                 <i class="fas fa-crown"></i> Tier
                             </button>
@@ -444,9 +442,8 @@
         }
         
         function openTierModal(userId, email, userName) {
-            // Find the user in allUsers to get current tier
             const user = allUsers.find(u => u.id === userId);
-            const currentTier = user?.user_tier || localStorage.getItem(`user_tier_${email}`) || '1';
+            const currentTier = user?.user_tier || '1';
             
             pendingUserData = {
                 userId: userId,
@@ -455,10 +452,17 @@
                 currentTier: currentTier
             };
             
+            const tierNames = {
+                '1': '⭐ Free',
+                '2': '🥈 Basic',
+                '3': '🥉 Premium',
+                'VIP': '👑 VIP'
+            };
+            
             document.getElementById('modalUserInfo').innerHTML = `
                 <strong>${userName}</strong><br>
-                <span style="font-size: 13px;">Email: ${email}</span><br>
-                <span style="font-size: 13px;">Current Tier: ${currentTier === '1' ? '⭐ Free' : currentTier === '2' ? '🥈 Basic' : currentTier === '3' ? '🥉 Premium' : '👑 VIP'}</span>
+                <span style="font-size: 13px; color: #666;">Email: ${email}</span><br>
+                <span style="font-size: 13px; color: #666;">Current Tier: ${tierNames[currentTier] || '⭐ Free'}</span>
             `;
             
             selectedTier = null;
@@ -498,7 +502,14 @@
                 return;
             }
             
-            const tierName = selectedTier === '2' ? 'Basic Plan' : selectedTier === '3' ? 'Premium Plan' : selectedTier === 'VIP' ? 'VIP Plan' : 'Free Tier';
+            const tierNames = {
+                '1': 'Free Tier',
+                '2': 'Basic Plan',
+                '3': 'Premium Plan',
+                'VIP': 'VIP Plan'
+            };
+            
+            const tierName = tierNames[selectedTier] || 'Free Tier';
             
             const result = await Swal.fire({
                 title: 'Assign Tier',
@@ -527,10 +538,8 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Update localStorage for this user
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
                         
-                        // Also update the user object in allUsers
                         const userIndex = allUsers.findIndex(u => u.id === pendingUserData.userId);
                         if (userIndex !== -1) {
                             allUsers[userIndex].user_tier = selectedTier;
@@ -549,7 +558,7 @@
                     }
                 } catch (error) {
                     console.error('Assign tier error:', error);
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier' });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier. Please try again.' });
                 }
             }
         }
@@ -606,7 +615,6 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Remove from localStorage as well
                         const user = allUsers.find(u => u.id === userId);
                         if (user) {
                             localStorage.removeItem(`user_tier_${user.email}`);
@@ -651,7 +659,6 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Remove from localStorage for each deleted user
                         selectedUserIds.forEach(userId => {
                             const user = allUsers.find(u => u.id === userId);
                             if (user) {
