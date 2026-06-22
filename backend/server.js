@@ -515,27 +515,58 @@ app.post('/api/admin/delete-users', verifyAdminSession, async (req, res) => {
     }
 });
 
+// ============ ADMIN - ASSIGN TIER (FIXED) ============
 app.post('/api/admin/assign-tier', verifyAdminSession, async (req, res) => {
     const { email, tier } = req.body;
     
+    console.log(`👑 Admin assigning tier ${tier} to user ${email}`);
+    
+    if (!email || !tier) {
+        console.log('❌ Missing email or tier');
+        return res.json({ success: false, message: 'Missing email or tier' });
+    }
+    
     try {
-        const { error: updateError } = await supabase
+        // First check if user exists
+        const { data: user, error: findError } = await supabase
+            .from('users')
+            .select('id, email, user_tier')
+            .eq('email', email)
+            .single();
+        
+        if (findError) {
+            console.log('❌ User not found:', email);
+            return res.json({ success: false, message: 'User not found' });
+        }
+        
+        console.log(`📋 Current tier for ${email}: ${user.user_tier || '1'}`);
+        
+        // Update the user's tier
+        const { data, error: updateError } = await supabase
             .from('users')
             .update({ 
                 user_tier: tier,
                 tier_updated_at: new Date().toISOString()
             })
-            .eq('email', email);
+            .eq('email', email)
+            .select();
         
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.log('❌ Update error:', updateError);
+            return res.json({ success: false, message: updateError.message });
+        }
         
-        console.log(`👑 Admin assigned tier ${tier} to user ${email}`);
+        console.log(`✅ Successfully assigned tier ${tier} to ${email}`);
+        console.log('📊 Updated user data:', data);
         
         res.json({ 
             success: true, 
-            message: `Tier ${tier} assigned successfully` 
+            message: `Tier ${tier} assigned successfully to ${email}`,
+            data: data
         });
+        
     } catch (error) {
+        console.error('❌ Assign tier error:', error);
         res.json({ success: false, message: error.message });
     }
 });
