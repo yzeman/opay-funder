@@ -37,15 +37,16 @@
         .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
         .tier-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .tier-badge.tier-1 { background: #e8e8e8; color: #666; }
-        .tier-badge.tier-2 { background: #e0e0e0; color: #555; }
+        .tier-badge.tier-2 { background: #d4edda; color: #155724; }
         .tier-badge.tier-3 { background: #f0e6d6; color: #CD7F32; }
-        .tier-badge.vip { background: #fff3cd; color: #FFD700; }
+        .tier-badge.vip { background: #fff3cd; color: #856404; }
         .last-seen-online { color: #00B875; font-weight: 600; }
         .last-seen-recent { color: #666; }
         .last-seen-old { color: #999; }
         .tier-card { border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
         .tier-card:hover { border-color: #00B875; transform: translateY(-2px); }
         .tier-card.selected { border-color: #00B875; background: #f0fdf4; }
+        .tier-info { font-size: 11px; color: #888; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -145,13 +146,17 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" style="padding: 20px;">
-                    <p id="modalUserName" style="margin-bottom: 20px; color: #888;">Select tier for user</p>
+                    <p id="modalUserInfo" style="margin-bottom: 20px; color: #888;"></p>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
+                        <i class="fas fa-info-circle"></i> Tier will be applied immediately and user will see the upgrade on their next login.
+                    </p>
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="tier-card p-3 text-center rounded-3" data-tier="2" onclick="selectTier('2')" id="tier2Card">
                                 <div style="font-size: 40px;">🥈</div>
                                 <div style="font-weight: 700;">Basic Plan</div>
                                 <div style="font-size: 12px; color: #888;">Tier 2</div>
+                                <div class="tier-info">Access to basic features</div>
                             </div>
                         </div>
                         <div class="col-6">
@@ -159,6 +164,7 @@
                                 <div style="font-size: 40px;">🥉</div>
                                 <div style="font-weight: 700;">Premium Plan</div>
                                 <div style="font-size: 12px; color: #888;">Tier 3</div>
+                                <div class="tier-info">Access to all features</div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -166,6 +172,7 @@
                                 <div style="font-size: 40px;">👑</div>
                                 <div style="font-weight: 700;">VIP Plan</div>
                                 <div style="font-size: 12px; color: #888;">VIP Tier</div>
+                                <div class="tier-info">Unlimited access + priority</div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -173,6 +180,7 @@
                                 <div style="font-size: 40px;">🗑️</div>
                                 <div style="font-weight: 700;">Remove Plan</div>
                                 <div style="font-size: 12px; color: #888;">Reset to Free Tier</div>
+                                <div class="tier-info">User will lose all premium features</div>
                             </div>
                         </div>
                     </div>
@@ -191,8 +199,7 @@
         let adminSessionToken = null;
         let allUsers = [];
         let selectedUserIds = new Set();
-        let pendingUserId = null;
-        let pendingUserEmail = null;
+        let pendingUserData = null;
         let selectedTier = null;
         let modalInstance = null;
         let currentSort = { field: 'last_seen', order: 'desc' };
@@ -337,7 +344,7 @@
         }
         
         function getTierDisplay(tier) {
-            if (tier === '1' || tier === 1) return '<span class="tier-badge tier-1">⭐ Free</span>';
+            if (tier === '1' || tier === 1 || !tier) return '<span class="tier-badge tier-1">⭐ Free</span>';
             if (tier === '2' || tier === 2) return '<span class="tier-badge tier-2">🥈 Basic</span>';
             if (tier === '3' || tier === 3) return '<span class="tier-badge tier-3">🥉 Premium</span>';
             if (tier === 'VIP') return '<span class="tier-badge vip">👑 VIP</span>';
@@ -399,7 +406,15 @@
             }
             
             tbody.innerHTML = users.map(user => {
-                const userTier = localStorage.getItem(`user_tier_${user.email}`) || '1';
+                // Get tier from user object if available, otherwise from localStorage as fallback
+                let userTier = user.user_tier || '1';
+                
+                // If user_tier is not in the user object, check localStorage
+                if (!user.user_tier) {
+                    const storedTier = localStorage.getItem(`user_tier_${user.email}`);
+                    userTier = storedTier || '1';
+                }
+                
                 return `
                     <tr>
                         <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
@@ -429,9 +444,22 @@
         }
         
         function openTierModal(userId, email, userName) {
-            pendingUserId = userId;
-            pendingUserEmail = email;
-            document.getElementById('modalUserName').innerHTML = `Assign tier for <strong>${userName}</strong>`;
+            // Find the user in allUsers to get current tier
+            const user = allUsers.find(u => u.id === userId);
+            const currentTier = user?.user_tier || localStorage.getItem(`user_tier_${email}`) || '1';
+            
+            pendingUserData = {
+                userId: userId,
+                email: email,
+                userName: userName,
+                currentTier: currentTier
+            };
+            
+            document.getElementById('modalUserInfo').innerHTML = `
+                <strong>${userName}</strong><br>
+                <span style="font-size: 13px;">Email: ${email}</span><br>
+                <span style="font-size: 13px;">Current Tier: ${currentTier === '1' ? '⭐ Free' : currentTier === '2' ? '🥈 Basic' : currentTier === '3' ? '🥉 Premium' : '👑 VIP'}</span>
+            `;
             
             selectedTier = null;
             document.querySelectorAll('.tier-card').forEach(card => {
@@ -465,11 +493,16 @@
                 return;
             }
             
+            if (!pendingUserData) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No user selected' });
+                return;
+            }
+            
             const tierName = selectedTier === '2' ? 'Basic Plan' : selectedTier === '3' ? 'Premium Plan' : selectedTier === 'VIP' ? 'VIP Plan' : 'Free Tier';
             
             const result = await Swal.fire({
                 title: 'Assign Tier',
-                text: `Are you sure you want to assign ${tierName} to this user?`,
+                html: `Are you sure you want to assign <strong>${tierName}</strong> to <strong>${pendingUserData.userName}</strong>?`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#00B875',
@@ -486,8 +519,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ 
-                            userId: pendingUserId, 
-                            email: pendingUserEmail,
+                            email: pendingUserData.email,
                             tier: selectedTier 
                         })
                     });
@@ -495,14 +527,28 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        localStorage.setItem(`user_tier_${pendingUserEmail}`, selectedTier);
-                        Swal.fire({ icon: 'success', title: 'Success!', text: data.message });
+                        // Update localStorage for this user
+                        localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
+                        
+                        // Also update the user object in allUsers
+                        const userIndex = allUsers.findIndex(u => u.id === pendingUserData.userId);
+                        if (userIndex !== -1) {
+                            allUsers[userIndex].user_tier = selectedTier;
+                        }
+                        
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Success!', 
+                            text: `${pendingUserData.userName} has been upgraded to ${tierName}` 
+                        });
+                        
                         if (modalInstance) modalInstance.hide();
                         loadDashboardData();
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                     }
                 } catch (error) {
+                    console.error('Assign tier error:', error);
                     Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier' });
                 }
             }
@@ -560,6 +606,11 @@
                     const data = await response.json();
                     
                     if (data.success) {
+                        // Remove from localStorage as well
+                        const user = allUsers.find(u => u.id === userId);
+                        if (user) {
+                            localStorage.removeItem(`user_tier_${user.email}`);
+                        }
                         Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
                         loadDashboardData();
                     } else {
@@ -600,6 +651,14 @@
                     const data = await response.json();
                     
                     if (data.success) {
+                        // Remove from localStorage for each deleted user
+                        selectedUserIds.forEach(userId => {
+                            const user = allUsers.find(u => u.id === userId);
+                            if (user) {
+                                localStorage.removeItem(`user_tier_${user.email}`);
+                            }
+                        });
+                        
                         Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
                         selectedUserIds.clear();
                         loadDashboardData();
