@@ -501,16 +501,32 @@
             
             const tierNames = {
                 '1': 'Free Tier',
-                '2': 'Basic Plan',
-                '3': 'Premium Plan',
+                '2': 'Basic Plan (Tier 2)',
+                '3': 'Premium Plan (Tier 3)',
                 'VIP': 'VIP Plan'
             };
             
+            const tierEmojis = {
+                '1': '⭐',
+                '2': '🥈',
+                '3': '🥉',
+                'VIP': '👑'
+            };
+            
             const tierName = tierNames[selectedTier] || 'Free Tier';
+            const tierEmoji = tierEmojis[selectedTier] || '⭐';
             
             const result = await Swal.fire({
-                title: 'Assign Tier',
-                html: `Are you sure you want to assign <strong>${tierName}</strong> to <strong>${pendingUserData.userName}</strong>?`,
+                title: `${tierEmoji} Assign Tier`,
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>User:</strong> ${pendingUserData.userName}</p>
+                        <p><strong>Email:</strong> ${pendingUserData.email}</p>
+                        <p><strong>Current Tier:</strong> ${tierNames[pendingUserData.currentTier] || '⭐ Free Tier'}</p>
+                        <p><strong>New Tier:</strong> ${tierEmoji} ${tierName}</p>
+                        <p style="margin-top: 10px; color: #888; font-size: 12px;">This change will take effect immediately.</p>
+                    </div>
+                `,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#00B875',
@@ -520,6 +536,16 @@
             
             if (result.isConfirmed) {
                 try {
+                    const loadingAlert = Swal.fire({
+                        title: 'Processing...',
+                        text: 'Assigning tier...',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
                     const response = await fetch(`${BACKEND_URL}/api/admin/assign-tier`, {
                         method: 'POST',
                         headers: { 
@@ -535,7 +561,7 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Update localStorage
+                        // Update localStorage for the user
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
                         
                         // Update the user in the local array
@@ -544,20 +570,28 @@
                             allUsers[userIndex].user_tier = selectedTier;
                         }
                         
-                        Swal.fire({ 
+                        await Swal.fire({ 
                             icon: 'success', 
-                            title: 'Success!', 
+                            title: '✅ Success!', 
                             text: `${pendingUserData.userName} has been upgraded to ${tierName}` 
                         });
                         
                         if (modalInstance) modalInstance.hide();
                         loadDashboardData();
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to assign tier' });
+                        await Swal.fire({ 
+                            icon: 'error', 
+                            title: '❌ Failed', 
+                            text: data.message || 'Failed to assign tier. Please check the user email.' 
+                        });
                     }
                 } catch (error) {
                     console.error('Assign tier error:', error);
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier. Please check backend logs.' });
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Error', 
+                        text: 'Failed to assign tier. Please check console for details.' 
+                    });
                 }
             }
         }
@@ -712,6 +746,7 @@
             Swal.fire({ icon: 'success', title: 'Logged Out', text: 'Admin session ended' });
         }
         
+        // Auto-refresh every 30 seconds
         setInterval(() => {
             if (adminSessionToken && document.getElementById('dashboardScreen').style.display !== 'none') {
                 loadDashboardData();
