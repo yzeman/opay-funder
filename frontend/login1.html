@@ -166,7 +166,38 @@
                 
                 if (data.success) {
                     vibratePhone(0, [50, 50]);
+
+                    // Save basic user info first
                     localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+
+                    // ✅ CRITICAL FIX: Fetch REAL tier from backend (Supabase)
+                    // and store it in THIS device's localStorage
+                    try {
+                        const profileResponse = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: data.user.email })
+                        });
+                        const profileData = await profileResponse.json();
+
+                        if (profileData.success && profileData.profile) {
+                            const realTier = profileData.profile.user_tier || '1';
+                            localStorage.setItem(`user_tier_${data.user.email}`, realTier);
+                            console.log('✅ Real tier synced from backend:', realTier);
+                        } else {
+                            // If profile fetch fails, ensure localStorage has at least '1'
+                            if (!localStorage.getItem(`user_tier_${data.user.email}`)) {
+                                localStorage.setItem(`user_tier_${data.user.email}`, '1');
+                            }
+                        }
+                    } catch (tierErr) {
+                        console.error('Tier sync failed:', tierErr);
+                        // Fallback: make sure a value exists
+                        if (!localStorage.getItem(`user_tier_${data.user.email}`)) {
+                            localStorage.setItem(`user_tier_${data.user.email}`, '1');
+                        }
+                    }
+
                     // DIRECT TO DASHBOARD - NO ACTIVATION CHECK
                     window.location.href = 'dashboard.html';
                 } else {
