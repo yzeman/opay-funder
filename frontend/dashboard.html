@@ -1040,10 +1040,12 @@ function updateBadge(tier) {
 }
 
 // ========== FETCH USER TIER FROM DATABASE ==========
+// ✅ FIXED: Uses /api/get-profile endpoint (the real one your server has)
+// ✅ FIXED: Auto-reloads if tier changed so dashboard updates everywhere
 async function fetchUserTierFromDatabase(email) {
     try {
         console.log('📊 Fetching tier for:', email);
-        const response = await fetch(`${BACKEND_URL}/api/get-user-tier`, {
+        const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
@@ -1052,13 +1054,14 @@ async function fetchUserTierFromDatabase(email) {
         
         console.log('📊 Tier response:', data);
         
-        if (data.success) {
-            const tier = data.tier || '1';
-            currentTier = tier === 'VIP' ? 'VIP' : tier;
+        if (data.success && data.profile) {
+            const newTier = data.profile.user_tier || '1';
+            const cachedTier = localStorage.getItem(`user_tier_${email}`) || '1';
+            
+            // Save to localStorage for cache
+            currentTier = newTier;
+            localStorage.setItem(`user_tier_${email}`, newTier);
             updateBadge(currentTier);
-            // Update localStorage for future use
-            localStorage.setItem(`user_tier_${email}`, currentTier);
-            console.log('✅ Tier updated to:', currentTier);
             
             // Update deactivated banner visibility
             if (deactivatedBanner) {
@@ -1068,6 +1071,16 @@ async function fetchUserTierFromDatabase(email) {
                     deactivatedBanner.style.display = 'none';
                 }
             }
+            
+            console.log('✅ Tier updated to:', currentTier);
+            
+            // ✅ CRITICAL: If tier changed, reload page so everything reflects new tier
+            if (cachedTier !== newTier) {
+                console.log(`🔄 Tier changed: ${cachedTier} → ${newTier}. Reloading page...`);
+                window.location.reload();
+                return true;
+            }
+            
             return true;
         } else {
             console.log('⚠️ Failed to fetch tier, using localStorage fallback');
@@ -1089,7 +1102,7 @@ function loadUserFromLocalStorage() {
     currentUser = JSON.parse(userData);
     userNameSpan.innerHTML = currentUser.account_name;
     
-    // First check localStorage for tier (fallback)
+    // First check localStorage for tier (fallback/instant display)
     const savedTier = localStorage.getItem(`user_tier_${currentUser.email}`);
     if (savedTier) {
         currentTier = savedTier === 'VIP' ? 'VIP' : savedTier;
@@ -1103,7 +1116,7 @@ function loadUserFromLocalStorage() {
         }
     }
     
-    // Then fetch latest tier from database (this will override localStorage)
+    // ✅ Fetch latest tier from database (this may trigger reload if changed)
     if (currentUser) {
         fetchUserTierFromDatabase(currentUser.email);
     }
