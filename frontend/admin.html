@@ -408,6 +408,7 @@
             }
             
             tbody.innerHTML = users.map(user => {
+                // ✅ ALWAYS read tier from the API response (which comes from Supabase)
                 const userTier = user.user_tier || '1';
                 
                 return `
@@ -536,7 +537,8 @@
             
             if (result.isConfirmed) {
                 try {
-                    const loadingAlert = Swal.fire({
+                    // Show processing loader
+                    Swal.fire({
                         title: 'Processing...',
                         text: 'Assigning tier...',
                         allowOutsideClick: false,
@@ -561,23 +563,29 @@
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Update localStorage for the user
+                        console.log('✅ Backend confirmed tier change');
+                        
+                        // Also update the user's tier in localStorage (for admin's own browser)
+                        // This is just a cache - the truth is in Supabase
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
                         
-                        // Update the user in the local array
-                        const userIndex = allUsers.findIndex(u => u.id === pendingUserData.userId);
-                        if (userIndex !== -1) {
-                            allUsers[userIndex].user_tier = selectedTier;
-                        }
-                        
+                        // Show success
                         await Swal.fire({ 
                             icon: 'success', 
                             title: '✅ Success!', 
-                            text: `${pendingUserData.userName} has been upgraded to ${tierName}` 
+                            text: `${pendingUserData.userName} has been upgraded to ${tierName}`,
+                            timer: 2000,
+                            showConfirmButton: false
                         });
                         
+                        // Hide modal
                         if (modalInstance) modalInstance.hide();
-                        loadDashboardData();
+                        
+                        // ✅ CRITICAL: Fully reload data from backend to reflect the change
+                        await loadDashboardData();
+                        
+                        console.log('✅ Dashboard refreshed with new tier data');
+                        
                     } else {
                         await Swal.fire({ 
                             icon: 'error', 
