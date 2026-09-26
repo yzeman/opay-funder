@@ -8,796 +8,125 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* ========== YOUR EXACT CSS (UNCHANGED) ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f8f9fc;
-            padding-bottom: 70px;
-        }
-
-        .header {
-            background: white;
-            padding: 16px 16px 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .profile-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .profile-icon {
-            position: relative;
-            width: 40px;
-            height: 40px;
-        }
-
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #00B875;
-        }
-
-        .tier-badge-icon {
-            position: absolute;
-            bottom: -5px;
-            right: -5px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .profile-info h2 {
-            font-size: 13px;
-            font-weight: 400;
-            color: #1a1a1a;
-            margin: 0;
-        }
-
-        .sub-text {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .sub-text i {
-            color: #ff4444;
-            font-size: 8px;
-        }
-
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 1px;
-        }
-
-        .icon-wrapper {
-            position: relative;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s;
-        }
-
-        .icon-wrapper:hover {
-            border-color: #00B875;
-            background: rgba(0, 184, 117, 0.05);
-        }
-
-        .icon-wrapper:active {
-            transform: scale(0.95);
-        }
-
-        .icon-wrapper i {
-            font-size: 18px;
-            color: #666;
-        }
-
-        .animated-icon {
-            animation: subtlePulse 2s ease-in-out infinite;
-        }
-
-        .animated-icon i {
-            animation: headsetRing 3s ease-in-out infinite;
-        }
-
-        @keyframes subtlePulse {
-            0% { transform: scale(1); border-color: #ddd; }
-            50% { transform: scale(1.05); border-color: #00B875; }
-            100% { transform: scale(1); border-color: #ddd; }
-        }
-
-        @keyframes headsetRing {
-            0% { transform: rotate(0deg); }
-            10% { transform: rotate(15deg); }
-            20% { transform: rotate(-10deg); }
-            30% { transform: rotate(5deg); }
-            40% { transform: rotate(-5deg); }
-            50% { transform: rotate(0deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -8px;
-            background: #ff4444;
-            color: white;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 20px;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        .deactivated-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 16px;
-            margin: 10px 16px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .deactivated-banner span {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .deactivated-banner span i {
-            margin-right: 5px;
-        }
-
-        .deactivated-banner button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .fixed-banner {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 12px 16px;
-            margin: 0 16px 10px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .fixed-banner i {
-            color: #ffc107;
-            font-size: 18px;
-        }
-
-        .fixed-banner span {
-            font-size: 12px;
-            color: #856404;
-            flex: 1;
-        }
-
-        .balance-card {
-            background: #00B875;
-            margin: 16px;
-            padding: 20px;
-            border-radius: 20px;
-            color: white;
-        }
-
-        .balance-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .balance-label {
-            font-size: 12px;
-            opacity: 0.8;
-            display: flex;
-            align-items: center;
-        }
-
-        .transaction-link {
-            font-size: 11px;
-            opacity: 0.8;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .transaction-link i {
-            font-size: 10px;
-        }
-
-        .transaction-link:hover {
-            opacity: 1;
-        }
-
-        .balance-amount-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .balance-amount-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .chevron-icon {
-            font-size: 12px;
-            color: white;
-            opacity: 0.9;  
-        }
-
-        .currency-symbol {
-            font-size: 14px;
-            font-weight: 400;
-            opacity: 0.9;
-        }
-
-        .balance-amount {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .balance-amount.large-number {
-            font-size: 20px;
-        }
-
-        .add-money-btn {
-            background: white;
-            padding: 8px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-            white-space: nowrap;
-            color: #00B875;
-        }
-
-        .add-money-btn:hover {
-            background: rgba(255,255,255,0.25);
-        }
-
-        .add-money-btn:active {
-            transform: scale(0.98);
-        }
-
-        .business-card {
-            background: #e8f5e9;
-            margin: -16px 16px 16px 16px;
-            padding: 10px 10px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .business-card:active {
-            transform: scale(0.98);
-        }
-
-        .business-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .business-icon {
-            width: 15px;
-            height: 15px;
-            color: #00B875;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .business-icon i {
-            font-size: 15px;
-            color: #00B875;
-        }
-
-        .business-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .business-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .business-sales {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .currency-symbol-small {
-            font-size: 11px;
-            font-weight: 400;
-            color: #00B875;
-        }
-
-        .sales-amount {
-            font-weight: 600;
-            color: #00B875;
-        }
-
-        .business-right .chevron-icon {
-            font-size: 14px;
-            color: #00B875;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            padding: 16px;
-            background: white;
-            margin: 0 16px 16px;
-            border-radius: 20px;
-        }
-
-        .menu-grid-three {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            padding: 16px;
-            background: white;
-            margin: 0 16px 16px;
-            border-radius: 15px;
-        }
-
-        .menu-item {
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .menu-icon {
-            width: 50px;
-            height: 50px;
-            background: #f0fdf4;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-        }
-
-        .menu-icons {
-            width: 50px;
-            height: 50px;
-            background: #f0fdf4;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-        }
-
-        .menu-icon i {
-            font-size: 18px;
-            color: #00B875;
-        }
-
-        .menu-icons i {
-            font-size: 18px;
-            color: #00B875;
-        }
-
-        .menu-label {
-            font-size: 11px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 16px 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .nav-item {
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .nav-item i {
-            font-size: 22px;
-            color: #aaa;
-            display: block;
-        }
-
-        .nav-item span {
-            font-size: 10px;
-            color: #aaa;
-            margin-top: 4px;
-            display: block;
-        }
-
-        .nav-item.active i,
-        .nav-item.active span {
-            color: #00B875;
-        }
-
-        .promo-banner {
-            background: white;
-            margin: 16px;
-            padding: 16px 20px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .promo-banner:active {
-            transform: scale(0.98);
-        }
-
-        .promo-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .promo-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .promo-icon i {
-            font-size: 24px;
-            color: black;
-        }
-
-        .promo-text {
-            color: black;
-        }
-
-        .promo-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .promo-subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .promo-currency {
-            font-size: 11px;
-            font-weight: 400;
-        }
-
-        .promo-arrow i {
-            font-size: 16px;
-            color: white;
-            opacity: 0.8;
-        }
-
-        .help-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            display: flex;
-            align-items: flex-end;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .help-sheet {
-            background: white;
-            width: 100%;
-            border-radius: 28px 28px 0 0;
-            animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .help-sheet-header {
-            text-align: center;
-            padding: 16px 20px 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .help-sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: #ddd;
-            border-radius: 2px;
-            margin: 0 auto 16px;
-        }
-
-        .help-sheet-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .help-sheet-subtitle {
-            font-size: 13px;
-            color: #888;
-        }
-
-        .help-sheet-body {
-            padding: 20px;
-        }
-
-        .help-contact-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .help-contact-btn {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 20px;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: 1px solid #eef2f6;
-        }
-
-        .help-contact-btn:active {
-            transform: scale(0.98);
-            background: #f0f2f5;
-        }
-
-        .whatsapp-btn {
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            border: none;
-            animation: pulseGreen 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulseGreen {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); transform: scale(1); }
-            50% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); transform: scale(1.02); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); transform: scale(1); }
-        }
-
-        .whatsapp-btn .help-contact-icon {
-            background: white;
-        }
-
-        .whatsapp-btn .help-contact-icon i {
-            color: #25D366;
-        }
-
-        .whatsapp-btn .help-contact-name {
-            color: white;
-        }
-
-        .whatsapp-btn .help-contact-desc {
-            color: rgba(255,255,255,0.8);
-        }
-
-        .whatsapp-btn .help-contact-arrow {
-            color: white;
-            opacity: 0.8;
-        }
-
-        .help-contact-icon {
-            width: 50px;
-            height: 50px;
-            background: white;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .help-contact-icon i {
-            font-size: 26px;
-        }
-
-        .help-contact-info {
-            flex: 1;
-        }
-
-        .help-contact-name {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #1a1a1a;
-        }
-
-        .help-contact-desc {
-            font-size: 12px;
-            color: #888;
-        }
-
-        .help-contact-arrow {
-            font-size: 14px;
-            color: #ccc;
-        }
-
-        .help-sheet-footer {
-            padding: 16px 20px 30px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .help-close-btn {
-            width: 100%;
-            padding: 14px;
-            background: #f0f2f5;
-            border: none;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .help-close-btn:active {
-            transform: scale(0.98);
-            background: #e8eaed;
-        }
-
-        /* Recent Transactions Card */
-        .recent-transactions-card {
-            background: white;
-            margin: 0 16px 16px;
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .recent-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 12px;
-        }
-
-        .recent-item-dash {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-        }
-
-        .recent-item-dash:last-child {
-            border-bottom: none;
-        }
-
-        .recent-info-dash {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .recent-icon-dash {
-            width: 36px;
-            height: 36px;
-            background: #f0fdf4;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .recent-icon-dash i {
-            font-size: 16px;
-            color: #00B875;
-        }
-
-        .recent-details-dash {
-            flex: 1;
-        }
-
-        .recent-name-dash {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .recent-date-dash {
-            font-size: 10px;
-            color: #999;
-        }
-
-        .recent-amount-dash {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .view-more {
-            text-align: center;
-            margin-top: 10px;
-            padding-top: 8px;
-            font-size: 12px;
-            color: #00B875;
-            cursor: pointer;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f8f9fc; padding-bottom: 70px; }
+        .header { background: white; padding: 16px 16px 10px; border-bottom: 1px solid #eee; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .profile-section { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .profile-icon { position: relative; width: 40px; height: 40px; }
+        .profile-icon img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #00B875; }
+        .tier-badge-icon { position: absolute; bottom: -5px; right: -5px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; border: 2px solid white; }
+        .profile-info h2 { font-size: 13px; font-weight: 400; color: #1a1a1a; margin: 0; }
+        .sub-text { font-size: 11px; color: #888; margin-top: 2px; }
+        .sub-text i { color: #ff4444; font-size: 8px; }
+        .header-icons { display: flex; align-items: center; gap: 1px; }
+        .icon-wrapper { position: relative; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; }
+        .icon-wrapper:hover { border-color: #00B875; background: rgba(0, 184, 117, 0.05); }
+        .icon-wrapper:active { transform: scale(0.95); }
+        .icon-wrapper i { font-size: 18px; color: #666; }
+        .animated-icon { animation: subtlePulse 2s ease-in-out infinite; }
+        .animated-icon i { animation: headsetRing 3s ease-in-out infinite; }
+        @keyframes subtlePulse { 0% { transform: scale(1); border-color: #ddd; } 50% { transform: scale(1.05); border-color: #00B875; } 100% { transform: scale(1); border-color: #ddd; } }
+        @keyframes headsetRing { 0% { transform: rotate(0deg); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-10deg); } 30% { transform: rotate(5deg); } 40% { transform: rotate(-5deg); } 50% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
+        .notification-badge { position: absolute; top: -5px; right: -8px; background: #ff4444; color: white; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 20px; min-width: 18px; text-align: center; }
+        .deactivated-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 16px; margin: 10px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .deactivated-banner span { font-size: 13px; font-weight: 500; }
+        .deactivated-banner span i { margin-right: 5px; }
+        .deactivated-banner button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .fixed-banner { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; margin: 0 16px 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; }
+        .fixed-banner i { color: #ffc107; font-size: 18px; }
+        .fixed-banner span { font-size: 12px; color: #856404; flex: 1; }
+        .balance-card { background: #00B875; margin: 16px; padding: 20px; border-radius: 20px; color: white; }
+        .balance-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .balance-label { font-size: 12px; opacity: 0.8; display: flex; align-items: center; }
+        .transaction-link { font-size: 11px; opacity: 0.8; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .transaction-link i { font-size: 10px; }
+        .transaction-link:hover { opacity: 1; }
+        .balance-amount-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .balance-amount-wrapper { display: flex; align-items: center; gap: 2px; }
+        .chevron-icon { font-size: 12px; color: white; opacity: 0.9; }
+        .currency-symbol { font-size: 14px; font-weight: 400; opacity: 0.9; }
+        .balance-amount { font-size: 24px; font-weight: 700; }
+        .add-money-btn { background: white; padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; white-space: nowrap; color: #00B875; }
+        .add-money-btn:hover { background: rgba(255,255,255,0.25); }
+        .add-money-btn:active { transform: scale(0.98); }
+        .business-card { background: #e8f5e9; margin: -16px 16px 16px 16px; padding: 10px 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .business-card:active { transform: scale(0.98); }
+        .business-left { display: flex; align-items: center; gap: 15px; }
+        .business-icon { width: 15px; height: 15px; color: #00B875; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .business-icon i { font-size: 15px; color: #00B875; }
+        .business-info { display: flex; flex-direction: column; }
+        .business-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+        .business-sales { font-size: 12px; color: #666; }
+        .currency-symbol-small { font-size: 11px; font-weight: 400; color: #00B875; }
+        .sales-amount { font-weight: 600; color: #00B875; }
+        .business-right .chevron-icon { font-size: 14px; color: #00B875; }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px; background: white; margin: 0 16px 16px; border-radius: 20px; }
+        .menu-grid-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 16px; background: white; margin: 0 16px 16px; border-radius: 15px; }
+        .menu-item { text-align: center; cursor: pointer; }
+        .menu-icon { width: 50px; height: 50px; background: #f0fdf4; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+        .menu-icons { width: 50px; height: 50px; background: #f0fdf4; border-radius: 25px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+        .menu-icon i { font-size: 18px; color: #00B875; }
+        .menu-icons i { font-size: 18px; color: #00B875; }
+        .menu-label { font-size: 11px; color: #333; font-weight: 500; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 16px 20px; border-top: 1px solid #eee; }
+        .nav-item { text-align: center; text-decoration: none; cursor: pointer; }
+        .nav-item i { font-size: 22px; color: #aaa; display: block; }
+        .nav-item span { font-size: 10px; color: #aaa; margin-top: 4px; display: block; }
+        .nav-item.active i, .nav-item.active span { color: #00B875; }
+        .promo-banner { background: white; margin: 16px; padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+        .promo-banner:active { transform: scale(0.98); }
+        .promo-content { display: flex; align-items: center; gap: 15px; }
+        .promo-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .promo-icon i { font-size: 24px; color: black; }
+        .promo-text { color: black; }
+        .promo-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .promo-subtitle { font-size: 12px; opacity: 0.9; }
+        .promo-currency { font-size: 11px; font-weight: 400; }
+        .promo-arrow i { font-size: 16px; color: white; opacity: 0.8; }
+        .help-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .help-sheet { background: white; width: 100%; border-radius: 28px 28px 0 0; animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); max-height: 90vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .help-sheet-header { text-align: center; padding: 16px 20px 12px; border-bottom: 1px solid #f0f0f0; }
+        .help-sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
+        .help-sheet-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+        .help-sheet-subtitle { font-size: 13px; color: #888; }
+        .help-sheet-body { padding: 20px; }
+        .help-contact-list { display: flex; flex-direction: column; gap: 12px; }
+        .help-contact-btn { display: flex; align-items: center; gap: 15px; padding: 16px; background: #f8f9fa; border-radius: 20px; text-decoration: none; transition: all 0.2s; border: 1px solid #eef2f6; }
+        .help-contact-btn:active { transform: scale(0.98); background: #f0f2f5; }
+        .whatsapp-btn { background: linear-gradient(135deg, #25D366, #128C7E); border: none; animation: pulseGreen 1.5s ease-in-out infinite; }
+        @keyframes pulseGreen { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); transform: scale(1.02); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); transform: scale(1); } }
+        .whatsapp-btn .help-contact-icon { background: white; }
+        .whatsapp-btn .help-contact-icon i { color: #25D366; }
+        .whatsapp-btn .help-contact-name { color: white; }
+        .whatsapp-btn .help-contact-desc { color: rgba(255,255,255,0.8); }
+        .whatsapp-btn .help-contact-arrow { color: white; opacity: 0.8; }
+        .help-contact-icon { width: 50px; height: 50px; background: white; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .help-contact-icon i { font-size: 26px; }
+        .help-contact-info { flex: 1; }
+        .help-contact-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
+        .help-contact-desc { font-size: 12px; color: #888; }
+        .help-contact-arrow { font-size: 14px; color: #ccc; }
+        .help-sheet-footer { padding: 16px 20px 30px; border-top: 1px solid #f0f0f0; }
+        .help-close-btn { width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px; font-size: 15px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; }
+        .help-close-btn:active { transform: scale(0.98); background: #e8eaed; }
+        .recent-transactions-card { background: white; margin: 0 16px 16px; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .recent-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 12px; }
+        .recent-item-dash { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .recent-item-dash:last-child { border-bottom: none; }
+        .recent-info-dash { display: flex; align-items: center; gap: 12px; }
+        .recent-icon-dash { width: 36px; height: 36px; background: #f0fdf4; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+        .recent-icon-dash i { font-size: 16px; color: #00B875; }
+        .recent-details-dash { flex: 1; }
+        .recent-name-dash { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .recent-date-dash { font-size: 10px; color: #999; }
+        .recent-amount-dash { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .view-more { text-align: center; margin-top: 10px; padding-top: 8px; font-size: 12px; color: #00B875; cursor: pointer; }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="header-top">
             <div class="profile-section">
@@ -809,7 +138,6 @@
                     <h2 id="userName">MY NAME</h2>
                 </div>
             </div>
-            
             <div class="header-icons">
                 <div class="icon-wrapper animated-icon" id="helpIcon">
                     <i class="fas fa-headset"></i>
@@ -824,7 +152,6 @@
         </div>
     </div>
 
-    <!-- Balance Card -->
     <div class="balance-card">
         <div class="balance-row">
             <div class="balance-label">
@@ -846,7 +173,6 @@
         </div>
     </div>
 
-    <!-- Business Service Card - NO ALERT -->
     <div class="business-card" id="businessCard">
         <div class="business-left">
             <div class="business-icon">
@@ -862,24 +188,18 @@
         </div>
     </div>
 
-    <!-- Deactivated Banner (Only for Tier 1 Free Users) -->
+    <!-- ✅ UPDATED: Deactivated Banner Text -->
     <div class="deactivated-banner" id="deactivatedBanner">
-        <span><i class="fas fa-exclamation-triangle"></i> Activate: click to purchase an activation plan</span>
+        <span><i class="fas fa-exclamation-triangle"></i> Account Not Activated — Click to Unlock All Features</span>
         <button id="activateBtn">Activate</button>
     </div>
 
-    <!-- Recent Transactions Section (2 latest) -->
     <div class="recent-transactions-card" id="recentTransactionsCard">
-        
         <div id="recentTransactionsList">
             <div style="padding: 10px; text-align: center; color: #888; font-size: 12px;">No recent transactions</div>
         </div>
-        
     </div>
     
-    
-    
-    <!-- Menu Grid Row 1 - 3 items -->
     <div class="menu-grid-three">
         <div class="menu-item" id="toOpayBtn">
             <div class="menu-icon"><i class="fas fa-exchange-alt"></i></div>
@@ -895,7 +215,6 @@
         </div>
     </div>
 
-    <!-- Menu Grid Row 2 - 8 items -->
     <div class="menu-grid">
         <div class="menu-item" id="airtimeBtn">
             <div class="menu-icons"><i class="fas fa-signal"></i></div>
@@ -931,7 +250,6 @@
         </div>
     </div>
 
-    <!-- Promo Banner -->
     <div class="promo-banner" id="promoBanner">
         <div class="promo-content">
             <div class="promo-icon">
@@ -947,7 +265,6 @@
         </div>
     </div>
 
-    <!-- Help Overlay -->
     <div id="helpOverlay" class="help-overlay" style="display: none;">
         <div class="help-sheet">
             <div class="help-sheet-header">
@@ -975,7 +292,6 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <div class="nav-item active" id="homeNav">
             <i class="fas fa-home"></i>
@@ -1000,16 +316,13 @@
     </div>
 
    <script>
-// ========== BACKEND CONNECTION ==========
 const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
 
-// Global variables
 let currentUser = null;
 let currentBalance = 50000.82;
 let balanceVisible = true;
 let currentTier = '1';
 
-// DOM Elements
 const balanceAmountSpan = document.getElementById('balanceAmount');
 const toggleBalanceBtn = document.getElementById('toggleBalance');
 const userNameSpan = document.getElementById('userName');
@@ -1017,15 +330,12 @@ const profileImg = document.getElementById('profileImg');
 const tierBadge = document.querySelector('.tier-badge-icon');
 const deactivatedBanner = document.getElementById('deactivatedBanner');
 
-// NO ALERT FUNCTION
 function doNothing() { return; }
 
-// Update badge based on tier
 function updateBadge(tier) {
     if (!tierBadge) return;
-    
     if (tier === 1 || tier === '1') {
-        tierBadge.innerHTML = '⭐';
+        tierBadge.innerHTML = '⚠️';
         tierBadge.style.background = 'linear-gradient(135deg, #aaa, #888)';
     } else if (tier === 2 || tier === '2') {
         tierBadge.innerHTML = '🥈';
@@ -1039,9 +349,15 @@ function updateBadge(tier) {
     }
 }
 
-// ========== FETCH USER TIER FROM DATABASE ==========
-// ✅ FIXED: Uses /api/get-profile endpoint (the real one your server has)
-// ✅ FIXED: Auto-reloads if tier changed so dashboard updates everywhere
+// Helper: Get current tier display name
+function getTierName(tier) {
+    if (tier === '1' || tier === 1 || !tier) return '⚪ Not Activated';
+    if (tier === '2' || tier === 2) return '🥈 Tier 2 (Basic)';
+    if (tier === '3' || tier === 3) return '🥉 Tier 3 (Premium)';
+    if (tier === 'VIP') return '👑 VIP Tier';
+    return '⚪ Not Activated';
+}
+
 async function fetchUserTierFromDatabase(email) {
     try {
         console.log('📊 Fetching tier for:', email);
@@ -1052,18 +368,14 @@ async function fetchUserTierFromDatabase(email) {
         });
         const data = await response.json();
         
-        console.log('📊 Tier response:', data);
-        
         if (data.success && data.profile) {
             const newTier = data.profile.user_tier || '1';
             const cachedTier = localStorage.getItem(`user_tier_${email}`) || '1';
             
-            // Save to localStorage for cache
             currentTier = newTier;
             localStorage.setItem(`user_tier_${email}`, newTier);
             updateBadge(currentTier);
             
-            // Update deactivated banner visibility
             if (deactivatedBanner) {
                 if (currentTier === '1' || currentTier === 1) {
                     deactivatedBanner.style.display = 'flex';
@@ -1072,27 +384,20 @@ async function fetchUserTierFromDatabase(email) {
                 }
             }
             
-            console.log('✅ Tier updated to:', currentTier);
-            
-            // ✅ CRITICAL: If tier changed, reload page so everything reflects new tier
             if (cachedTier !== newTier) {
-                console.log(`🔄 Tier changed: ${cachedTier} → ${newTier}. Reloading page...`);
+                console.log(`🔄 Tier changed: ${cachedTier} → ${newTier}. Reloading...`);
                 window.location.reload();
                 return true;
             }
-            
             return true;
-        } else {
-            console.log('⚠️ Failed to fetch tier, using localStorage fallback');
-            return false;
         }
+        return false;
     } catch (error) {
         console.error('❌ Error fetching tier:', error);
         return false;
     }
 }
 
-// ========== LOAD USER FROM LOCALSTORAGE ==========
 function loadUserFromLocalStorage() {
     const userData = localStorage.getItem('loggedInUser');
     if (!userData) {
@@ -1102,7 +407,6 @@ function loadUserFromLocalStorage() {
     currentUser = JSON.parse(userData);
     userNameSpan.innerHTML = currentUser.account_name;
     
-    // First check localStorage for tier (fallback/instant display)
     const savedTier = localStorage.getItem(`user_tier_${currentUser.email}`);
     if (savedTier) {
         currentTier = savedTier === 'VIP' ? 'VIP' : savedTier;
@@ -1116,7 +420,6 @@ function loadUserFromLocalStorage() {
         }
     }
     
-    // ✅ Fetch latest tier from database (this may trigger reload if changed)
     if (currentUser) {
         fetchUserTierFromDatabase(currentUser.email);
     }
@@ -1124,17 +427,13 @@ function loadUserFromLocalStorage() {
     return currentUser;
 }
 
-// ========== CHECK FOR TIER UPDATES PERIODICALLY ==========
 function checkForTierUpdate() {
     if (!currentUser) return;
-    console.log('🔄 Checking for tier updates...');
     fetchUserTierFromDatabase(currentUser.email);
 }
 
-// Load profile picture from database
 async function loadProfilePicture() {
     if (!currentUser) return;
-    
     try {
         const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
             method: 'POST',
@@ -1161,10 +460,8 @@ async function loadProfilePicture() {
     }
 }
 
-// Fetch balance from backend
 async function fetchBalance() {
     if (!currentUser) return;
-    
     try {
         const response = await fetch(`${BACKEND_URL}/api/get-balance`, {
             method: 'POST',
@@ -1172,7 +469,6 @@ async function fetchBalance() {
             body: JSON.stringify({ email: currentUser.email })
         });
         const data = await response.json();
-        
         if (data.success) {
             currentBalance = data.balance;
         }
@@ -1182,7 +478,6 @@ async function fetchBalance() {
     }
 }
 
-// Update balance display
 function updateBalanceDisplay() {
     if (balanceVisible) {
         balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1191,7 +486,6 @@ function updateBalanceDisplay() {
     }
 }
 
-// Toggle balance visibility
 if (toggleBalanceBtn) {
     toggleBalanceBtn.addEventListener('click', function() {
         balanceVisible = !balanceVisible;
@@ -1200,7 +494,6 @@ if (toggleBalanceBtn) {
     });
 }
 
-// Get icon for transaction type
 function getTransactionIcon(category) {
     const icons = {
         'OWealth': '<i class="fas fa-chart-line"></i>',
@@ -1214,7 +507,6 @@ function getTransactionIcon(category) {
     return icons[category] || '<i class="fas fa-exchange-alt"></i>';
 }
 
-// Load recent transactions (last 2)
 function loadRecentTransactions() {
     const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
     const recentTransactions = transactions.slice(0, 2);
@@ -1240,13 +532,11 @@ function loadRecentTransactions() {
         </div>
     `).join('');
     
-    // Add click handlers for recent transactions
     document.querySelectorAll('.recent-item-dash').forEach(item => {
         item.addEventListener('click', () => {
             const txData = item.getAttribute('data-tx');
             if (txData) {
                 const tx = JSON.parse(txData);
-                // Tier 1 (Free) users see upgrade modal
                 if (currentTier === '1' || currentTier === 1) {
                     showUpgradeModal();
                 } else {
@@ -1257,24 +547,14 @@ function loadRecentTransactions() {
     });
 }
 
-// ========== ACTIVATION BOTTOM SHEET ==========
+// ========== ACTIVATION BOTTOM SHEET (UPDATED: Free → Not Activated) ==========
 function showActivationSheet() {
     const existingOverlay = document.getElementById('activationOverlay');
     if (existingOverlay) existingOverlay.remove();
     
     const overlay = document.createElement('div');
     overlay.id = 'activationOverlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 2000;
-        display: flex;
-        align-items: flex-end;
-    `;
+    overlay.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: flex-end;`;
     
     overlay.innerHTML = `
         <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
@@ -1283,14 +563,12 @@ function showActivationSheet() {
                 <div style="font-size: 22px; font-weight: 700;">Purchase License Plan</div>
                 <div style="font-size: 13px; color: #888;">Select a subscription plan</div>
             </div>
-            
             <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                 <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
                 <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                    ${currentTier === 1 || currentTier === '1' ? '⭐ Tier 1 (Free)' : currentTier === 2 || currentTier === '2' ? '🥈 Tier 2 (Basic)' : currentTier === 3 || currentTier === '3' ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    ${currentTier === 1 || currentTier === '1' ? '⚪ Not Activated' : currentTier === 2 || currentTier === '2' ? '🥈 Tier 2 (Basic)' : currentTier === 3 || currentTier === '3' ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
                 </span>
             </div>
-            
             <div style="margin: 12px 16px; padding: 16px; border: 1px solid #eee; border-radius: 20px;">
                 <div style="display: flex; justify-content: space-between;">
                     <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
@@ -1298,7 +576,6 @@ function showActivationSheet() {
                 </div>
                 <button class="plan-purchase-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Purchase Basic Plan</button>
             </div>
-            
             <div style="margin: 12px 16px; padding: 16px; border: 1px solid #eee; border-radius: 20px;">
                 <div style="display: flex; justify-content: space-between;">
                     <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
@@ -1306,7 +583,6 @@ function showActivationSheet() {
                 </div>
                 <button class="plan-purchase-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Purchase Premium Plan</button>
             </div>
-            
             <div style="margin: 12px 16px; padding: 16px; border: 2px solid #FFD700; border-radius: 20px;">
                 <div style="display: flex; justify-content: space-between;">
                     <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
@@ -1314,7 +590,6 @@ function showActivationSheet() {
                 </div>
                 <button class="plan-purchase-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Purchase VIP Plan</button>
             </div>
-            
             <div style="padding: 16px 20px 30px;">
                 <button id="closeActivationSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
             </div>
@@ -1351,22 +626,12 @@ function showActivationSheet() {
     });
 }
 
-// ========== SHOW UPGRADE MODAL ==========
+// ========== SHOW UPGRADE MODAL (UPDATED: Free → Not Activated) ==========
 function showUpgradeModal() {
     let currentTierVal = currentTier || '1';
     
     const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 2000;
-        display: flex;
-        align-items: flex-end;
-    `;
+    overlay.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: flex-end;`;
     
     overlay.innerHTML = `
         <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
@@ -1379,9 +644,9 @@ function showUpgradeModal() {
             <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                 <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
                 <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                    ${currentTierVal === '1' || currentTierVal === 1 ? '⭐ Tier 1 (Free - 2 transfers/day)' : 
-                      currentTierVal === '2' || currentTierVal === 2 ? '🥈 Tier 2 (Basic - 10 transfers/day)' : 
-                      currentTierVal === '3' || currentTierVal === 3 ? '🥉 Tier 3 (Premium - Unlimited)' : '👑 VIP Tier (Unlimited)'}
+                    ${currentTierVal === '1' || currentTierVal === 1 ? '⚪ Not Activated (Limited Access)' : 
+                      currentTierVal === '2' || currentTierVal === 2 ? '🥈 Tier 2 (Basic)' : 
+                      currentTierVal === '3' || currentTierVal === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier (Unlimited)'}
                 </span>
             </div>
             
@@ -1502,9 +767,7 @@ function showUpgradeModal() {
     });
 }
 
-// ========== TIER-BASED NAVIGATION HANDLERS ==========
-
-// Transaction History: Tier 1 and Tier 2 show upgrade, Tier 3 and VIP go to transaction.html
+// TIER-BASED NAVIGATION HANDLERS
 document.getElementById('transactionHistory')?.addEventListener('click', () => {
     if (currentTier === '1' || currentTier === 1 || currentTier === '2' || currentTier === 2) {
         showUpgradeModal();
@@ -1513,7 +776,6 @@ document.getElementById('transactionHistory')?.addEventListener('click', () => {
     }
 });
 
-// Add Money: Only Tier 1 shows upgrade, others go to add.html
 document.getElementById('addMoney')?.addEventListener('click', () => {
     if (currentTier === '1' || currentTier === 1) {
         showUpgradeModal();
@@ -1522,12 +784,10 @@ document.getElementById('addMoney')?.addEventListener('click', () => {
     }
 });
 
-// To OPay: ALL USERS CAN ACCESS - NO UPGRADE MODAL
 document.getElementById('toOpayBtn')?.addEventListener('click', () => {
     window.location.href = 'toopay.html';
 });
 
-// To Bank: Only Tier 3 and VIP can access, others show upgrade
 document.getElementById('toBankBtn')?.addEventListener('click', () => {
     if (currentTier === '3' || currentTier === 3 || currentTier === 'VIP') {
         window.location.href = 'tobank.html';
@@ -1536,7 +796,6 @@ document.getElementById('toBankBtn')?.addEventListener('click', () => {
     }
 });
 
-// Airtime: Only VIP can access, others show upgrade
 document.getElementById('airtimeBtn')?.addEventListener('click', () => {
     if (currentTier === 'VIP') {
         window.location.href = 'airtime.html';
@@ -1545,7 +804,6 @@ document.getElementById('airtimeBtn')?.addEventListener('click', () => {
     }
 });
 
-// Data: Only VIP can access, others show upgrade
 document.getElementById('dataBtn')?.addEventListener('click', () => {
     if (currentTier === 'VIP') {
         window.location.href = 'data.html';
@@ -1554,18 +812,12 @@ document.getElementById('dataBtn')?.addEventListener('click', () => {
     }
 });
 
-// Profile - no restriction
 document.querySelector('.profile-section')?.addEventListener('click', () => {
     window.location.href = 'profile.html';
 });
 
-// Business Card - no action
 document.getElementById('businessCard')?.addEventListener('click', doNothing);
-
-// Withdraw - no action
 document.getElementById('withdrawBtn')?.addEventListener('click', doNothing);
-
-// Coming soon items - no action
 document.getElementById('tvBtn')?.addEventListener('click', doNothing);
 document.getElementById('bettingBtn')?.addEventListener('click', doNothing);
 document.getElementById('owealthBtn')?.addEventListener('click', doNothing);
@@ -1573,28 +825,21 @@ document.getElementById('educationBtn')?.addEventListener('click', doNothing);
 document.getElementById('moreBtn')?.addEventListener('click', doNothing);
 document.getElementById('play4aChildBtn')?.addEventListener('click', doNothing);
 
-// Activate button - Direct to plan.html
 document.getElementById('activateBtn')?.addEventListener('click', () => { 
     window.location.href = 'plan.html';
 });
 
-// Promo Banner - no action
 document.getElementById('promoBanner')?.addEventListener('click', doNothing);
-
-// Scan Icon - no action
 document.getElementById('scanIcon')?.addEventListener('click', doNothing);
-
-// Notification Icon - no action
 document.getElementById('notificationIcon')?.addEventListener('click', doNothing);
 
-// Bottom Navigation
 document.getElementById('homeNav')?.addEventListener('click', () => { window.location.reload(); });
 document.getElementById('rewardsNav')?.addEventListener('click', doNothing);
 document.getElementById('financeNav')?.addEventListener('click', doNothing);
 document.getElementById('cardsNav')?.addEventListener('click', doNothing);
 document.getElementById('meNav')?.addEventListener('click', () => { window.location.href = 'login1.html'; });
 
-// ========== HELP & SUPPORT BOTTOM SHEET ==========
+// HELP SHEET
 const helpOverlay = document.getElementById('helpOverlay');
 const closeHelpSheet = document.getElementById('closeHelpSheet');
 const helpIcon = document.getElementById('helpIcon');
@@ -1630,59 +875,35 @@ if (closeHelpSheet) {
     closeHelpSheet.addEventListener('click', hideHelpSheet);
 }
 
-// ============ UPDATE LAST SEEN ============
+// UPDATE LAST SEEN
 async function updateLastSeen() {
     const userData = localStorage.getItem('loggedInUser');
-    if (!userData) {
-        console.log('❌ No user logged in');
-        return false;
-    }
-    
+    if (!userData) return false;
     const user = JSON.parse(userData);
-    
     const now = Date.now();
     const lastUpdate = localStorage.getItem('lastSeenUpdateTime');
-    if (lastUpdate && (now - parseInt(lastUpdate)) < 120000) {
-        console.log('⏭️ Skipping - last update was', Math.floor((now - parseInt(lastUpdate)) / 1000), 'seconds ago');
-        return false;
-    }
-    
-    console.log('🟡 Updating last seen for:', user.email);
-    
+    if (lastUpdate && (now - parseInt(lastUpdate)) < 120000) return false;
     try {
         const response = await fetch(`${BACKEND_URL}/api/update-last-seen`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user.email })
         });
-        
         const data = await response.json();
-        
         if (data.success) {
             localStorage.setItem('lastSeenUpdateTime', now.toString());
-            console.log('✅ Last seen updated at:', new Date().toLocaleTimeString());
             return true;
-        } else {
-            console.log('❌ Update failed:', data.message);
-            return false;
         }
+        return false;
     } catch (error) {
-        console.error('❌ Network error:', error);
         return false;
     }
 }
 
-// ============ CALL ON PAGE LOAD ============
 updateLastSeen();
+setInterval(() => { updateLastSeen(); }, 120000);
 
-// ============ UPDATE EVERY 2 MINUTES ============
-setInterval(() => {
-    updateLastSeen();
-}, 120000); // 2 minutes
-
-// ============ UPDATE ON USER ACTIVITY ============
 let lastActivityTime = Date.now();
-
 function onUserActivity() {
     const now = Date.now();
     if (now - lastActivityTime > 60000) {
@@ -1697,10 +918,7 @@ document.addEventListener('touchstart', onUserActivity);
 document.addEventListener('keypress', onUserActivity);
 
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-        console.log('🔄 Page became visible, updating last seen');
-        updateLastSeen();
-    }
+    if (!document.hidden) updateLastSeen();
 });
 
 window.addEventListener('beforeunload', () => {
@@ -1713,24 +931,12 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// ========== CHECK FOR TIER UPDATES EVERY 30 SECONDS ==========
-setInterval(() => {
-    checkForTierUpdate();
-}, 30000);
+setInterval(() => { checkForTierUpdate(); }, 30000);
 
-console.log('✅ Last seen tracking initialized');
-console.log('✅ Tier update checker initialized (every 30 seconds)');
-
-// ========== INITIALIZE ==========
 loadUserFromLocalStorage();
-if (currentUser) {
-    loadProfilePicture();
-}
+if (currentUser) { loadProfilePicture(); }
 fetchBalance();
 loadRecentTransactions();
-
-console.log('✅ Dashboard initialized - To OPay accessible to all users');
-console.log('✅ Current tier:', currentTier);
 </script>
 </body>
 </html>
