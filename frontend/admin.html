@@ -29,51 +29,24 @@
         .top-header::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 300px;
-            height: 300px;
+            top: -50%; right: -20%;
+            width: 300px; height: 300px;
             background: rgba(255,255,255,0.1);
             border-radius: 50%;
         }
         .top-header::after {
             content: '';
             position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 200px;
-            height: 200px;
+            bottom: -30%; left: -10%;
+            width: 200px; height: 200px;
             background: rgba(255,255,255,0.08);
             border-radius: 50%;
         }
-        .header-content {
-            position: relative;
-            z-index: 2;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .header-title-group h1 {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 4px;
-        }
-        .header-title-group p {
-            font-size: 13px;
-            opacity: 0.9;
-            margin: 0;
-        }
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .header-content { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .header-title-group h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .header-title-group p { font-size: 13px; opacity: 0.9; margin: 0; }
+        .header-actions { display: flex; gap: 10px; }
         .header-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
@@ -89,23 +62,10 @@
             gap: 8px;
             backdrop-filter: blur(10px);
         }
-        .header-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-        .header-btn.danger {
-            background: rgba(220,53,69,0.9);
-            border-color: rgba(220,53,69,1);
-        }
+        .header-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .header-btn.danger { background: rgba(220,53,69,0.9); border-color: rgba(220,53,69,1); }
 
-        /* ============ MAIN CONTAINER ============ */
-        .admin-container { 
-            max-width: 1400px; 
-            margin: -40px auto 40px;
-            padding: 0 20px;
-            position: relative;
-            z-index: 3;
-        }
+        .admin-container { max-width: 1400px; margin: -40px auto 40px; padding: 0 20px; position: relative; z-index: 3; }
 
         /* ============ LOGIN ============ */
         .login-container { max-width: 420px; margin: 80px auto; }
@@ -117,45 +77,25 @@
             text-align: center;
         }
         .login-icon-wrap {
-            width: 80px;
-            height: 80px;
+            width: 80px; height: 80px;
             background: linear-gradient(135deg, #00B875, #009a62);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             margin: 0 auto 24px;
             box-shadow: 0 10px 30px rgba(0, 184, 117, 0.4);
         }
-        .login-icon-wrap i {
-            font-size: 36px;
-            color: white;
-        }
-        .login-card h2 {
-            font-size: 24px;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 6px;
-        }
-        .login-card p {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 24px;
-        }
+        .login-icon-wrap i { font-size: 36px; color: white; }
+        .login-card h2 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
+        .ITYlogin-card p { font FE-size: 13pxED; color: = #888; margin-bottom========: 24px;=== }
         .login-card input {
             width: 100%;
             padding: 14px 18px;
             border: 2px solid #e8eaed;
             border-radius: 14px;
             font-size: 15px;
-            transition: all 0.2s;
             margin-bottom: 16px;
         }
-        .login-card input:focus {
-            outline: none;
-            border-color: #00B875;
-            box-shadow: 0 0 0 4px rgba(0,184,117,0.1);
-        }
+        .login-card input:focus { outline: none; border-color: #00B875; box-shadow: 0 0 0 4px rgba(0,184,117,0.1); }
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -169,10 +109,7 @@
             transition: all 0.2s;
             box-shadow: 0 8px 20px rgba(0,184,117,0.3);
         }
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(0,184,117,0.4);
-        }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,184,117,0.4); }
 
         /* ============ ANALYTICS CARDS ============ */
         .analytics-grid {
@@ -191,17 +128,11 @@
             overflow: hidden;
             border: 1px solid rgba(0,0,0,0.03);
         }
-        .analytics-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-        }
+        .analytics-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
         .analytics-card::before {
             content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
+            position: absolute; top: 0; right: 0;
+            width: 100px; height: 100px;
             border-radius: 50%;
             opacity: 0.08;
             transform: translate(30%, -30%);
@@ -212,14 +143,13 @@
         .analytics-card.purple::before { background: #8b5cf6; }
         .analytics-card.pink::before { background: #ec4899; }
         .analytics-card.teal::before { background: #14b8a6; }
+        .analytics-card.indigo::before { background: #6366f1; }
+        .analytics-card.red::before { background: #ef4444; }
 
         .analytics-icon {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             margin-bottom: 14px;
             font-size: 22px;
         }
@@ -229,6 +159,8 @@
         .analytics-card.purple .analytics-icon { background: #f5f3ff; color: #8b5cf6; }
         .analytics-card.pink .analytics-icon { background: #fdf2f8; color: #ec4899; }
         .analytics-card.teal .analytics-icon { background: #f0fdfa; color: #14b8a6; }
+        .analytics-card.indigo .analytics-icon { background: #eef2ff; color: #6366f1; }
+        .analytics-card.red .analytics-icon { background: #fef2f2; color: #ef4444; }
 
         .analytics-label {
             font-size: 12px;
@@ -238,12 +170,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .analytics-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: #1a1a1a;
-            line-height: 1;
-        }
+        .analytics-value { font-size: 28px; font-weight: 800; color: #1a1a1a; line-height: 1; }
         .analytics-change {
             font-size: 11px;
             font-weight: 600;
@@ -256,124 +183,140 @@
         .analytics-change.down { color: #dc3545; }
         .analytics-change span { color: #888; font-weight: 400; }
 
-        /* ============ TIER PROGRESS BAR ============ */
-        .tier-progress-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            margin-bottom: 24px;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
-        .tier-progress-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #1a1a1a;
+        /* ============ ROW GRID ============ */
+        .row-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        .tier-bars {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .tier-bar-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .tier-bar-label {
-            min-width: 130px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
-        }
-        .tier-bar-track {
-            flex: 1;
-            height: 24px;
-            background: #f0f2f5;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-        .tier-bar-fill {
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            color: white;
-            min-width: 30px;
-        }
-        .tier-bar-fill.tier1 { background: linear-gradient(90deg, #95a5a6, #7f8c8d); }
-        .tier-bar-fill.tier2 { background: linear-gradient(90deg, #a8d5ba, #00B875); }
-        .tier-bar-fill.tier3 { background: linear-gradient(90deg, #e6b980, #CD7F32); }
-        .tier-bar-fill.vip { background: linear-gradient(90deg, #FFD700, #FFA500); }
-        .tier-bar-count {
-            min-width: 50px;
-            text-align: right;
-            font-size: 13px;
-            font-weight: 700;
-            color: #1a1a1a;
+        .row-grid-even {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         /* ============ CHART CARD ============ */
         .chart-card {
             background: white;
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            margin-bottom: 24px;
             border: 1px solid rgba(0,0,0,0.03);
         }
         .chart-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: #1a1a1a;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chart-title-left {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .chart-container {
+        .chart-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: #ecfdf5;
+            color: #00B875;
+        }
+        .chart-container { position: relative; height: 200px; }
+        .chart-container-sm { position: relative; height: 180px; }
+
+        /* ============ HEATMAP ============ */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: #f0f2f5;
+            transition: all 0.2s;
+            cursor: pointer;
             position: relative;
-            height: 260px;
+        }
+        .heatmap-cell:hover { transform: scale(1.3); z-index: 5; }
+        .heatmap-legend {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            font-size: 10px;
+            color: #888;
+        }
+        .heatmap-legend-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
         }
 
-        /* ============ ACTIVITY FEED ============ */
-        .activity-card {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            margin-bottom: 24px;
-            border: 1px solid rgba(0,0,0,0.03);
+        /* ============ RE-ENGAGEMENT PANEL ============ */
+        .reengagement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
         }
+        .reengagement-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+        }
+        .reengagement-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .reengagement-info { flex: 1; min-width: 0; }
+        .reengagement-name { font-size: 12px; font-weight: 700; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .reengagement-time { font-size: 10px; color: #888; }
+        .reengagement-empty {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        /* ============ ACTIV */
         .activity-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            max-height: 320px;
+            gap: 10px;
+            max-height: 240px;
             overflow-y: auto;
         }
         .activity-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
             transition: background 0.2s;
         }
         .activity-item:hover { background: #f8f9fc; }
         .activity-dot {
-            width: 10px;
-            height: 10px;
+            width: 10px; height: 10px;
             border-radius: 50%;
             flex-shrink: 0;
         }
@@ -384,21 +327,112 @@
             0%, 100% { box-shadow: 0 0 0 4px rgba(0,184,117,0.15); }
             50% { box-shadow: 0 0 0 8px rgba(0,184,117,0); }
         }
-        .activity-info { flex: 1; }
-        .activity-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
-        .activity-time { font-size: 11px; color: #888; }
+        .activity-info { flex: 1; min-width: 0; }
+        .activity-name { font-size: 12px; font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .activity-time { font-size: 10px; color: #888; }
         .activity-tier {
             font-size: 10px;
             padding: 3px 8px;
             border-radius: 10px;
             font-weight: 700;
+            flex-shrink: 0;
         }
+
+        /* ============ TIER BARS ============ */
+        .tier-progress-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .tier-progress-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tier-bars { display: flex; flex-direction: column; gap: 10px; }
+        .tier-bar-row { display: flex; align-items: center; gap: 12px; }
+        .tier-bar-label { min-width: 120px; font-size: 12px; font-weight: 600; color: #333; }
+        .tier-bar-track {
+            flex: 1;
+            height: 20px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .tier-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            min-width: 24px;
+        }
+        .tier-bar-fill.tier1 { background: linear-gradient(90deg, #95a5a6, #7f8c8d); }
+        .tier-bar-fill.tier2 { background: linear-gradient(90deg, #a8d5ba, #00B875); }
+        .tier-bar-fill.tier3 { background: linear-gradient(90deg, #e6b980, #CD7F32); }
+        .tier-bar-fill.vip { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .tier-bar-count { min-width: 40px; text-align: right; font-size: 12px; font-weight: 700; color: #1a1a1a; }
+
+        /* ============ FILTER TABS ============ */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: thin;
+        }
+        .filter-tabs::-webkit-scrollbar { height: 4px; }
+        .filter-tabs::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #e8eaed;
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-tab:hover { border-color: #00B875; color: #00B875; }
+        .filter-tab.active {
+            background: #00B875;
+            color: white;
+            border-color: #00B875;
+            box-shadow: 0 4px 12px rgba(0,184,117,0.3);
+        }
+        .filter-tab-count {
+            background: rgba(255,255,255,0.25);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .filter-tab.active .filter-tab-count { background: rgba(255,255,255,0.3); }
+        .filter-tab:not(.active) .filter-tab-count { background: #f0f2f5; color: #666; }
 
         /* ============ USERS TABLE ============ */
         .table-card {
             background: white;
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             border: 1px solid rgba(0,0,0,0.03);
         }
@@ -406,53 +440,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
             gap: 12px;
         }
         .table-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: #1a1a1a;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .search-wrap {
-            position: relative;
-            flex: 1;
-            max-width: 340px;
-        }
+        .search-wrap { position: relative; flex: 1; max-width: 320px; }
         .search-wrap i {
             position: absolute;
-            left: 14px;
-            top: 50%;
+            left: 14px; top: 50%;
             transform: translateY(-50%);
             color: #888;
             font-size: 14px;
         }
         .search-input {
             width: 100%;
-            padding: 11px 14px 11px 40px;
+            padding: 10px 14px 10px 40px;
             border: 2px solid #e8eaed;
             border-radius: 12px;
             font-size: 13px;
-            transition: all 0.2s;
         }
-        .search-input:focus {
-            outline: none;
-            border-color: #00B875;
-            box-shadow: 0 0 0 4px rgba(0,184,117,0.1);
-        }
-        .table-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .search-input:focus { outline: none; border-color: #00B875; box-shadow: 0 0 0 4px rgba(0,184,117,0.1); }
+        .table-actions { display: flex; gap: 8px; }
         .table-btn {
             padding: 10px 16px;
             border-radius: 12px;
             border: none;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -460,37 +481,18 @@
             align-items: center;
             gap: 6px;
         }
-        .table-btn.delete {
-            background: #fee2e2;
-            color: #dc2626;
-        }
+        .table-btn.delete { background: #fee2e2; color: #dc2626; }
         .table-btn.delete:hover { background: #fecaca; }
-        .table-btn.refresh {
-            background: #ecfdf5;
-            color: #00B875;
-        }
+        .table-btn.refresh { background: #ecfdf5; color: #00B875; }
         .table-btn.refresh:hover { background: #d1fae5; }
 
-        .user-table-wrap {
-            overflow-x: auto;
-            border-radius: 14px;
-            border: 1px solid #f0f2f5;
-        }
-        table { 
-            width: 100%; 
-            font-size: 13px;
-            border-collapse: collapse;
-        }
-        th, td { 
-            padding: 14px 12px; 
-            text-align: left; 
-            vertical-align: middle;
-            border-bottom: 1px solid #f0f2f5;
-        }
-        th { 
-            background: #fafbfc; 
+        .user-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid #f0f2f5; }
+        table { width: 100%; font-size: 13px; border-collapse: collapse; }
+        th, td { padding: 12px 10px; text-align: left; vertical-align: middle; border-bottom: 1px solid #f0f2f5; }
+        th {
+            background: #fafbfc;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -503,14 +505,14 @@
         tbody tr { transition: background 0.15s; }
         tbody tr:hover { background: #fafbfc; }
 
-        .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.4; }
+        .sort-icon { margin-left: 4px; font-size: 9px; opacity: 0.4; }
         th.active-sort .sort-icon { opacity: 1; color: #00B875; }
 
-        .tier-badge { 
-            display: inline-block; 
-            padding: 5px 11px; 
-            border-radius: 20px; 
-            font-size: 11px; 
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
             font-weight: 700;
             white-space: nowrap;
         }
@@ -519,18 +521,18 @@
         .tier-badge.tier-3 { background: #fed7aa; color: #9a3412; }
         .tier-badge.vip { background: #fef3c7; color: #b45309; }
 
-        .status-badge { 
-            display: inline-block; 
-            padding: 5px 11px; 
-            border-radius: 20px; 
-            font-size: 11px; 
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
             font-weight: 700;
         }
         .status-badge.paid { background: #d1fae5; color: #047857; }
         .status-badge.free { background: #f1f5f9; color: #64748b; }
 
-        .last-seen-online { 
-            color: #00B875; 
+        .last-seen-online {
+            color: #00B875;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
@@ -538,8 +540,7 @@
         }
         .last-seen-online::before {
             content: '';
-            width: 7px;
-            height: 7px;
+            width: 7px; height: 7px;
             background: #00B875;
             border-radius: 50%;
             animation: pulse 1.5s infinite;
@@ -550,10 +551,10 @@
 
         .action-btn {
             border: none;
-            padding: 7px 12px;
+            padding: 6px 10px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             transition: all 0.2s;
             margin: 1px;
@@ -564,25 +565,20 @@
         .action-btn.delete:hover { background: #fecaca; }
 
         /* ============ TIER MODAL ============ */
-        .tier-card { 
-            border: 2px solid #e8eaed; 
-            transition: all 0.2s; 
+        .tier-card {
+            border: 2px solid #e8eaed;
+            transition: all 0.2s;
             cursor: pointer;
             background: white;
         }
-        .tier-card:hover { 
-            border-color: #00B875; 
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,184,117,0.15);
-        }
-        .tier-card.selected { 
-            border-color: #00B875; 
-            background: #ecfdf5;
-            box-shadow: 0 8px 20px rgba(0,184,117,0.2);
-        }
+        .tier-card:hover { border-color: #00B875; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,184,117,0.15); }
+        .tier-card.selected { border-color: #00B875; background: #ecfdf5; box-shadow: 0 8px 20px rgba(0,184,117,0.2); }
         .tier-info { font-size: 11px; color: #888; margin-top: 4px; }
 
         /* ============ RESPONSIVE ============ */
+        @media (max-width: 992px) {
+            .row-grid, .row-grid-even { grid-template-columns: 1fr; }
+        }
         @media (max-width: 768px) {
             .top-header { padding: 20px 16px 50px; }
             .header-title-group h1 { font-size: 20px; }
@@ -590,20 +586,18 @@
             .analytics-grid { grid-template-columns: repeat(2, 1fr); }
             .analytics-value { font-size: 22px; }
             .admin-container { padding: 0 12px; }
-            .user-table-wrap { border-radius: 12px; }
-            th, td { padding: 10px 8px; font-size: 12px; }
+            th, td { padding: 10px 6px; font-size: 12px; }
+            .tier-bar-label { min-width: 90px; font-size: 11px; }
         }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- ============ LOGIN SCREEN ============ -->
+        <!-- LOGIN SCREEN -->
         <div id="loginScreen" style="display: none;">
             <div class="login-container">
                 <div class="login-card">
-                    <div class="login-icon-wrap">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
+                    <div class="login-icon-wrap"><i class="fas fa-shield-alt"></i></div>
                     <h2>Admin Login</h2>
                     <p>Enter your password to access the dashboard</p>
                     <input type="password" id="adminPassword" placeholder="Enter Admin Password">
@@ -612,10 +606,9 @@
             </div>
         </div>
         
-        <!-- ============ DASHBOARD SCREEN ============ -->
+        <!-- DASHBOARD SCREEN -->
         <div id="dashboardScreen" style="display: none;">
             
-            <!-- Top Header -->
             <div class="top-header">
                 <div class="header-content">
                     <div class="header-row">
@@ -675,9 +668,90 @@
                         <div class="analytics-value" id="revenueDisplay">₦0</div>
                         <div class="analytics-change up"><i class="fas fa-chart-line"></i> <span>Estimated</span></div>
                     </div>
+                    <div class="analytics-card indigo">
+                        <div class="analytics-icon"><i class="fas fa-user-plus"></i></div>
+                        <div class="analytics-label">New This Week</div>
+                        <div class="analytics-value" id="newThisWeek">0</div>
+                        <div class="analytics-change up"><i class="fas fa-calendar-week"></i> <span>Last 7 days</span></div>
+                    </div>
+                    <div class="analytics-card red">
+                        <div class="analytics-icon"><i class="fas fa-user-clock"></i></div>
+                        <div class="analytics-label">Need Re-engagement</div>
+                        <div class="analytics-value" id="churnCount">0</div>
+                        <div class="analytics-change down"><i class="fas fa-triangle-exclamation"></i> <span>Inactive 7+ days</span></div>
+                    </div>
                 </div>
 
-                <!-- Tier Distribution -->
+                <!-- Row 1: User Growth Chart (wide) + Tier Doughnut (narrow) -->
+                <div class="row-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <div class="chart-title-left">
+                                <i class="fas fa-chart-area" style="color:#00B875;"></i>
+                                <span>User Growth</span>
+                            </div>
+                            <span class="chart-badge">Last 30 days</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <div class="chart-title-left">
+                                <i class="fas fa-chart-pie" style="color:#00B875;"></i>
+                                <span>Tier Split</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tierChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Peak Hours Heatmap (wide) + Re-engagement Panel (narrow) -->
+                <div class="row-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <div class="chart-title-left">
+                                <i class="fas fa-fire" style="color:#f59e0b;"></i>
+                                <span>Peak Activity Hours</span>
+                            </div>
+                            <span class="chart-badge" style="background:#fffbeb; color:#f59e0b;">Users by hour</span>
+                        </div>
+                        <div class="chart-container-sm">
+                            <canvas id="peakChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <div class="chart-title-left">
+                                <i class="fas fa-bullhorn" style="color:#ef4444;"></i>
+                                <span>Re-engage Users</span>
+                            </div>
+                            <span class="chart-badge" style="background:#fef2f2; color:#ef4444;" id="reengageBadge">0</span>
+                        </div>
+                        <div class="reengagement-list" id="reengagementList">
+                            <div class="reengagement-empty">No inactive users 🎉</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Recent Activity Feed -->
+                <div class="chart-card" style="margin-bottom:20px;">
+                    <div class="chart-title">
+                        <div class="chart-title-left">
+                            <i class="fas fa-bolt" style="color:#f59e0b;"></i>
+                            <span>Recent Activity</span>
+                        </div>
+                        <span class="chart-badge" style="background:#f0f2f5; color:#666;">Live</span>
+                    </div>
+                    <div class="activity-list" id="activityList" style="max-height: 180px;">
+                        <div style="text-align:center; color:#888; padding:20px; font-size:13px;">No activity yet</div>
+                    </div>
+                </div>
+
+                <!-- Tier Distribution Bars -->
                 <div class="tier-progress-card">
                     <div class="tier-progress-title">
                         <i class="fas fa-layer-group" style="color:#00B875;"></i> User Tier Distribution
@@ -685,59 +759,28 @@
                     <div class="tier-bars">
                         <div class="tier-bar-row">
                             <div class="tier-bar-label">⚪ Not Activated</div>
-                            <div class="tier-bar-track">
-                                <div class="tier-bar-fill tier1" id="barTier1" style="width: 0%;">0</div>
-                            </div>
+                            <div class="tier-bar-track"><div class="tier-bar-fill tier1" id="barTier1" style="width: 0%;"></div></div>
                             <div class="tier-bar-count" id="countTier1">0</div>
                         </div>
                         <div class="tier-bar-row">
                             <div class="tier-bar-label">🥈 Basic</div>
-                            <div class="tier-bar-track">
-                                <div class="tier-bar-fill tier2" id="barTier2" style="width: 0%;">0</div>
-                            </div>
+                            <div class="tier-bar-track"><div class="tier-bar-fill tier2" id="barTier2" style="width: 0%;"></div></div>
                             <div class="tier-bar-count" id="countTier2">0</div>
                         </div>
                         <div class="tier-bar-row">
                             <div class="tier-bar-label">🥉 Premium</div>
-                            <div class="tier-bar-track">
-                                <div class="tier-bar-fill tier3" id="barTier3" style="width: 0%;">0</div>
-                            </div>
+                            <div class="tier-bar-track"><div class="tier-bar-fill tier3" id="barTier3" style="width: 0%;"></div></div>
                             <div class="tier-bar-count" id="countTier3">0</div>
                         </div>
                         <div class="tier-bar-row">
                             <div class="tier-bar-label">👑 VIP</div>
-                            <div class="tier-bar-track">
-                                <div class="tier-bar-fill vip" id="barVip" style="width: 0%;">0</div>
-                            </div>
+                            <div class="tier-bar-track"><div class="tier-bar-fill vip" id="barVip" style="width: 0%;"></div></div>
                             <div class="tier-bar-count" id="countVip">0</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Two Column: Chart + Activity -->
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;" id="chartActivityGrid">
-                    <!-- Tier Chart -->
-                    <div class="chart-card">
-                        <div class="chart-title">
-                            <i class="fas fa-chart-pie" style="color:#00B875;"></i> Tier Breakdown
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="tierChart"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Activity Feed -->
-                    <div class="activity-card">
-                        <div class="chart-title">
-                            <i class="fas fa-bolt" style="color:#f59e0b;"></i> Recent Activity
-                        </div>
-                        <div class="activity-list" id="activityList">
-                            <div style="text-align:center; color:#888; padding:20px; font-size:13px;">No activity yet</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Users Table -->
+                <!-- Users Table with Filter Tabs -->
                 <div class="table-card">
                     <div class="table-header">
                         <div class="table-title">
@@ -749,13 +792,31 @@
                             <input type="text" id="searchInput" class="search-input" placeholder="Search by name, account, or email..." onkeyup="filterUsers()">
                         </div>
                         <div class="table-actions">
-                            <button class="table-btn refresh" onclick="loadDashboardData()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                            <button class="table-btn delete" onclick="deleteSelectedUsers()">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
+                            <button class="table-btn refresh" onclick="loadDashboardData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="table-btn delete" onclick="deleteSelectedUsers()"><i class="fas fa-trash"></i> Delete</button>
                         </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="filter-tabs" id="filterTabs">
+                        <button class="filter-tab active" data-filter="all" onclick="applyFilter('all')">
+                            <i class="fas fa-list"></i> All <span class="filter-tab-count" id="filterCountAll">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="online" onclick="applyFilter('online')">
+                            <i class="fas fa-circle" style="font-size:8px; color:#00B875;"></i> Online Now <span class="filter-tab-count" id="filterCountOnline">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="active" onclick="applyFilter('active')">
+                            <i class="fas fa-clock"></i> Active Today <span class="filter-tab-count" id="filterCountActive">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="paid" onclick="applyFilter('paid')">
+                            <i class="fas fa-crown"></i> Paid <span class="filter-tab-count" id="filterCountPaid">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="inactive" onclick="applyFilter('inactive')">
+                            <i class="fas fa-user-clock"></i> Inactive <span class="filter-tab-count" id="filterCountInactive">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="new" onclick="applyFilter('new')">
+                            <i class="fas fa-user-plus"></i> New This Week <span class="filter-tab-count" id="filterCountNew">0</span>
+                        </button>
                     </div>
                     
                     <div class="user-table-wrap">
@@ -767,10 +828,10 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Password</th>
-                                    <th onclick="sortBy('user_tier')" id="th-tier">Tier <i class="fas fa-sort sort-icon" id="sort-user_tier"></i></th>
+                                    <th onclick="sortBy('user_tier')">Tier <i class="fas fa-sort sort-icon" id="sort-user_tier"></i></th>
                                     <th>Status</th>
-                                    <th onclick="sortBy('created_at')" id="th-created">Created <i class="fas fa-sort sort-icon" id="sort-created_at"></i></th>
-                                    <th onclick="sortBy('last_seen')" id="th-seen">Last Seen <i class="fas fa-sort sort-icon" id="sort-last_seen"></i></th>
+                                    <th onclick="sortBy('created_at')">Created <i class="fas fa-sort sort-icon" id="sort-created_at"></i></th>
+                                    <th onclick="sortBy('last_seen')">Last Seen <i class="fas fa-sort sort-icon" id="sort-last_seen"></i></th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -782,7 +843,7 @@
         </div>
     </div>
 
-    <!-- Tier Selection Modal -->
+    <!-- Tier Modal -->
     <div id="tierModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden;">
@@ -792,9 +853,7 @@
                 </div>
                 <div class="modal-body" style="padding: 20px 24px;">
                     <div id="modalUserInfo" style="margin-bottom: 20px; padding: 14px; background: #f8f9fc; border-radius: 12px; color: #333; font-size: 13px;"></div>
-                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">
-                        <i class="fas fa-info-circle"></i> Select a plan to assign to this user
-                    </p>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;"><i class="fas fa-info-circle"></i> Select a plan to assign to this user</p>
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="tier-card p-3 text-center rounded-3" data-tier="2" onclick="selectTier('2')" id="tier2Card">
@@ -848,10 +907,12 @@
         let selectedTier = null;
         let modalInstance = null;
         let currentSort = { field: 'last_seen', order: 'desc' };
+        let currentFilter = 'all';
+        let growthChart = null;
         let tierChart = null;
+        let peakChart = null;
         let liveUpdateInterval = null;
         
-        // ============ INIT ============
         window.addEventListener('load', function() {
             const savedToken = localStorage.getItem('adminSessionToken');
             if (savedToken) {
@@ -876,17 +937,12 @@
                     localStorage.removeItem('adminSessionToken');
                     showLogin();
                 }
-            } catch (error) {
-                showLogin();
-            }
+            } catch (error) { showLogin(); }
         }
         
         async function adminLogin() {
             const password = document.getElementById('adminPassword').value;
-            if (!password) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Please enter password' });
-                return;
-            }
+            if (!password) { Swal.fire({ icon: 'error', title: 'Error', text: 'Please enter password' }); return; }
             try {
                 const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
                     method: 'POST',
@@ -908,23 +964,19 @@
             }
         }
         
-        // ============ LOAD DATA ============
         async function loadDashboardData() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
                     headers: { 'X-Admin-Token': adminSessionToken }
                 });
                 const data = await response.json();
-                
                 if (data.success) {
                     allUsers = data.users;
                     updateAnalytics();
                     sortAndRenderUsers();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to load users' });
-                    if (data.message && data.message.includes('session')) {
-                        adminLogout();
-                    }
+                    if (data.message && data.message.includes('session')) adminLogout();
                 }
             } catch (error) {
                 console.error('Load data error:', error);
@@ -932,94 +984,192 @@
             }
         }
         
-        // ============ ANALYTICS CALCULATIONS ============
+        // ============ HELPERS ============
+        function getDaysAgo(days) {
+            const d = new Date();
+            d.setDate(d.getDate() - days);
+            d.setHours(0,0,0,0);
+            return d;
+        }
+        
+        function isUserActiveWithin(user, seconds) {
+            if (!user.last_seen) return false;
+            return (Date.now() - new Date(user.last_seen).getTime()) / 1000 < seconds;
+        }
+        
+        function isUserCreatedWithin(user, days) {
+            if (!user.created_at) return false;
+            const diffDays = (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24);
+            return diffDays < days;
+        }
+        
+        function getUserTier(user) { return user.user_tier || '1'; }
+        function isPaid(user) { const t = getUserTier(user); return t === '2' || t === '3' || t === 'VIP'; }
+        
+        // ============ ANALYTICS ============
         function updateAnalytics() {
-            const now = Date.now();
             const totalUsers = allUsers.length;
-            
-            let onlineNow = 0;
-            let activeToday = 0;
-            let paidCount = 0;
-            let freeCount = 0;
+            let onlineNow = 0, activeToday = 0, paidCount = 0, freeCount = 0;
             let tier1Count = 0, tier2Count = 0, tier3Count = 0, vipCount = 0;
-            let revenue = 0;
+            let revenue = 0, newThisWeek = 0, churnCount = 0;
             
             allUsers.forEach(user => {
-                const tier = user.user_tier || '1';
+                const tier = getUserTier(user);
+                if (tier === '1' || tier === 1) { tier1Count++; freeCount++; }
+                else if (tier === '2' || tier === 2) { tier2Count++; paidCount++; revenue += TIER_PRICES['2']; }
+                else if (tier === '3' || tier === 3) { tier3Count++; paidCount++; revenue += TIER_PRICES['3']; }
+                else if (tier === 'VIP') { vipCount++; paidCount++; revenue += TIER_PRICES['VIP']; }
                 
-                // Tier counts
-                if (tier === '1' || tier === 1) {
-                    tier1Count++;
-                    freeCount++;
-                } else if (tier === '2' || tier === 2) {
-                    tier2Count++;
-                    paidCount++;
-                    revenue += TIER_PRICES['2'];
-                } else if (tier === '3' || tier === 3) {
-                    tier3Count++;
-                    paidCount++;
-                    revenue += TIER_PRICES['3'];
-                } else if (tier === 'VIP') {
-                    vipCount++;
-                    paidCount++;
-                    revenue += TIER_PRICES['VIP'];
-                }
+                if (isUserActiveWithin(user, 300)) onlineNow++;
+                if (isUserActiveWithin(user, 86400)) activeToday++;
+                if (isUserCreatedWithin(user, 7)) newThisWeek++;
                 
-                // Activity
-                if (user.last_seen) {
-                    const lastSeenTime = new Date(user.last_seen).getTime();
-                    const diffSeconds = (now - lastSeenTime) / 1000;
-                    
-                    if (diffSeconds < 300) {  // 5 minutes
-                        onlineNow++;
-                    }
-                    if (diffSeconds < 86400) { // 24 hours
-                        activeToday++;
-                    }
-                }
+                // Churn: inactive 7+ days OR never seen + created 7+ days ago
+                const isInactive = user.last_seen 
+                    ? (Date.now() - new Date(user.last_seen).getTime()) / (1000 * 60 * 60 * 24) >= 7
+                    : (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                if (isInactive) churnCount++;
             });
             
-            // Update cards
+            // Card values
             document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
             document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
             document.getElementById('activeToday').textContent = activeToday.toLocaleString();
             document.getElementById('paidUsers').textContent = paidCount.toLocaleString();
             document.getElementById('freeUsers').textContent = freeCount.toLocaleString();
             document.getElementById('revenueDisplay').textContent = '₦' + revenue.toLocaleString();
+            document.getElementById('newThisWeek').textContent = newThisWeek.toLocaleString();
+            document.getElementById('churnCount').textContent = churnCount.toLocaleString();
             document.getElementById('usersCountBadge').textContent = totalUsers;
             
-            // Update tier bars
+            // Filter tab counts
+            document.getElementById('filterCountAll').textContent = totalUsers;
+            document.getElementById('filterCountOnline').textContent = onlineNow;
+            document.getElementById('filterCountActive').textContent = activeToday;
+            document.getElementById('filterCountPaid').textContent = paidCount;
+            document.getElementById('filterCountInactive').textContent = churnCount;
+            document.getElementById('filterCountNew').textContent = newThisWeek;
+            document.getElementById('reengageBadge').textContent = churnCount;
+            
+            // Tier bars
             const total = totalUsers || 1;
             document.getElementById('barTier1').style.width = (tier1Count / total * 100) + '%';
             document.getElementById('barTier2').style.width = (tier2Count / total * 100) + '%';
             document.getElementById('barTier3').style.width = (tier3Count / total * 100) + '%';
             document.getElementById('barVip').style.width = (vipCount / total * 100) + '%';
-            
-            document.getElementById('barTier1').textContent = tier1Count > 0 ? tier1Count : '';
-            document.getElementById('barTier2').textContent = tier2Count > 0 ? tier2Count : '';
-            document.getElementById('barTier3').textContent = tier3Count > 0 ? tier3Count : '';
-            document.getElementById('barVip').textContent = vipCount > 0 ? vipCount : '';
-            
             document.getElementById('countTier1').textContent = tier1Count;
             document.getElementById('countTier2').textContent = tier2Count;
             document.getElementById('countTier3').textContent = tier3Count;
             document.getElementById('countVip').textContent = vipCount;
             
-            // Update chart
+            // Charts
+            renderGrowthChart();
             renderTierChart(tier1Count, tier2Count, tier3Count, vipCount);
-            
-            // Update activity feed
+            renderPeakChart();
             renderActivityFeed();
+            renderReengagementPanel();
         }
         
-        // ============ PIE CHART ============
+        // ============ GROWTH CHART (Line + Bar) ============
+        function renderGrowthChart() {
+            const ctx = document.getElementById('growthChart');
+            if (!ctx) return;
+            
+            // Build last 30 days
+            const labels = [];
+            const cumulativeData = [];
+            const dailySignups = [];
+            
+            for (let i = 29; i >= 0; i--) {
+                const dayStart = getDaysAgo(i);
+                const dayEnd = new Date(dayStart);
+                dayEnd.setDate(dayEnd.getDate() + 1);
+                
+                const dayLabel = dayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                labels.push(dayLabel);
+                
+                const signupsUpToDay = allUsers.filter(u => new Date(u.created_at) < dayEnd).length;
+                const signupsOnDay = allUsers.filter(u => {
+                    const d = new Date(u.created_at);
+                    return d >= dayStart && d < dayEnd;
+                }).length;
+                
+                cumulativeData.push(signupsUpToDay);
+                dailySignups.push(signupsOnDay);
+            }
+            
+            if (growthChart) growthChart.destroy();
+            
+            growthChart = new Chart(ctx, {
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Total Users',
+                            data: cumulativeData,
+                            borderColor: '#00B875',
+                            backgroundColor: 'rgba(0,184,117,0.1)',
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'bar',
+                            label: 'New Signups',
+                            data: dailySignups,
+                            backgroundColor: 'rgba(99,102,241,0.6)',
+                            borderRadius: 4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { boxWidth: 10, boxHeight: 10, padding: 12, font: { size: 11, weight: '600' }, usePointStyle: true, pointStyle: 'circle' }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a1a1a',
+                            padding: 10,
+                            cornerRadius: 8,
+                            titleFont: { size: 12, weight: '700' },
+                            bodyFont: { size: 11 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, color: '#888', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+                        },
+                        y: {
+                            position: 'left',
+                            grid: { color: '#f0f2f5' },
+                            ticks: { font: { size: 10 }, color: '#888', precision: 0 }
+                        },
+                        y1: {
+                            position: 'right',
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, color: '#888', precision: 0 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ============ TIER DOUGHNUT ============
         function renderTierChart(t1, t2, t3, tvip) {
             const ctx = document.getElementById('tierChart');
             if (!ctx) return;
-            
-            if (tierChart) {
-                tierChart.destroy();
-            }
+            if (tierChart) tierChart.destroy();
             
             tierChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -1039,19 +1189,11 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                padding: 16,
-                                font: { size: 12, weight: '600' },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
+                            labels: { padding: 12, font: { size: 11, weight: '600' }, usePointStyle: true, pointStyle: 'circle' }
                         },
                         tooltip: {
-                            backgroundColor: '#1a1a1a',
-                            padding: 12,
-                            cornerRadius: 8,
-                            titleFont: { size: 13, weight: '700' },
-                            bodyFont: { size: 12 },
+                            backgroundColor: '#1a1a1a', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 12, weight: '700' }, bodyFont: { size: 11 },
                             callbacks: {
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -1065,15 +1207,117 @@
             });
         }
         
+        // ============ PEAK HOURS CHART ============
+        function renderPeakChart() {
+            const ctx = document.getElementById('peakChart');
+            if (!ctx) return;
+            
+            // Count users by hour of their last_seen
+            const hourCounts = new Array(24).fill(0);
+            allUsers.forEach(user => {
+                if (user.last_seen) {
+                    const hour = new Date(user.last_seen).getHours();
+                    hourCounts[hour]++;
+                }
+            });
+            
+            const labels = hourCounts.map((_, i) => {
+                if (i === 0) return '12a';
+                if (i < 12) return i + 'a';
+                if (i === 12) return '12p';
+                return (i - 12) + 'p';
+            });
+            
+            // Find max hour for highlight
+            const maxHour = hourCounts.indexOf(Math.max(...hourCounts));
+            const colors = hourCounts.map((_, i) => i === maxHour ? '#f59e0b' : 'rgba(0,184,117,0.6)');
+            
+            if (peakChart) peakChart.destroy();
+            
+            peakChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: hourCounts,
+                        backgroundColor: colors,
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1a1a1a', padding: 10, cornerRadius: 8,
+                            titleFont: { size: 12, weight: '700' }, bodyFont: { size: 11 },
+                            callbacks: {
+                                title: function(context) {
+                                    const h = context[0].dataIndex;
+                                    const hr = h === 0 ? '12 AM' : h < 12 ? h + ' AM' : h === 12 ? '12 PM' : (h - 12) + ' PM';
+                                    return hr;
+                                },
+                                label: function(context) { return ` ${context.parsed.y} users active`; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#888', maxRotation: 0 } },
+                        y: { grid: { color: '#f0f2f5' }, ticks: { font: { size: 10 }, color: '#888', precision: 0 } }
+                    }
+                }
+            });
+        }
+        
+        // ============ RE-ENGAGEMENT PANEL ============
+        function renderReengagementPanel() {
+            const container = document.getElementById('reengagementList');
+            
+            // Find users inactive for 7+ days, sort by oldest first
+            const inactive = allUsers
+                .filter(user => {
+                    if (user.last_seen) {
+                        return (Date.now() - new Date(user.last_seen).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                    } else {
+                        return (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                    }
+                })
+                .sort((a, b) => {
+                    const aTime = a.last_seen ? new Date(a.last_seen).getTime() : new Date(a.created_at).getTime();
+                    const bTime = b.last_seen ? new Date(b.last_seen).getTime() : new Date(b.created_at).getTime();
+                    return aTime - bTime; // Oldest first
+                })
+                .slice(0, 6);
+            
+            if (inactive.length === 0) {
+                container.innerHTML = '<div class="reengagement-empty">No inactive users 🎉</div>';
+                return;
+            }
+            
+            container.innerHTML = inactive.map(user => {
+                const letter = (user.account_name || '?').charAt(0).toUpperCase();
+                const timeAgo = user.last_seen ? formatLastSeen(user.last_seen) : 'Never logged in';
+                return `
+                    <div class="reengagement-item">
+                        <div class="reengagement-avatar">${letter}</div>
+                        <div class="reengagement-info">
+                            <div class="reengagement-name">${user.account_name}</div>
+                            <div class="reengagement-time">${timeAgo}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
         // ============ ACTIVITY FEED ============
         function renderActivityFeed() {
             const container = document.getElementById('activityList');
-            
-            // Sort users by last_seen
             const sorted = [...allUsers]
                 .filter(u => u.last_seen)
                 .sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen))
-                .slice(0, 8);
+                .slice(0, 6);
             
             if (sorted.length === 0) {
                 container.innerHTML = '<div style="text-align:center; color:#888; padding:20px; font-size:13px;">No activity yet</div>';
@@ -1081,7 +1325,7 @@
             }
             
             container.innerHTML = sorted.map(user => {
-                const tier = user.user_tier || '1';
+                const tier = getUserTier(user);
                 const dotClass = getActivityDotClass(user.last_seen);
                 
                 let tierBadge = '';
@@ -1095,7 +1339,7 @@
                         <div class="activity-dot ${dotClass}"></div>
                         <div class="activity-info">
                             <div class="activity-name">${user.account_name}</div>
-                            <div class="activity-time">${formatLastSeen(user.last_seen)}</div>
+                            <div class="activity-time" data-lastseen-time="${user.last_seen}">${formatLastSeen(user.last_seen)}</div>
                         </div>
                         ${tierBadge}
                     </div>
@@ -1111,97 +1355,56 @@
             return 'old';
         }
         
-        // ============ LIVE LAST SEEN UPDATE ============
-        // Updates the "X seconds ago" text every second without re-rendering the whole table
+        // ============ LIVE UPDATES ============
         function startLiveUpdates() {
             if (liveUpdateInterval) clearInterval(liveUpdateInterval);
-            
             liveUpdateInterval = setInterval(() => {
-                // Update last-seen cells only
                 document.querySelectorAll('[data-lastseen-time]').forEach(el => {
                     const lastSeen = el.getAttribute('data-lastseen-time');
                     if (lastSeen && lastSeen !== 'null') {
                         el.innerHTML = formatLastSeen(lastSeen);
                     }
                 });
-                
-                // Update activity feed times
                 renderActivityFeed();
+                renderReengagementPanel();
                 
-                // Update "Online Now" and "Active Today" counters
                 if (allUsers.length > 0) {
-                    const now = Date.now();
                     let onlineNow = 0, activeToday = 0;
                     allUsers.forEach(user => {
                         if (user.last_seen) {
-                            const diffSeconds = (now - new Date(user.last_seen).getTime()) / 1000;
+                            const diffSeconds = (Date.now() - new Date(user.last_seen).getTime()) / 1000;
                             if (diffSeconds < 300) onlineNow++;
                             if (diffSeconds < 86400) activeToday++;
                         }
                     });
                     document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
                     document.getElementById('activeToday').textContent = activeToday.toLocaleString();
+                    document.getElementById('filterCountOnline').textContent = onlineNow;
+                    document.getElementById('filterCountActive').textContent = activeToday;
                 }
-            }, 1000); // Every 1 second
+            }, 1000);
         }
         
-        // ============ LAST SEEN FORMATTING (SECONDS PRECISION) ============
+        // ============ FORMAT LAST SEEN ============
         function formatLastSeen(lastSeen) {
             if (!lastSeen) return '<span class="last-seen-old">Never</span>';
-            
             const lastSeenDate = new Date(lastSeen);
             const now = new Date();
-            const diffMs = now - lastSeenDate;
-            const diffSeconds = Math.floor(diffMs / 1000);
+            const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
             const diffMins = Math.floor(diffSeconds / 60);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
             
-            // Less than 5 seconds → Online now
-            if (diffSeconds < 5) {
-                return '<span class="last-seen-online">Online now</span>';
-            }
-            
-            // 5-59 seconds → X sec ago
-            if (diffSeconds < 60) {
-                return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
-            }
-            
-            // 1-59 minutes → X min ago
-            if (diffMins < 60) {
-                return `<span class="last-seen-recent">${diffMins} min${diffMins !== 1 ? 's' : ''} ago</span>`;
-            }
-            
-            // 1-23 hours → X hour ago
-            if (diffHours < 24) {
-                return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
-            }
-            
-            // 1 day
-            if (diffDays === 1) {
-                return '<span class="last-seen-old">Yesterday</span>';
-            }
-            
-            // 2-6 days → X days ago
-            if (diffDays < 7) {
-                return `<span class="last-seen-old">${diffDays} days ago</span>`;
-            }
-            
-            // 1-4 weeks → X week ago
-            if (diffDays < 30) {
-                const weeks = Math.floor(diffDays / 7);
-                return `<span class="last-seen-old">${weeks} week${weeks !== 1 ? 's' : ''} ago</span>`;
-            }
-            
-            // 1-11 months → X month ago
-            if (diffDays < 365) {
-                const months = Math.floor(diffDays / 30);
-                return `<span class="last-seen-old">${months} month${months !== 1 ? 's' : ''} ago</span>`;
-            }
-            
-            // Years
-            const years = Math.floor(diffDays / 365);
-            return `<span class="last-seen-old">${years} year${years !== 1 ? 's' : ''} ago</span>`;
+            if (diffSeconds < 5) return '<span class="last-seen-online">Online now</span>';
+            if (diffSeconds < 60) return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
+            if (diffMins < 60) return `<span class="last-seen-recent">${diffMins} min${diffMins !== 1 ? 's' : ''} ago</span>`;
+            if (diffHours < 24) return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
+            if (diffDays === 1) return '<span class="last-seen-old">Yesterday</span>';
+            if (diffDays < 7) return `<span class="last-seen-old">${diffDays} days ago</span>`;
+            if (diffDays < 30) { const w = Math.floor(diffDays / 7); return `<span class="last-seen-old">${w} week${w !== 1 ? 's' : ''} ago</span>`; }
+            if (diffDays < 365) { const m = Math.floor(diffDays / 30); return `<span class="last-seen-old">${m} month${m !== 1 ? 's' : ''} ago</span>`; }
+            const y = Math.floor(diffDays / 365);
+            return `<span class="last-seen-old">${y} year${y !== 1 ? 's' : ''} ago</span>`;
         }
         
         // ============ TIER DISPLAY ============
@@ -1214,15 +1417,54 @@
         }
         
         function getStatusDisplay(tier) {
-            if (tier === '1' || tier === 1 || !tier) {
-                return '<span class="status-badge free">No Plan</span>';
-            }
+            if (tier === '1' || tier === 1 || !tier) return '<span class="status-badge free">No Plan</span>';
             return '<span class="status-badge paid">Paid User</span>';
+        }
+        
+        // ============ FILTER TABS ============
+        function applyFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-filter') === filter);
+            });
+            sortAndRenderUsers();
+        }
+        
+        function getFilteredUsers() {
+            const now = Date.now();
+            switch(currentFilter) {
+                case 'online':
+                    return allUsers.filter(u => u.last_seen && (now - new Date(u.last_seen).getTime()) / 1000 < 300);
+                case 'active':
+                    return allUsers.filter(u => u.last_seen && (now - new Date(u.last_seen).getTime()) / 1000 < 86400);
+                case 'paid':
+                    return allUsers.filter(u => isPaid(u));
+                case 'inactive':
+                    return allUsers.filter(u => {
+                        if (u.last_seen) return (now - new Date(u.last_seen).getTime()) / (1000*60*60*24) >= 7;
+                        return (now - new Date(u.created_at).getTime()) / (1000*60*60*24) >= 7;
+                    });
+                case 'new':
+                    return allUsers.filter(u => (now - new Date(u.created_at).getTime()) / (1000*60*60*24) < 7);
+                default:
+                    return allUsers;
+            }
         }
         
         // ============ SORT & RENDER ============
         function sortAndRenderUsers() {
-            const sortedUsers = [...allUsers].sort((a, b) => {
+            let users = getFilteredUsers();
+            
+            const searchTerm = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            if (searchTerm) {
+                users = users.filter(user =>
+                    user.account_name.toLowerCase().includes(searchTerm) ||
+                    user.account_number.includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const sorted = [...users].sort((a, b) => {
                 let aVal, bVal;
                 if (currentSort.field === 'last_seen') {
                     aVal = a.last_seen ? new Date(a.last_seen).getTime() : 0;
@@ -1231,17 +1473,16 @@
                     aVal = new Date(a.created_at).getTime();
                     bVal = new Date(b.created_at).getTime();
                 } else if (currentSort.field === 'user_tier') {
-                    const tierOrder = { '1': 1, '2': 2, '3': 3, 'VIP': 4 };
-                    aVal = tierOrder[a.user_tier || '1'] || 1;
-                    bVal = tierOrder[b.user_tier || '1'] || 1;
+                    const order = { '1': 1, '2': 2, '3': 3, 'VIP': 4 };
+                    aVal = order[a.user_tier || '1'] || 1;
+                    bVal = order[b.user_tier || '1'] || 1;
                 } else {
-                    aVal = a[currentSort.field];
-                    bVal = b[currentSort.field];
+                    aVal = a[currentSort.field]; bVal = b[currentSort.field];
                 }
                 return currentSort.order === 'desc' ? bVal - aVal : aVal - bVal;
             });
             
-            renderUsersTable(sortedUsers);
+            renderUsersTable(sorted);
             
             document.querySelectorAll('.sort-icon').forEach(icon => {
                 icon.classList.remove('fa-sort-up', 'fa-sort-down');
@@ -1258,45 +1499,35 @@
         }
         
         function sortBy(field) {
-            if (currentSort.field === field) {
-                currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
-            } else {
-                currentSort.field = field;
-                currentSort.order = 'desc';
-            }
+            if (currentSort.field === field) currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
+            else { currentSort.field = field; currentSort.order = 'desc'; }
             sortAndRenderUsers();
         }
         
         function renderUsersTable(users) {
             const tbody = document.getElementById('usersTableBody');
-            
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 60px; color:#888;">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 60px; color:#888;">No users found for this filter</td></tr>';
                 return;
             }
             
             tbody.innerHTML = users.map(user => {
-                const userTier = user.user_tier || '1';
+                const userTier = getUserTier(user);
                 const lastSeenAttr = user.last_seen ? user.last_seen : 'null';
-                
                 return `
                     <tr>
                         <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
                         <td><strong>${user.account_number}</strong></td>
                         <td>${user.account_name}</td>
-                        <td style="font-size: 12px; color:#666;">${user.email}</td>
-                        <td><code style="font-size: 11px; background:#f1f5f9; padding:3px 7px; border-radius:5px;">${user.password_code}</code></td>
+                        <td style="font-size: 11px; color:#666;">${user.email}</td>
+                        <td><code style="font-size: 10px; background:#f1f5f9; padding:2px 6px; border-radius:5px;">${user.password_code}</code></td>
                         <td>${getTierDisplay(userTier)}</td>
                         <td>${getStatusDisplay(userTier)}</td>
                         <td style="font-size: 11px; color:#888; white-space: nowrap;">${new Date(user.created_at).toLocaleDateString()}</td>
                         <td data-lastseen-time="${lastSeenAttr}" style="white-space: nowrap;">${formatLastSeen(user.last_seen)}</td>
                         <td style="white-space: nowrap;">
-                            <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
-                                <i class="fas fa-crown"></i> Tier
-                            </button>
-                            <button class="action-btn delete" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')"><i class="fas fa-crown"></i></button>
+                            <button class="action-btn delete" onclick="deleteSingleUser(${user.id}, '${user.account_name}')"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1310,15 +1541,9 @@
         function openTierModal(userId, email, userName) {
             const user = allUsers.find(u => u.id === userId);
             const currentTier = user?.user_tier || '1';
-            
             pendingUserData = { userId, email, userName, currentTier };
             
-            const tierNames = {
-                '1': '⚪ Not Activated',
-                '2': '🥈 Basic',
-                '3': '🥉 Premium',
-                'VIP': '👑 VIP'
-            };
+            const tierNames = { '1': '⚪ Not Activated', '2': '🥈 Basic', '3': '🥉 Premium', 'VIP': '👑 VIP' };
             
             document.getElementById('modalUserInfo').innerHTML = `
                 <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">${userName}</div>
@@ -1329,9 +1554,8 @@
             selectedTier = null;
             document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
             
-            if (modalInstance) {
-                modalInstance.show();
-            } else {
+            if (modalInstance) modalInstance.show();
+            else {
                 modalInstance = new bootstrap.Modal(document.getElementById('tierModal'));
                 modalInstance.show();
             }
@@ -1347,14 +1571,8 @@
         }
         
         async function confirmAssignTier() {
-            if (!selectedTier) {
-                Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select a tier to assign' });
-                return;
-            }
-            if (!pendingUserData) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No user selected' });
-                return;
-            }
+            if (!selectedTier) { Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select a tier' }); return; }
+            if (!pendingUserData) { Swal.fire({ icon: 'error', title: 'Error', text: 'No user selected' }); return; }
             
             const tierNames = { '1': 'Not Activated', '2': 'Basic Plan', '3': 'Premium Plan', 'VIP': 'VIP Plan' };
             const tierEmojis = { '1': '⚪', '2': '🥈', '3': '🥉', 'VIP': '👑' };
@@ -1363,13 +1581,11 @@
             
             const result = await Swal.fire({
                 title: `${tierEmoji} Assign Tier`,
-                html: `
-                    <div style="text-align: left; font-size: 14px;">
-                        <p><strong>User:</strong> ${pendingUserData.userName}</p>
-                        <p><strong>Current:</strong> ${tierNames[pendingUserData.currentTier] || 'Not Activated'}</p>
-                        <p><strong>New:</strong> ${tierEmoji} ${tierName}</p>
-                    </div>
-                `,
+                html: `<div style="text-align: left; font-size: 14px;">
+                    <p><strong>User:</strong> ${pendingUserData.userName}</p>
+                    <p><strong>Current:</strong> ${tierNames[pendingUserData.currentTier] || 'Not Activated'}</p>
+                    <p><strong>New:</strong> ${tierEmoji} ${tierName}</p>
+                </div>`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#00B875',
@@ -1379,32 +1595,19 @@
             
             if (result.isConfirmed) {
                 try {
-                    Swal.fire({
-                        title: 'Processing...',
-                        allowOutsideClick: false,
-                        showConfirmButton: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                    
+                    Swal.fire({ title: 'Processing...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
                     const response = await fetch(`${BACKEND_URL}/api/admin/assign-tier`, {
                         method: 'POST',
-                        headers: { 
-                            'X-Admin-Token': adminSessionToken,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'X-Admin-Token': adminSessionToken, 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: pendingUserData.email, tier: selectedTier })
                     });
-                    
                     const data = await response.json();
-                    
                     if (data.success) {
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
-                        await Swal.fire({ 
-                            icon: 'success', 
-                            title: '✅ Success!', 
+                        await Swal.fire({
+                            icon: 'success', title: '✅ Success!',
                             text: `${pendingUserData.userName} has been ${selectedTier === '1' ? 'reset to Not Activated' : `upgraded to ${tierName}`}`,
-                            timer: 2000,
-                            showConfirmButton: false
+                            timer: 2000, showConfirmButton: false
                         });
                         if (modalInstance) modalInstance.hide();
                         await loadDashboardData();
@@ -1445,18 +1648,13 @@
             const result = await Swal.fire({
                 title: 'Delete User?',
                 text: `Are you sure you want to delete ${userName}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Yes, delete',
-                cancelButtonText: 'Cancel'
+                icon: 'warning', showCancelButton: true,
+                confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, delete', cancelButtonText: 'Cancel'
             });
-            
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/admin/delete-user/${userId}`, {
-                        method: 'DELETE',
-                        headers: { 'X-Admin-Token': adminSessionToken }
+                        method: 'DELETE', headers: { 'X-Admin-Token': adminSessionToken }
                     });
                     const data = await response.json();
                     if (data.success) {
@@ -1464,39 +1662,24 @@
                         if (user) localStorage.removeItem(`user_tier_${user.email}`);
                         Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, timer: 1500, showConfirmButton: false });
                         loadDashboardData();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                    }
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete user' });
-                }
+                    } else Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                } catch (error) { Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete user' }); }
             }
         }
         
         async function deleteSelectedUsers() {
-            if (selectedUserIds.size === 0) {
-                Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select users to delete' });
-                return;
-            }
-            
+            if (selectedUserIds.size === 0) { Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select users to delete' }); return; }
             const result = await Swal.fire({
                 title: 'Delete Users?',
                 text: `Delete ${selectedUserIds.size} user(s)? This cannot be undone.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Yes, delete all',
-                cancelButtonText: 'Cancel'
+                icon: 'warning', showCancelButton: true,
+                confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, delete all', cancelButtonText: 'Cancel'
             });
-            
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/admin/delete-users`, {
                         method: 'POST',
-                        headers: { 
-                            'X-Admin-Token': adminSessionToken,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'X-Admin-Token': adminSessionToken, 'Content-Type': 'application/json' },
                         body: JSON.stringify({ userIds: Array.from(selectedUserIds) })
                     });
                     const data = await response.json();
@@ -1508,25 +1691,13 @@
                         Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, timer: 1500, showConfirmButton: false });
                         selectedUserIds.clear();
                         loadDashboardData();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                    }
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete users' });
-                }
+                    } else Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                } catch (error) { Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete users' }); }
             }
         }
         
-        // ============ FILTER ============
-        function filterUsers() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allUsers.filter(user => 
-                user.account_name.toLowerCase().includes(searchTerm) ||
-                user.account_number.includes(searchTerm) ||
-                user.email.toLowerCase().includes(searchTerm)
-            );
-            renderUsersTable(filtered);
-        }
+        // ============ SEARCH ============
+        function filterUsers() { sortAndRenderUsers(); }
         
         // ============ SCREEN CONTROL ============
         function showLogin() {
@@ -1542,8 +1713,7 @@
         async function adminLogout() {
             if (adminSessionToken) {
                 await fetch(`${BACKEND_URL}/api/admin/logout`, {
-                    method: 'POST',
-                    headers: { 'X-Admin-Token': adminSessionToken }
+                    method: 'POST', headers: { 'X-Admin-Token': adminSessionToken }
                 });
             }
             localStorage.removeItem('adminSessionToken');
@@ -1553,26 +1723,12 @@
             Swal.fire({ icon: 'success', title: 'Logged Out', text: 'Session ended', timer: 1500, showConfirmButton: false });
         }
         
-        // ============ AUTO REFRESH ============
+        // Auto-refresh every 30s
         setInterval(() => {
             if (adminSessionToken && document.getElementById('dashboardScreen').style.display !== 'none') {
                 loadDashboardData();
             }
         }, 30000);
-        
-        // Responsive grid for chart
-        function checkResponsive() {
-            const grid = document.getElementById('chartActivityGrid');
-            if (grid) {
-                if (window.innerWidth < 992) {
-                    grid.style.gridTemplateColumns = '1fr';
-                } else {
-                    grid.style.gridTemplateColumns = '2fr 1fr';
-                }
-            }
-        }
-        window.addEventListener('resize', checkResponsive);
-        checkResponsive();
     </script>
 </body>
 </html>
