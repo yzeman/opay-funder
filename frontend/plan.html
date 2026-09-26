@@ -65,6 +65,10 @@
             text-align: center;
         }
 
+        .current-tier-card.inactive {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
         .current-tier-label {
             font-size: 12px;
             opacity: 0.8;
@@ -74,6 +78,35 @@
         .current-tier-name {
             font-size: 24px;
             font-weight: 700;
+        }
+
+        .warning-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 14px 16px;
+            margin: 0 16px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-banner i {
+            color: #ffc107;
+            font-size: 22px;
+        }
+
+        .warning-text-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 2px;
+        }
+
+        .warning-text-desc {
+            font-size: 12px;
+            color: #856404;
+            line-height: 1.3;
         }
 
         .plan-card {
@@ -518,9 +551,6 @@
             }
         }
 
-        // ========== LOAD USER WITH REAL TIER FROM BACKEND ==========
-        // ✅ FIXED: Always fetch tier from Supabase via /api/get-profile
-        // ✅ FIXED: If tier changed, reload page to reflect new tier everywhere
         async function loadUser() {
             const userData = localStorage.getItem('loggedInUser');
             if (!userData) {
@@ -532,8 +562,6 @@
             // Get cached tier first (instant display)
             const cachedTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
             userTier = cachedTier;
-            
-            console.log('📊 Cached tier:', userTier);
             
             // ✅ Fetch REAL tier from backend (Supabase)
             try {
@@ -547,26 +575,19 @@
                 if (data.success && data.profile) {
                     const realTier = data.profile.user_tier || '1';
                     
-                    console.log('✅ Real tier from backend:', realTier);
-                    console.log('📊 Cached tier was:', cachedTier);
-                    
                     // Save to localStorage for caching
                     localStorage.setItem(`user_tier_${currentUser.email}`, realTier);
                     userTier = realTier;
                     
                     // If tier changed on backend, reload page so everything updates
                     if (cachedTier !== realTier) {
-                        console.log(`🔄 Tier changed: ${cachedTier} → ${realTier}. Reloading...`);
                         window.location.reload();
                         return currentUser;
                     }
                 } else {
-                    console.log('⚠️ Backend did not return tier, using cached');
                     userTier = cachedTier;
                 }
             } catch (error) {
-                console.error('❌ Failed to fetch real tier:', error);
-                // Keep cached tier as fallback
                 userTier = cachedTier;
             }
             
@@ -575,16 +596,32 @@
 
         function renderPlans() {
             const container = document.getElementById('planContent');
-            const currentTierName = userTier === '1' || userTier === 1 ? '⭐ Free Tier' : 
+            const isNotActivated = (userTier === '1' || userTier === 1 || !userTier);
+            
+            // ✅ UPDATED: "Free Tier" → "⚪ Not Activated"
+            const currentTierName = isNotActivated ? '⚪ Not Activated' : 
                                      userTier === '2' || userTier === 2 ? '🥈 Basic Tier' : 
                                      userTier === '3' || userTier === 3 ? '🥉 Premium Tier' : 
-                                     userTier === 'VIP' ? '👑 VIP Tier' : '⭐ Free Tier';
+                                     userTier === 'VIP' ? '👑 VIP Tier' : '⚪ Not Activated';
+            
+            // ✅ NEW: Warning banner for Tier 1 users
+            const warningBanner = isNotActivated ? `
+                <div class="warning-banner">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <div class="warning-text-title">Account Not Activated</div>
+                        <div class="warning-text-desc">Choose a plan below to unlock transfers, receipts, and more features.</div>
+                    </div>
+                </div>
+            ` : '';
             
             container.innerHTML = `
-                <div class="current-tier-card">
+                <div class="current-tier-card ${isNotActivated ? 'inactive' : ''}">
                     <div class="current-tier-label">Your Current Tier</div>
                     <div class="current-tier-name">${currentTierName}</div>
                 </div>
+
+                ${warningBanner}
 
                 <div class="plan-card" data-plan="basic" data-tier="2" data-price="30000" data-name="Basic Plan">
                     <div class="plan-header">
@@ -602,7 +639,7 @@
                         <li><i class="fas fa-check-circle"></i> Add Money limit ₦300,000</li>
                     </ul>
                     <button class="upgrade-btn ${parseInt(userTier) >= 2 ? 'disabled' : 'active'}">
-                        ${parseInt(userTier) >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic →'}
+                        ${parseInt(userTier) >= 2 ? '✓ Already Purchased' : 'Activate with Basic →'}
                     </button>
                 </div>
 
