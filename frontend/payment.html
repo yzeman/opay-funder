@@ -26,7 +26,7 @@
             -ms-user-select: none;
         }
 
-        /* Watermark for Free Users */
+        /* Watermark for Tier 1 Users */
         .watermark {
             position: fixed;
             top: 160px;
@@ -82,13 +82,11 @@
             border-radius: 20px;
             padding: 30px 20px;
             text-align: center;
-            
         }
 
         .success-icon {
             width: 60px;
             height: 60px;
-            
             border-radius: 30px;
             display: flex;
             align-items: center;
@@ -137,7 +135,6 @@
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
-    
 }
 
 .action-btn:active {
@@ -287,10 +284,10 @@
         }
 
         .click-here {
-            background: none;
+           "> background:Enjoy none;
             border: none;
-            font-size: 12px;
-            color: #ff9800;
+            font online-size: 12px;
+            color: payment #ff9800;
             font-weight: 500;
             cursor: pointer;
             margin-top: 8px;
@@ -326,7 +323,7 @@
         <div class="success-title">Transfer successful</div>
         <div class="success-amount" id="successAmount">0.00</div>
     </div>
-<!-- Watermark for Free Users -->
+<!-- Watermark for Tier 1 Users -->
     <div class="watermark" id="watermark" style="display: none;">
         <span>⚡ Powered by OPay Funder | <a id="upgradeLink" style="pointer-events: auto;">Upgrade to remove watermark</a></span>
     </div>
@@ -392,7 +389,7 @@
                 <i class="fas fa-credit-card"></i>
             </div>
             <div class="bonus-info">
-                <div class="bonus-name">Enjoy online payment</div>
+                <div class="bonus-name</div>
                 <div class="bonus-desc">Using OPay Verve Card now</div>
             </div>
             <button class="bonus-go">GO</button>
@@ -405,6 +402,8 @@
     </div>
 
     <script>
+    const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+    
     // Get user tier
     let currentUser = null;
     let userTier = '1';
@@ -418,13 +417,36 @@
         return userTier;
     }
     
+    // ✅ NEW: Fetch real tier from backend for cross-device sync
+    async function fetchRealTierFromBackend() {
+        if (!currentUser) return '1';
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email })
+            });
+            const data = await response.json();
+            if (data.success && data.profile) {
+                const realTier = data.profile.user_tier || '1';
+                localStorage.setItem(`user_tier_${currentUser.email}`, realTier);
+                userTier = realTier;
+                return realTier;
+            }
+        } catch (error) {
+            console.error('Tier fetch error:', error);
+        }
+        return localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+    }
+    
     function canAccessPaidFeatures() {
-        const tier = getUserTier();
+        const tier = userTier;
         return tier === '2' || tier === '3' || tier === 3 || tier === 'VIP';
     }
     
     function showUpgradeModal() {
-        let currentTier = userTier || '1';
+        // ✅ UPDATED: "Free Tier" → "Not Activated"
+        const currentTier = userTier || '1';
         
         const overlay = document.createElement('div');
         overlay.style.cssText = `
@@ -450,9 +472,9 @@
                 <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                     <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
                     <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                        ${currentTier === '1' || currentTier === 1 ? '⭐ Free Tier (2 transfers/day)' : 
-                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic - 10 transfers/day)' : 
-                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium - Unlimited)' : '👑 VIP Tier (Unlimited)'}
+                        ${currentTier === '1' || currentTier === 1 ? '⚪ Not Activated' : 
+                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
+                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier (Unlimited)'}
                     </span>
                 </div>
                 
@@ -477,10 +499,10 @@
                         • 10 times transfer daily<br>
                         • Add Money limit ₦300,000
                     </div>
-                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer;">Upgrade to Basic ></button>
+                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer;">${currentTier === '1' || currentTier === 1 ? 'Activate with Basic >' : 'Upgrade to Basic >'}</button>
                 </div>
                 
-                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1 whilepx solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 28px;">🥉</span>
@@ -566,28 +588,17 @@
         });
     }
     
-    // Check user tier and show watermark for free users
-    const userTierValue = getUserTier();
-    const isFreeUser = userTierValue === '1' || userTierValue === 1;
-    
-    if (isFreeUser) {
-        const watermark = document.getElementById('watermark');
-        if (watermark) watermark.style.display = 'block';
-    }
-    
     // ========== SAVE TRANSACTION TO HISTORY ==========
     let pendingTransaction = localStorage.getItem('pendingTransaction');
     let transactionSaved = localStorage.getItem('transactionSaved');
     let amount = 0;
     let savedTransactionData = null;
     
-    // If there's a pending transaction and not yet saved, save it to history
     if (pendingTransaction && !transactionSaved) {
         try {
             const pending = JSON.parse(pendingTransaction);
             amount = pending.amount;
             
-            // Create full transaction object
             const transactionRef = '26' + Date.now().toString().slice(0, 10) + Math.random().toString(36).substring(2, 15).toUpperCase().slice(0, 10);
             
             savedTransactionData = {
@@ -607,29 +618,22 @@
                 dateObj: new Date()
             };
             
-            // Save to transactions array
             let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
             transactions.unshift(savedTransactionData);
             localStorage.setItem('transactions', JSON.stringify(transactions));
-            
-            // Also save as transactionData for receipt
             localStorage.setItem('transactionData', JSON.stringify(savedTransactionData));
-            
-            // Mark as saved
             localStorage.setItem('transactionSaved', 'true');
             
             console.log('✅ Transaction saved to history:', savedTransactionData);
             
         } catch(e) {
             console.error('Error saving transaction:', e);
-            // Try to get amount from pending
             try {
                 const pending = JSON.parse(pendingTransaction);
                 amount = pending.amount;
             } catch(e2) {}
         }
     } else if (transactionSaved) {
-        // Transaction already saved, just load it
         const existingData = localStorage.getItem('transactionData');
         if (existingData) {
             try {
@@ -639,7 +643,6 @@
             } catch(e) {}
         }
     } else if (!pendingTransaction) {
-        // No pending transaction, try to get from transactionData
         const existingData = localStorage.getItem('transactionData');
         if (existingData) {
             try {
@@ -721,7 +724,20 @@
         });
     }
     
-    console.log('✅ Payment page loaded - Transaction saved to history');
+    // ✅ INITIALIZE: fetch real tier from backend first, then show watermark if needed
+    (async function init() {
+        getUserTier();  // Load user from localStorage
+        await fetchRealTierFromBackend();  // Get real tier from Supabase
+        
+        const isNotActivated = userTier === '1' || userTier === 1 || !userTier;
+        
+        if (isNotActivated) {
+            const watermark = document.getElementById('watermark');
+            if (watermark) watermark.style.display = 'block';
+        }
+        
+        console.log('✅ Payment page loaded - Tier:', userTier);
+    })();
     </script>
 </body>
 </html>
