@@ -329,6 +329,7 @@
         let currentUser = null;
         let profileData = null;
         let isEditMode = false;
+        let currentTier = '1';
 
         // Load user from localStorage
         function loadUserFromLocalStorage() {
@@ -339,6 +340,27 @@
             }
             currentUser = JSON.parse(userData);
             return currentUser;
+        }
+
+        // ✅ NEW: Fetch real tier from backend (fix for cross-device sync)
+        async function fetchRealTierFromBackend() {
+            if (!currentUser) return '1';
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await response.json();
+                if (data.success && data.profile) {
+                    const realTier = data.profile.user_tier || '1';
+                    localStorage.setItem(`user_tier_${currentUser.email}`, realTier);
+                    return realTier;
+                }
+            } catch (error) {
+                console.error('Tier fetch error:', error);
+            }
+            return localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
         }
 
         // Fetch profile from backend
@@ -352,6 +374,11 @@
                 const data = await response.json();
                 if (data.success) {
                     profileData = data.profile;
+                    // ✅ Save tier from backend directly
+                    if (data.profile.user_tier) {
+                        currentTier = data.profile.user_tier;
+                        localStorage.setItem(`user_tier_${currentUser.email}`, currentTier);
+                    }
                 } else {
                     profileData = {
                         account_number: currentUser.account_number,
@@ -404,7 +431,6 @@
                 const data = await response.json();
                 if (data.success) {
                     profileData.profile_picture = base64Image;
-                    // Update localStorage for dashboard
                     const userData = JSON.parse(localStorage.getItem('loggedInUser'));
                     userData.profile_picture = base64Image;
                     localStorage.setItem('loggedInUser', JSON.stringify(userData));
@@ -440,7 +466,6 @@
                     reader.onload = async (event) => {
                         const base64 = event.target.result;
                         await updateProfilePicture(base64);
-                        // Also update dashboard avatar
                         localStorage.setItem('profile_picture', base64);
                     };
                     reader.readAsDataURL(file);
@@ -536,13 +561,22 @@
             const firstLetter = profileData.account_name.charAt(0).toUpperCase();
             const profilePic = profileData.profile_picture || localStorage.getItem('profile_picture');
             
-            // Determine tier display
-            let tierDisplay = '⭐ Tier 1 (Free)';
-            let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
-            if (currentTier === '1' || currentTier === 1) tierDisplay = '⭐ Tier 1 (Free)';
-            else if (currentTier === '2' || currentTier === 2) tierDisplay = '🥈 Tier 2 (Basic)';
-            else if (currentTier === '3' || currentTier === 3) tierDisplay = '🥉 Tier 3 (Premium)';
-            else if (currentTier === 'VIP') tierDisplay = '👑 VIP Tier';
+            // ✅ UPDATED: Tier display — "Free" → "Not Activated"
+            let tierDisplay = '⚪ Not Activated';
+            if (currentTier === '1' || currentTier === 1 || !currentTier) {
+                tierDisplay = '⚪ Not Activated';
+            } else if (currentTier === '2' || currentTier === 2) {
+                tierDisplay = '🥈 Tier 2 (Basic)';
+            } else if (currentTier === '3' || currentTier === 3) {
+                tierDisplay = '🥉 Tier 3 (Premium)';
+            } else if (currentTier === 'VIP') {
+                tierDisplay = '👑 VIP Tier';
+            }
+
+            // ✅ UPDATED: Link text — "Upgrade" → "Activate" for Tier 1
+            const isNotActivated = currentTier === '1' || currentTier === 1 || !currentTier;
+            const linkText = isNotActivated ? 'Activate Now' : 'Upgrade';
+            const showLink = currentTier !== 'VIP';
 
             container.innerHTML = `
                 <!-- Profile Card -->
@@ -567,13 +601,13 @@
                     </div>
                 </div>
 
-                <!-- Account Tier / Plan -->
+                <!-- ✅ Account Tier / Plan -->
                 <div class="info-section">
                     <div class="info-row">
                         <span class="info-label">Account Tier / Plan:</span>
                         <span class="info-value">
                             <span>${tierDisplay}</span>
-                            ${currentTier !== 'VIP' ? `<a href="#" class="upgrade-link" id="upgradeLink"> Upgrade <i class="fas fa-chevron-right"></i></a>` : ''}
+                            ${showLink ? `<a href="#" class="upgrade-link" id="upgradeLink"> ${linkText} <i class="fas fa-chevron-right"></i></a>` : ''}
                         </span>
                     </div>
                 </div>
@@ -661,7 +695,8 @@
 
       // Upgrade sheet function with COMPLETE plan details
 function showUpgradeSheet() {
-    let currentTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+    // ✅ Use the real currentTier variable
+    const tier = currentTier || '1';
     
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -687,14 +722,14 @@ function showUpgradeSheet() {
             <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                 <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
                 <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                    ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                      currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                      currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
+                    ${tier === '1' || tier === 1 ? '⚪ Not Activated' : 
+                      tier === '2' || tier === 2 ? '🥈 Tier 2 (Basic)' : 
+                      tier === '3' || tier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
                 </span>
             </div>
             
             <!-- Basic Plan (Tier 2) -->
-            <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
+            <div style="margin: 12px 16px; background: ${tier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${tier >= 2 ? '#00B875' : '#eee'};">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 28px;">🥈</span>
@@ -714,13 +749,13 @@ function showUpgradeSheet() {
                     • 10 times transfer daily<br>
                     • Add Money limit ₦100,000
                 </div>
-                <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 2 ? '0.6' : '1'};" ${currentTier >= 2 ? 'disabled' : ''}>
-                    ${currentTier >= 2 ? '✓ Already Purchased' : 'Upgrade to Basic >'}
+                <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${tier >= 2 ? '0.6' : '1'};" ${tier >= 2 ? 'disabled' : ''}>
+                    ${tier >= 2 ? '✓ Already Purchased' : 'Activate with Basic >'}
                 </button>
             </div>
             
             <!-- Premium Plan (Tier 3) -->
-            <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
+            <div style="margin: 12px 16px; background: ${tier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${tier >= 3 ? '#00B875' : '#eee'};">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 28px;">🥉</span>
@@ -740,13 +775,13 @@ function showUpgradeSheet() {
                     • Unlimited transfer<br>
                     • Add Money limit ₦1,000,000
                 </div>
-                <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier >= 3 ? '0.6' : '1'};" ${currentTier >= 3 ? 'disabled' : ''}>
-                    ${currentTier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
+                <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${tier >= 3 ? '0.6' : '1'};" ${tier >= 3 ? 'disabled' : ''}>
+                    ${tier >= 3 ? '✓ Already Purchased' : 'Upgrade to Premium >'}
                 </button>
             </div>
             
             <!-- VIP Plan -->
-            <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${currentTier === 'VIP' ? '#FF6B35' : '#FFD700'};">
+            <div style="margin: 12px 16px; background: ${tier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid ${tier === 'VIP' ? '#FF6B35' : '#FFD700'};">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 28px;">👑</span>
@@ -769,8 +804,8 @@ function showUpgradeSheet() {
                     • Add money unlimited<br>
                     • No transaction limit
                 </div>
-                <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${currentTier === 'VIP' ? '0.6' : '1'};" ${currentTier === 'VIP' ? 'disabled' : ''}>
-                    ${currentTier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
+                <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: ${tier === 'VIP' ? '0.6' : '1'};" ${tier === 'VIP' ? 'disabled' : ''}>
+                    ${tier === 'VIP' ? '✓ Already Purchased' : 'Upgrade to VIP >'}
                 </button>
             </div>
             
@@ -800,10 +835,10 @@ function showUpgradeSheet() {
             e.stopPropagation();
             if (btn.disabled) return;
             const plan = btn.getAttribute('data-plan');
-            const tier = btn.getAttribute('data-tier');
+            const tierAttr = btn.getAttribute('data-tier');
             localStorage.setItem('selected_plan', JSON.stringify({
                 plan: plan,
-                tier: tier,
+                tier: tierAttr,
                 price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
             }));
             window.location.href = 'plan.html';
@@ -818,9 +853,17 @@ function showUpgradeSheet() {
         window.showGenderModal = showGenderModal;
         window.showUpgradeSheet = showUpgradeSheet;
 
-        // Initialize
-        loadUserFromLocalStorage();
-        fetchProfile();
+        // ✅ Initialize
+        (async function init() {
+            loadUserFromLocalStorage();
+            if (!currentUser) return;
+            
+            // Fetch real tier from backend first
+            currentTier = await fetchRealTierFromBackend();
+            
+            // Then load profile
+            await fetchProfile();
+        })();
     </script>
 </body>
 </html>
