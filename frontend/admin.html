@@ -7,130 +7,776 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f0f2f5; font-family: 'Inter', sans-serif; }
-        .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .login-container { max-width: 400px; margin: 100px auto; }
-        .stats-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .stats-card:hover { transform: translateY(-2px); }
-        .stats-number { font-size: 32px; font-weight: 700; color: #00B875; }
-        .user-table { background: white; border-radius: 16px; padding: 20px; overflow-x: auto; }
-        table { width: 100%; font-size: 13px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background: #f8f9fa; font-weight: 600; position: sticky; top: 0; cursor: pointer; }
-        th:hover { background: #e8eaed; }
-        .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.5; }
-        .tier-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .tier-badge.tier-1 { background: #e8e8e8; color: #666; }
-        .tier-badge.tier-2 { background: #d4edda; color: #155724; }
-        .tier-badge.tier-3 { background: #f0e6d6; color: #CD7F32; }
-        .tier-badge.vip { background: #fff3cd; color: #856404; }
-        .last-seen-online { color: #00B875; font-weight: 600; }
-        .last-seen-recent { color: #666; }
-        .last-seen-old { color: #999; }
-        .tier-card { border: 2px solid transparent; transition: all 0.2s; cursor: pointer; }
-        .tier-card:hover { border-color: #00B875; transform: translateY(-2px); }
-        .tier-card.selected { border-color: #00B875; background: #f0fdf4; }
-        .tier-info { font-size: 11px; color: #888; margin-top: 2px; }
-        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .status-badge.paid { background: #d4edda; color: #155724; }
-        .status-badge.free { background: #f8f9fa; color: #666; }
-        .search-box { margin-bottom: 20px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
-        .bulk-delete-btn { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
-        .refresh-btn { background: #00B875; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-left: 10px; }
-        .logout-btn { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; }
-        .delete-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; }
-        .delete-btn:hover { background: #c82333; }
-        .tier-btn { background: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; transition: all 0.2s; }
-        .tier-btn:hover { background: #5a6268; }
-        .copy-btn { background: #00B875; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; margin: 2px; }
-        .copy-btn:hover { background: #009a62; }
+        body { 
+            background: #f0f2f5; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ MODERN HEADER ============ */
+        .top-header {
+            background: linear-gradient(135deg, #00B875 0%, #009a62 100%);
+            color: white;
+            padding: 24px 20px 60px;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 184, 117, 0.2);
+        }
+        .top-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .top-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header-title-group h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .header-title-group p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .header-btn.danger {
+            background: rgba(220,53,69,0.9);
+            border-color: rgba(220,53,69,1);
+        }
+
+        /* ============ MAIN CONTAINER ============ */
+        .admin-container { 
+            max-width: 1400px; 
+            margin: -40px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* ============ LOGIN ============ */
+        .login-container { max-width: 420px; margin: 80px auto; }
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .login-icon-wrap {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00B875, #009a62);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(0, 184, 117, 0.4);
+        }
+        .login-icon-wrap i {
+            font-size: 36px;
+            color: white;
+        }
+        .login-card h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+        .login-card p {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e8eaed;
+            border-radius: 14px;
+            font-size: 15px;
+            transition: all 0.2s;
+            margin-bottom: 16px;
+        }
+        .login-card input:focus {
+            outline: none;
+            border-color: #00B875;
+            box-shadow: 0 0 0 4px rgba(0,184,117,0.1);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00B875, #009a62);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(0,184,117,0.3);
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0,184,117,0.4);
+        }
+
+        /* ============ ANALYTICS CARDS ============ */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .analytics-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .analytics-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+        .analytics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.08;
+            transform: translate(30%, -30%);
+        }
+        .analytics-card.blue::before { background: #3b82f6; }
+        .analytics-card.green::before { background: #00B875; }
+        .analytics-card.orange::before { background: #f59e0b; }
+        .analytics-card.purple::before { background: #8b5cf6; }
+        .analytics-card.pink::before { background: #ec4899; }
+        .analytics-card.teal::before { background: #14b8a6; }
+
+        .analytics-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            font-size: 22px;
+        }
+        .analytics-card.blue .analytics-icon { background: #eff6ff; color: #3b82f6; }
+        .analytics-card.green .analytics-icon { background: #ecfdf5; color: #00B875; }
+        .analytics-card.orange .analytics-icon { background: #fffbeb; color: #f59e0b; }
+        .analytics-card.purple .analytics-icon { background: #f5f3ff; color: #8b5cf6; }
+        .analytics-card.pink .analytics-icon { background: #fdf2f8; color: #ec4899; }
+        .analytics-card.teal .analytics-icon { background: #f0fdfa; color: #14b8a6; }
+
+        .analytics-label {
+            font-size: 12px;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .analytics-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        .analytics-change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .analytics-change.up { color: #00B875; }
+        .analytics-change.down { color: #dc3545; }
+        .analytics-change span { color: #888; font-weight: 400; }
+
+        /* ============ TIER PROGRESS BAR ============ */
+        .tier-progress-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .tier-progress-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tier-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .tier-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tier-bar-label {
+            min-width: 130px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        .tier-bar-track {
+            flex: 1;
+            height: 24px;
+            background: #f0f2f5;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .tier-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            min-width: 30px;
+        }
+        .tier-bar-fill.tier1 { background: linear-gradient(90deg, #95a5a6, #7f8c8d); }
+        .tier-bar-fill.tier2 { background: linear-gradient(90deg, #a8d5ba, #00B875); }
+        .tier-bar-fill.tier3 { background: linear-gradient(90deg, #e6b980, #CD7F32); }
+        .tier-bar-fill.vip { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .tier-bar-count {
+            min-width: 50px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        /* ============ CHART CARD ============ */
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-container {
+            position: relative;
+            height: 260px;
+        }
+
+        /* ============ ACTIVITY FEED ============ */
+        .activity-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .activity-item:hover { background: #f8f9fc; }
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .activity-dot.online { background: #00B875; box-shadow: 0 0 0 4px rgba(0,184,117,0.15); animation: pulse 1.5s infinite; }
+        .activity-dot.recent { background: #f59e0b; }
+        .activity-dot.old { background: #cbd5e1; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(0,184,117,0.15); }
+            50% { box-shadow: 0 0 0 8px rgba(0,184,117,0); }
+        }
+        .activity-info { flex: 1; }
+        .activity-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .activity-time { font-size: 11px; color: #888; }
+        .activity-tier {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* ============ USERS TABLE ============ */
+        .table-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .table-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 340px;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 14px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 2px solid #e8eaed;
+            border-radius: 12px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #00B875;
+            box-shadow: 0 0 0 4px rgba(0,184,117,0.1);
+        }
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .table-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .table-btn.delete {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .table-btn.delete:hover { background: #fecaca; }
+        .table-btn.refresh {
+            background: #ecfdf5;
+            color: #00B875;
+        }
+        .table-btn.refresh:hover { background: #d1fae5; }
+
+        .user-table-wrap {
+            overflow-x: auto;
+            border-radius: 14px;
+            border: 1px solid #f0f2f5;
+        }
+        table { 
+            width: 100%; 
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+        th, td { 
+            padding: 14px 12px; 
+            text-align: left; 
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        th { 
+            background: #fafbfc; 
+            font-weight: 700;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            white-space: nowrap;
+            user-select: none;
+        }
+        th:hover { background: #f0f2f5; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover { background: #fafbfc; }
+
+        .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.4; }
+        th.active-sort .sort-icon { opacity: 1; color: #00B875; }
+
+        .tier-badge { 
+            display: inline-block; 
+            padding: 5px 11px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .tier-badge.tier-1 { background: #f1f5f9; color: #64748b; }
+        .tier-badge.tier-2 { background: #d1fae5; color: #047857; }
+        .tier-badge.tier-3 { background: #fed7aa; color: #9a3412; }
+        .tier-badge.vip { background: #fef3c7; color: #b45309; }
+
+        .status-badge { 
+            display: inline-block; 
+            padding: 5px 11px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: 700;
+        }
+        .status-badge.paid { background: #d1fae5; color: #047857; }
+        .status-badge.free { background: #f1f5f9; color: #64748b; }
+
+        .last-seen-online { 
+            color: #00B875; 
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .last-seen-online::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: #00B875;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 0 3px rgba(0,184,117,0.2);
+        }
+        .last-seen-recent { color: #f59e0b; font-weight: 600; }
+        .last-seen-old { color: #94a3b8; }
+
+        .action-btn {
+            border: none;
+            padding: 7px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin: 1px;
+        }
+        .action-btn.tier { background: #eff6ff; color: #2563eb; }
+        .action-btn.tier:hover { background: #dbeafe; }
+        .action-btn.delete { background: #fee2e2; color: #dc2626; }
+        .action-btn.delete:hover { background: #fecaca; }
+
+        /* ============ TIER MODAL ============ */
+        .tier-card { 
+            border: 2px solid #e8eaed; 
+            transition: all 0.2s; 
+            cursor: pointer;
+            background: white;
+        }
+        .tier-card:hover { 
+            border-color: #00B875; 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,184,117,0.15);
+        }
+        .tier-card.selected { 
+            border-color: #00B875; 
+            background: #ecfdf5;
+            box-shadow: 0 8px 20px rgba(0,184,117,0.2);
+        }
+        .tier-info { font-size: 11px; color: #888; margin-top: 4px; }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            .top-header { padding: 20px 16px 50px; }
+            .header-title-group h1 { font-size: 20px; }
+            .header-actions { width: 100%; justify-content: flex-end; }
+            .analytics-grid { grid-template-columns: repeat(2, 1fr); }
+            .analytics-value { font-size: 22px; }
+            .admin-container { padding: 0 12px; }
+            .user-table-wrap { border-radius: 12px; }
+            th, td { padding: 10px 8px; font-size: 12px; }
+        }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Login Screen -->
+        <!-- ============ LOGIN SCREEN ============ -->
         <div id="loginScreen" style="display: none;">
             <div class="login-container">
-                <div class="stats-card" style="text-align: center;">
-                    <i class="fas fa-shield-alt" style="font-size: 48px; color: #00B875; margin-bottom: 20px;"></i>
+                <div class="login-card">
+                    <div class="login-icon-wrap">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
                     <h2>Admin Login</h2>
-                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter Admin Password" style="margin: 20px 0;">
-                    <button class="btn btn-success w-100" onclick="adminLogin()">Login</button>
+                    <p>Enter your password to access the dashboard</p>
+                    <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+                    <button class="login-btn" onclick="adminLogin()">Sign In</button>
                 </div>
             </div>
         </div>
         
-        <!-- Dashboard Screen -->
+        <!-- ============ DASHBOARD SCREEN ============ -->
         <div id="dashboardScreen" style="display: none;">
+            
+            <!-- Top Header -->
+            <div class="top-header">
+                <div class="header-content">
+                    <div class="header-row">
+                        <div class="header-title-group">
+                            <h1><i class="fas fa-chart-line"></i> Admin Dashboard</h1>
+                            <p>Real-time analytics and user management</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="header-btn" onclick="loadDashboardData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="header-btn danger" onclick="adminLogout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="admin-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                    <h2><i class="fas fa-chart-line"></i> OPay Admin Dashboard</h2>
-                    <div>
-                        <button class="refresh-btn" onclick="loadDashboardData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                        <button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                
+                <!-- Analytics Cards -->
+                <div class="analytics-grid">
+                    <div class="analytics-card blue">
+                        <div class="analytics-icon"><i class="fas fa-users"></i></div>
+                        <div class="analytics-label">Total Users</div>
+                        <div class="analytics-value" id="totalUsers">0</div>
+                        <div class="analytics-change up"><i class="fas fa-database"></i> <span>Registered</span></div>
+                    </div>
+                    <div class="analytics-card green">
+                        <div class="analytics-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="analytics-label">Online Now</div>
+                        <div class="analytics-value" id="onlineNow">0</div>
+                        <div class="analytics-change up"><i class="fas fa-circle" style="font-size:8px;"></i> <span>Active in last 5 min</span></div>
+                    </div>
+                    <div class="analytics-card orange">
+                        <div class="analytics-icon"><i class="fas fa-clock"></i></div>
+                        <div class="analytics-label">Active Today</div>
+                        <div class="analytics-value" id="activeToday">0</div>
+                        <div class="analytics-change up"><i class="fas fa-calendar-day"></i> <span>Last 24 hours</span></div>
+                    </div>
+                    <div class="analytics-card purple">
+                        <div class="analytics-icon"><i class="fas fa-crown"></i></div>
+                        <div class="analytics-label">Paid Users</div>
+                        <div class="analytics-value" id="paidUsers">0</div>
+                        <div class="analytics-change up"><i class="fas fa-arrow-up"></i> <span>Tier 2, 3, VIP</span></div>
+                    </div>
+                    <div class="analytics-card pink">
+                        <div class="analytics-icon"><i class="fas fa-user-slash"></i></div>
+                        <div class="analytics-label">Not Activated</div>
+                        <div class="analytics-value" id="freeUsers">0</div>
+                        <div class="analytics-change down"><i class="fas fa-circle-exclamation"></i> <span>Tier 1</span></div>
+                    </div>
+                    <div class="analytics-card teal">
+                        <div class="analytics-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <div class="analytics-label">Revenue</div>
+                        <div class="analytics-value" id="revenueDisplay">₦0</div>
+                        <div class="analytics-change up"><i class="fas fa-chart-line"></i> <span>Estimated</span></div>
                     </div>
                 </div>
-                
-                <!-- Stats Cards -->
-                <div class="row" id="statsCards">
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <i class="fas fa-users"></i>
-                            <div class="stats-number" id="totalUsers">0</div>
-                            <div>Total Users</div>
-                        </div>
+
+                <!-- Tier Distribution -->
+                <div class="tier-progress-card">
+                    <div class="tier-progress-title">
+                        <i class="fas fa-layer-group" style="color:#00B875;"></i> User Tier Distribution
                     </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <i class="fas fa-crown"></i>
-                            <div class="stats-number" id="paidUsers">0</div>
-                            <div>Paid Users (Tier 2+)</div>
+                    <div class="tier-bars">
+                        <div class="tier-bar-row">
+                            <div class="tier-bar-label">⚪ Not Activated</div>
+                            <div class="tier-bar-track">
+                                <div class="tier-bar-fill tier1" id="barTier1" style="width: 0%;">0</div>
+                            </div>
+                            <div class="tier-bar-count" id="countTier1">0</div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <i class="fas fa-user-slash"></i>
-                            <div class="stats-number" id="freeUsers">0</div>
-                            <div>Not Activated (Tier 1)</div>
+                        <div class="tier-bar-row">
+                            <div class="tier-bar-label">🥈 Basic</div>
+                            <div class="tier-bar-track">
+                                <div class="tier-bar-fill tier2" id="barTier2" style="width: 0%;">0</div>
+                            </div>
+                            <div class="tier-bar-count" id="countTier2">0</div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <i class="fas fa-database"></i>
-                            <div class="stats-number" id="dbSize">0</div>
-                            <div>Database Size</div>
+                        <div class="tier-bar-row">
+                            <div class="tier-bar-label">🥉 Premium</div>
+                            <div class="tier-bar-track">
+                                <div class="tier-bar-fill tier3" id="barTier3" style="width: 0%;">0</div>
+                            </div>
+                            <div class="tier-bar-count" id="countTier3">0</div>
+                        </div>
+                        <div class="tier-bar-row">
+                            <div class="tier-bar-label">👑 VIP</div>
+                            <div class="tier-bar-track">
+                                <div class="tier-bar-fill vip" id="barVip" style="width: 0%;">0</div>
+                            </div>
+                            <div class="tier-bar-count" id="countVip">0</div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Search and Bulk Actions -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, account, or email..." onkeyup="filterUsers()">
-                    <button class="bulk-delete-btn" onclick="deleteSelectedUsers()"><i class="fas fa-trash"></i> Delete Selected</button>
+
+                <!-- Two Column: Chart + Activity -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;" id="chartActivityGrid">
+                    <!-- Tier Chart -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-pie" style="color:#00B875;"></i> Tier Breakdown
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tierChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Feed -->
+                    <div class="activity-card">
+                        <div class="chart-title">
+                            <i class="fas fa-bolt" style="color:#f59e0b;"></i> Recent Activity
+                        </div>
+                        <div class="activity-list" id="activityList">
+                            <div style="text-align:center; color:#888; padding:20px; font-size:13px;">No activity yet</div>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <!-- Users Table -->
-                <div class="user-table">
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
-                                <th>ID</th>
-                                <th>Account Number</th>
-                                <th>Account Name</th>
-                                <th>Email</th>
-                                <th>Password</th>
-                                <th onclick="sortBy('user_tier')" style="cursor: pointer;">Tier <i class="fas fa-sort sort-icon" id="sort-user_tier"></i></th>
-                                <th>Status</th>
-                                <th onclick="sortBy('created_at')" style="cursor: pointer;">Created At <i class="fas fa-sort sort-icon" id="sort-created_at"></i></th>
-                                <th onclick="sortBy('last_seen')" style="cursor: pointer;">Last Seen <i class="fas fa-sort sort-icon" id="sort-last_seen"></i></th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody"></tbody>
-                    </table>
+                <div class="table-card">
+                    <div class="table-header">
+                        <div class="table-title">
+                            <i class="fas fa-table" style="color:#00B875;"></i> All Users
+                            <span style="background:#ecfdf5; color:#00B875; font-size:11px; padding:3px 10px; border-radius:20px; font-weight:700;" id="usersCountBadge">0</span>
+                        </div>
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search by name, account, or email..." onkeyup="filterUsers()">
+                        </div>
+                        <div class="table-actions">
+                            <button class="table-btn refresh" onclick="loadDashboardData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="table-btn delete" onclick="deleteSelectedUsers()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="user-table-wrap">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
+                                    <th>Account</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                    <th onclick="sortBy('user_tier')" id="th-tier">Tier <i class="fas fa-sort sort-icon" id="sort-user_tier"></i></th>
+                                    <th>Status</th>
+                                    <th onclick="sortBy('created_at')" id="th-created">Created <i class="fas fa-sort sort-icon" id="sort-created_at"></i></th>
+                                    <th onclick="sortBy('last_seen')" id="th-seen">Last Seen <i class="fas fa-sort sort-icon" id="sort-last_seen"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,54 +785,52 @@
     <!-- Tier Selection Modal -->
     <div id="tierModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 24px;">
-                <div class="modal-header" style="border-bottom: none; padding: 20px 20px 0;">
-                    <h5 class="modal-title" style="font-weight: 700;"><i class="fas fa-crown"></i> Assign Tier</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-content" style="border-radius: 24px; border: none; overflow: hidden;">
+                <div class="modal-header" style="border-bottom: none; padding: 24px 24px 0; background: linear-gradient(135deg, #00B875, #009a62); color: white;">
+                    <h5 class="modal-title" style="font-weight: 800; font-size: 18px;"><i class="fas fa-crown"></i> Assign Tier</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="padding: 20px;">
-                    <p id="modalUserInfo" style="margin-bottom: 20px; color: #888;"></p>
-                    <p style="font-size: 12px; color: #666; margin-bottom: 15px;">
-                        <i class="fas fa-info-circle"></i> Tier will be applied immediately. User will see the upgrade on their next login.
+                <div class="modal-body" style="padding: 20px 24px;">
+                    <div id="modalUserInfo" style="margin-bottom: 20px; padding: 14px; background: #f8f9fc; border-radius: 12px; color: #333; font-size: 13px;"></div>
+                    <p style="font-size: 12px; color: #888; margin-bottom: 16px;">
+                        <i class="fas fa-info-circle"></i> Select a plan to assign to this user
                     </p>
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="tier-card p-3 text-center rounded-3" data-tier="2" onclick="selectTier('2')" id="tier2Card">
-                                <div style="font-size: 40px;">🥈</div>
-                                <div style="font-weight: 700;">Basic Plan</div>
-                                <div style="font-size: 12px; color: #888;">Tier 2</div>
-                                <div class="tier-info">Bank transfers, receipt editing</div>
+                                <div style="font-size: 36px;">🥈</div>
+                                <div style="font-weight: 800; font-size: 14px;">Basic</div>
+                                <div style="font-size: 11px; color: #888;">Tier 2</div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="tier-card p-3 text-center rounded-3" data-tier="3" onclick="selectTier('3')" id="tier3Card">
-                                <div style="font-size: 40px;">🥉</div>
-                                <div style="font-weight: 700;">Premium Plan</div>
-                                <div style="font-size: 12px; color: #888;">Tier 3</div>
-                                <div class="tier-info">All features + transaction history</div>
+                                <div style="font-size: 36px;">🥉</div>
+                                <div style="font-weight: 800; font-size: 14px;">Premium</div>
+                                <div style="font-size: 11px; color: #888;">Tier 3</div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="tier-card p-3 text-center rounded-3" data-tier="VIP" onclick="selectTier('VIP')" id="vipCard">
-                                <div style="font-size: 40px;">👑</div>
-                                <div style="font-weight: 700;">VIP Plan</div>
-                                <div style="font-size: 12px; color: #888;">VIP Tier</div>
-                                <div class="tier-info">Unlimited access + priority support</div>
+                                <div style="font-size: 36px;">👑</div>
+                                <div style="font-weight: 800; font-size: 14px;">VIP</div>
+                                <div style="font-size: 11px; color: #888;">Full Access</div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="tier-card p-3 text-center rounded-3 bg-light" data-tier="1" onclick="selectTier('1')" id="removeTierCard">
-                                <div style="font-size: 40px;">🚫</div>
-                                <div style="font-weight: 700;">Remove Plan</div>
-                                <div style="font-size: 12px; color: #888;">Reset to Not Activated</div>
-                                <div class="tier-info">User loses all premium features</div>
+                                <div style="font-size: 36px;">🚫</div>
+                                <div style="font-weight: 800; font-size: 14px;">Remove Plan</div>
+                                <div style="font-size: 11px; color: #888;">Reset to Not Activated</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: none; padding: 0 20px 20px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 30px; padding: 10px 20px;">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="confirmAssignTier()" style="border-radius: 30px; padding: 10px 20px; background: #00B875;">Assign Tier</button>
+                <div class="modal-footer" style="border-top: none; padding: 0 24px 24px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 30px; padding: 10px 20px; font-weight: 600;">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="confirmAssignTier()" style="border-radius: 30px; padding: 10px 24px; background: #00B875; border: none; font-weight: 700;">
+                        <i class="fas fa-check"></i> Assign Tier
+                    </button>
                 </div>
             </div>
         </div>
@@ -195,6 +839,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+        const TIER_PRICES = { '2': 30000, '3': 50000, 'VIP': 100000 };
+        
         let adminSessionToken = null;
         let allUsers = [];
         let selectedUserIds = new Set();
@@ -202,7 +848,10 @@
         let selectedTier = null;
         let modalInstance = null;
         let currentSort = { field: 'last_seen', order: 'desc' };
+        let tierChart = null;
+        let liveUpdateInterval = null;
         
+        // ============ INIT ============
         window.addEventListener('load', function() {
             const savedToken = localStorage.getItem('adminSessionToken');
             if (savedToken) {
@@ -219,10 +868,10 @@
                     headers: { 'X-Admin-Token': adminSessionToken }
                 });
                 const data = await response.json();
-                
                 if (data.valid) {
                     showDashboard();
                     loadDashboardData();
+                    startLiveUpdates();
                 } else {
                     localStorage.removeItem('adminSessionToken');
                     showLogin();
@@ -234,26 +883,23 @@
         
         async function adminLogin() {
             const password = document.getElementById('adminPassword').value;
-            
             if (!password) {
                 Swal.fire({ icon: 'error', title: 'Error', text: 'Please enter password' });
                 return;
             }
-            
             try {
                 const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: password })
                 });
-                
                 const data = await response.json();
-                
                 if (data.success) {
                     adminSessionToken = data.sessionToken;
                     localStorage.setItem('adminSessionToken', adminSessionToken);
                     showDashboard();
                     loadDashboardData();
+                    startLiveUpdates();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Invalid admin password' });
                 }
@@ -262,6 +908,7 @@
             }
         }
         
+        // ============ LOAD DATA ============
         async function loadDashboardData() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/admin/users-with-lastseen`, {
@@ -271,28 +918,7 @@
                 
                 if (data.success) {
                     allUsers = data.users;
-                    
-                    const totalUsers = data.users.length;
-                    
-                    let paidCount = 0;
-                    let freeCount = 0;
-                    
-                    data.users.forEach(user => {
-                        const tier = user.user_tier || '1';
-                        if (tier === '1' || tier === 1) {
-                            freeCount++;
-                        } else {
-                            paidCount++;
-                        }
-                    });
-                    
-                    document.getElementById('totalUsers').textContent = totalUsers;
-                    document.getElementById('paidUsers').textContent = paidCount;
-                    document.getElementById('freeUsers').textContent = freeCount;
-                    
-                    const dbSizeKB = (totalUsers * 0.5).toFixed(2);
-                    document.getElementById('dbSize').textContent = `${dbSizeKB} KB`;
-                    
+                    updateAnalytics();
                     sortAndRenderUsers();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Failed to load users' });
@@ -306,34 +932,279 @@
             }
         }
         
+        // ============ ANALYTICS CALCULATIONS ============
+        function updateAnalytics() {
+            const now = Date.now();
+            const totalUsers = allUsers.length;
+            
+            let onlineNow = 0;
+            let activeToday = 0;
+            let paidCount = 0;
+            let freeCount = 0;
+            let tier1Count = 0, tier2Count = 0, tier3Count = 0, vipCount = 0;
+            let revenue = 0;
+            
+            allUsers.forEach(user => {
+                const tier = user.user_tier || '1';
+                
+                // Tier counts
+                if (tier === '1' || tier === 1) {
+                    tier1Count++;
+                    freeCount++;
+                } else if (tier === '2' || tier === 2) {
+                    tier2Count++;
+                    paidCount++;
+                    revenue += TIER_PRICES['2'];
+                } else if (tier === '3' || tier === 3) {
+                    tier3Count++;
+                    paidCount++;
+                    revenue += TIER_PRICES['3'];
+                } else if (tier === 'VIP') {
+                    vipCount++;
+                    paidCount++;
+                    revenue += TIER_PRICES['VIP'];
+                }
+                
+                // Activity
+                if (user.last_seen) {
+                    const lastSeenTime = new Date(user.last_seen).getTime();
+                    const diffSeconds = (now - lastSeenTime) / 1000;
+                    
+                    if (diffSeconds < 300) {  // 5 minutes
+                        onlineNow++;
+                    }
+                    if (diffSeconds < 86400) { // 24 hours
+                        activeToday++;
+                    }
+                }
+            });
+            
+            // Update cards
+            document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
+            document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
+            document.getElementById('activeToday').textContent = activeToday.toLocaleString();
+            document.getElementById('paidUsers').textContent = paidCount.toLocaleString();
+            document.getElementById('freeUsers').textContent = freeCount.toLocaleString();
+            document.getElementById('revenueDisplay').textContent = '₦' + revenue.toLocaleString();
+            document.getElementById('usersCountBadge').textContent = totalUsers;
+            
+            // Update tier bars
+            const total = totalUsers || 1;
+            document.getElementById('barTier1').style.width = (tier1Count / total * 100) + '%';
+            document.getElementById('barTier2').style.width = (tier2Count / total * 100) + '%';
+            document.getElementById('barTier3').style.width = (tier3Count / total * 100) + '%';
+            document.getElementById('barVip').style.width = (vipCount / total * 100) + '%';
+            
+            document.getElementById('barTier1').textContent = tier1Count > 0 ? tier1Count : '';
+            document.getElementById('barTier2').textContent = tier2Count > 0 ? tier2Count : '';
+            document.getElementById('barTier3').textContent = tier3Count > 0 ? tier3Count : '';
+            document.getElementById('barVip').textContent = vipCount > 0 ? vipCount : '';
+            
+            document.getElementById('countTier1').textContent = tier1Count;
+            document.getElementById('countTier2').textContent = tier2Count;
+            document.getElementById('countTier3').textContent = tier3Count;
+            document.getElementById('countVip').textContent = vipCount;
+            
+            // Update chart
+            renderTierChart(tier1Count, tier2Count, tier3Count, vipCount);
+            
+            // Update activity feed
+            renderActivityFeed();
+        }
+        
+        // ============ PIE CHART ============
+        function renderTierChart(t1, t2, t3, tvip) {
+            const ctx = document.getElementById('tierChart');
+            if (!ctx) return;
+            
+            if (tierChart) {
+                tierChart.destroy();
+            }
+            
+            tierChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['⚪ Not Activated', '🥈 Basic', '🥉 Premium', '👑 VIP'],
+                    datasets: [{
+                        data: [t1, t2, t3, tvip],
+                        backgroundColor: ['#94a3b8', '#00B875', '#CD7F32', '#FFA500'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 16,
+                                font: { size: 12, weight: '600' },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1a1a1a',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 13, weight: '700' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: ${context.parsed} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ============ ACTIVITY FEED ============
+        function renderActivityFeed() {
+            const container = document.getElementById('activityList');
+            
+            // Sort users by last_seen
+            const sorted = [...allUsers]
+                .filter(u => u.last_seen)
+                .sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen))
+                .slice(0, 8);
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#888; padding:20px; font-size:13px;">No activity yet</div>';
+                return;
+            }
+            
+            container.innerHTML = sorted.map(user => {
+                const tier = user.user_tier || '1';
+                const dotClass = getActivityDotClass(user.last_seen);
+                
+                let tierBadge = '';
+                if (tier === 'VIP') tierBadge = '<span class="activity-tier" style="background:#fef3c7; color:#b45309;">👑 VIP</span>';
+                else if (tier === '3' || tier === 3) tierBadge = '<span class="activity-tier" style="background:#fed7aa; color:#9a3412;">🥉 Premium</span>';
+                else if (tier === '2' || tier === 2) tierBadge = '<span class="activity-tier" style="background:#d1fae5; color:#047857;">🥈 Basic</span>';
+                else tierBadge = '<span class="activity-tier" style="background:#f1f5f9; color:#64748b;">⚪ None</span>';
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-dot ${dotClass}"></div>
+                        <div class="activity-info">
+                            <div class="activity-name">${user.account_name}</div>
+                            <div class="activity-time">${formatLastSeen(user.last_seen)}</div>
+                        </div>
+                        ${tierBadge}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getActivityDotClass(lastSeen) {
+            if (!lastSeen) return 'old';
+            const diffSeconds = (Date.now() - new Date(lastSeen).getTime()) / 1000;
+            if (diffSeconds < 300) return 'online';
+            if (diffSeconds < 3600) return 'recent';
+            return 'old';
+        }
+        
+        // ============ LIVE LAST SEEN UPDATE ============
+        // Updates the "X seconds ago" text every second without re-rendering the whole table
+        function startLiveUpdates() {
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval);
+            
+            liveUpdateInterval = setInterval(() => {
+                // Update last-seen cells only
+                document.querySelectorAll('[data-lastseen-time]').forEach(el => {
+                    const lastSeen = el.getAttribute('data-lastseen-time');
+                    if (lastSeen && lastSeen !== 'null') {
+                        el.innerHTML = formatLastSeen(lastSeen);
+                    }
+                });
+                
+                // Update activity feed times
+                renderActivityFeed();
+                
+                // Update "Online Now" and "Active Today" counters
+                if (allUsers.length > 0) {
+                    const now = Date.now();
+                    let onlineNow = 0, activeToday = 0;
+                    allUsers.forEach(user => {
+                        if (user.last_seen) {
+                            const diffSeconds = (now - new Date(user.last_seen).getTime()) / 1000;
+                            if (diffSeconds < 300) onlineNow++;
+                            if (diffSeconds < 86400) activeToday++;
+                        }
+                    });
+                    document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
+                    document.getElementById('activeToday').textContent = activeToday.toLocaleString();
+                }
+            }, 1000); // Every 1 second
+        }
+        
+        // ============ LAST SEEN FORMATTING (SECONDS PRECISION) ============
         function formatLastSeen(lastSeen) {
             if (!lastSeen) return '<span class="last-seen-old">Never</span>';
             
             const lastSeenDate = new Date(lastSeen);
             const now = new Date();
-            const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
+            const diffMs = now - lastSeenDate;
+            const diffSeconds = Math.floor(diffMs / 1000);
             const diffMins = Math.floor(diffSeconds / 60);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
             
+            // Less than 5 seconds → Online now
             if (diffSeconds < 5) {
-                return '<span class="last-seen-online"><i class="fas fa-circle" style="font-size: 8px;"></i> Online now</span>';
-            } else if (diffSeconds < 60) {
-                return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
-            } else if (diffMins < 60) {
-                return `<span class="last-seen-recent">${diffMins} min${diffMins !== 1 ? 's' : ''} ago</span>`;
-            } else if (diffHours < 24) {
-                return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
-            } else if (diffDays === 1) {
-                return '<span class="last-seen-old">Yesterday</span>';
-            } else if (diffDays < 7) {
-                return `<span class="last-seen-old">${diffDays} days ago</span>`;
-            } else {
-                return `<span class="last-seen-old">${lastSeenDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>`;
+                return '<span class="last-seen-online">Online now</span>';
             }
+            
+            // 5-59 seconds → X sec ago
+            if (diffSeconds < 60) {
+                return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
+            }
+            
+            // 1-59 minutes → X min ago
+            if (diffMins < 60) {
+                return `<span class="last-seen-recent">${diffMins} min${diffMins !== 1 ? 's' : ''} ago</span>`;
+            }
+            
+            // 1-23 hours → X hour ago
+            if (diffHours < 24) {
+                return `<span class="last-seen-recent">${diffHours} hour${diffHours !== 1 ? 's' : ''} ago</span>`;
+            }
+            
+            // 1 day
+            if (diffDays === 1) {
+                return '<span class="last-seen-old">Yesterday</span>';
+            }
+            
+            // 2-6 days → X days ago
+            if (diffDays < 7) {
+                return `<span class="last-seen-old">${diffDays} days ago</span>`;
+            }
+            
+            // 1-4 weeks → X week ago
+            if (diffDays < 30) {
+                const weeks = Math.floor(diffDays / 7);
+                return `<span class="last-seen-old">${weeks} week${weeks !== 1 ? 's' : ''} ago</span>`;
+            }
+            
+            // 1-11 months → X month ago
+            if (diffDays < 365) {
+                const months = Math.floor(diffDays / 30);
+                return `<span class="last-seen-old">${months} month${months !== 1 ? 's' : ''} ago</span>`;
+            }
+            
+            // Years
+            const years = Math.floor(diffDays / 365);
+            return `<span class="last-seen-old">${years} year${years !== 1 ? 's' : ''} ago</span>`;
         }
         
-        // ✅ UPDATED: "⭐ Free" → "⚪ Not Activated"
+        // ============ TIER DISPLAY ============
         function getTierDisplay(tier) {
             if (tier === '1' || tier === 1 || !tier) return '<span class="tier-badge tier-1">⚪ Not Activated</span>';
             if (tier === '2' || tier === 2) return '<span class="tier-badge tier-2">🥈 Basic</span>';
@@ -342,19 +1213,17 @@
             return '<span class="tier-badge tier-1">⚪ Not Activated</span>';
         }
         
-        // ✅ UPDATED: "Free User" → "No Plan"
         function getStatusDisplay(tier) {
             if (tier === '1' || tier === 1 || !tier) {
                 return '<span class="status-badge free">No Plan</span>';
-            } else {
-                return '<span class="status-badge paid">Paid User</span>';
             }
+            return '<span class="status-badge paid">Paid User</span>';
         }
         
+        // ============ SORT & RENDER ============
         function sortAndRenderUsers() {
             const sortedUsers = [...allUsers].sort((a, b) => {
                 let aVal, bVal;
-                
                 if (currentSort.field === 'last_seen') {
                     aVal = a.last_seen ? new Date(a.last_seen).getTime() : 0;
                     bVal = b.last_seen ? new Date(b.last_seen).getTime() : 0;
@@ -369,12 +1238,7 @@
                     aVal = a[currentSort.field];
                     bVal = b[currentSort.field];
                 }
-                
-                if (currentSort.order === 'desc') {
-                    return bVal - aVal;
-                } else {
-                    return aVal - bVal;
-                }
+                return currentSort.order === 'desc' ? bVal - aVal : aVal - bVal;
             });
             
             renderUsersTable(sortedUsers);
@@ -383,11 +1247,13 @@
                 icon.classList.remove('fa-sort-up', 'fa-sort-down');
                 icon.classList.add('fa-sort');
             });
+            document.querySelectorAll('th').forEach(th => th.classList.remove('active-sort'));
             
             const activeIcon = document.getElementById(`sort-${currentSort.field}`);
             if (activeIcon) {
                 activeIcon.classList.remove('fa-sort');
                 activeIcon.classList.add(currentSort.order === 'desc' ? 'fa-sort-down' : 'fa-sort-up');
+                activeIcon.closest('th')?.classList.add('active-sort');
             }
         }
         
@@ -405,31 +1271,30 @@
             const tbody = document.getElementById('usersTableBody');
             
             if (!users || users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 60px; color:#888;">No users found</td></tr>';
                 return;
             }
             
             tbody.innerHTML = users.map(user => {
-                // ✅ ALWAYS read tier from the API response (which comes from Supabase)
                 const userTier = user.user_tier || '1';
+                const lastSeenAttr = user.last_seen ? user.last_seen : 'null';
                 
                 return `
                     <tr>
                         <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
-                        <td style="font-size: 11px;">${user.id}</td>
                         <td><strong>${user.account_number}</strong></td>
                         <td>${user.account_name}</td>
-                        <td style="font-size: 12px;">${user.email}</td>
-                        <td><code style="font-size: 11px;">${user.password_code}</code></td>
+                        <td style="font-size: 12px; color:#666;">${user.email}</td>
+                        <td><code style="font-size: 11px; background:#f1f5f9; padding:3px 7px; border-radius:5px;">${user.password_code}</code></td>
                         <td>${getTierDisplay(userTier)}</td>
                         <td>${getStatusDisplay(userTier)}</td>
-                        <td style="font-size: 11px;">${new Date(user.created_at).toLocaleString()}</td>
-                        <td>${formatLastSeen(user.last_seen)}</td>
-                        <td class="action-buttons" style="white-space: nowrap;">
-                            <button class="tier-btn" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
+                        <td style="font-size: 11px; color:#888; white-space: nowrap;">${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td data-lastseen-time="${lastSeenAttr}" style="white-space: nowrap;">${formatLastSeen(user.last_seen)}</td>
+                        <td style="white-space: nowrap;">
+                            <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')">
                                 <i class="fas fa-crown"></i> Tier
                             </button>
-                            <button class="delete-btn" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
+                            <button class="action-btn delete" onclick="deleteSingleUser(${user.id}, '${user.account_name}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -441,18 +1306,13 @@
             selectedUserIds.clear();
         }
         
+        // ============ TIER MODAL ============
         function openTierModal(userId, email, userName) {
             const user = allUsers.find(u => u.id === userId);
             const currentTier = user?.user_tier || '1';
             
-            pendingUserData = {
-                userId: userId,
-                email: email,
-                userName: userName,
-                currentTier: currentTier
-            };
+            pendingUserData = { userId, email, userName, currentTier };
             
-            // ✅ UPDATED: "⭐ Free" → "⚪ Not Activated"
             const tierNames = {
                 '1': '⚪ Not Activated',
                 '2': '🥈 Basic',
@@ -461,31 +1321,25 @@
             };
             
             document.getElementById('modalUserInfo').innerHTML = `
-                <strong>${userName}</strong><br>
-                <span style="font-size: 13px; color: #666;">Email: ${email}</span><br>
-                <span style="font-size: 13px; color: #666;">Current Tier: ${tierNames[currentTier] || '⚪ Not Activated'}</span>
+                <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">${userName}</div>
+                <div style="color: #666; margin-bottom: 4px;">📧 ${email}</div>
+                <div style="color: #666;">Current: ${tierNames[currentTier] || '⚪ Not Activated'}</div>
             `;
             
             selectedTier = null;
-            document.querySelectorAll('.tier-card').forEach(card => {
-                card.classList.remove('selected');
-            });
+            document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
             
             if (modalInstance) {
                 modalInstance.show();
             } else {
-                const modalElement = document.getElementById('tierModal');
-                modalInstance = new bootstrap.Modal(modalElement);
+                modalInstance = new bootstrap.Modal(document.getElementById('tierModal'));
                 modalInstance.show();
             }
         }
         
         function selectTier(tier) {
             selectedTier = tier;
-            document.querySelectorAll('.tier-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
+            document.querySelectorAll('.tier-card').forEach(card => card.classList.remove('selected'));
             if (tier === '2') document.getElementById('tier2Card').classList.add('selected');
             if (tier === '3') document.getElementById('tier3Card').classList.add('selected');
             if (tier === 'VIP') document.getElementById('vipCard').classList.add('selected');
@@ -497,39 +1351,23 @@
                 Swal.fire({ icon: 'warning', title: 'No Selection', text: 'Please select a tier to assign' });
                 return;
             }
-            
             if (!pendingUserData) {
                 Swal.fire({ icon: 'error', title: 'Error', text: 'No user selected' });
                 return;
             }
             
-            // ✅ UPDATED: "Free Tier" → "Not Activated" and emoji changed
-            const tierNames = {
-                '1': 'Not Activated',
-                '2': 'Basic Plan (Tier 2)',
-                '3': 'Premium Plan (Tier 3)',
-                'VIP': 'VIP Plan'
-            };
-            
-            const tierEmojis = {
-                '1': '⚪',
-                '2': '🥈',
-                '3': '🥉',
-                'VIP': '👑'
-            };
-            
-            const tierName = tierNames[selectedTier] || 'Not Activated';
-            const tierEmoji = tierEmojis[selectedTier] || '⚪';
+            const tierNames = { '1': 'Not Activated', '2': 'Basic Plan', '3': 'Premium Plan', 'VIP': 'VIP Plan' };
+            const tierEmojis = { '1': '⚪', '2': '🥈', '3': '🥉', 'VIP': '👑' };
+            const tierName = tierNames[selectedTier];
+            const tierEmoji = tierEmojis[selectedTier];
             
             const result = await Swal.fire({
                 title: `${tierEmoji} Assign Tier`,
                 html: `
-                    <div style="text-align: left;">
+                    <div style="text-align: left; font-size: 14px;">
                         <p><strong>User:</strong> ${pendingUserData.userName}</p>
-                        <p><strong>Email:</strong> ${pendingUserData.email}</p>
-                        <p><strong>Current Tier:</strong> ${tierNames[pendingUserData.currentTier] || '⚪ Not Activated'}</p>
-                        <p><strong>New Tier:</strong> ${tierEmoji} ${tierName}</p>
-                        <p style="margin-top: 10px; color: #888; font-size: 12px;">This change will take effect immediately.</p>
+                        <p><strong>Current:</strong> ${tierNames[pendingUserData.currentTier] || 'Not Activated'}</p>
+                        <p><strong>New:</strong> ${tierEmoji} ${tierName}</p>
                     </div>
                 `,
                 icon: 'question',
@@ -541,15 +1379,11 @@
             
             if (result.isConfirmed) {
                 try {
-                    // Show processing loader
                     Swal.fire({
                         title: 'Processing...',
-                        text: 'Assigning tier...',
                         allowOutsideClick: false,
                         showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
+                        didOpen: () => Swal.showLoading()
                     });
                     
                     const response = await fetch(`${BACKEND_URL}/api/admin/assign-tier`, {
@@ -558,22 +1392,13 @@
                             'X-Admin-Token': adminSessionToken,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ 
-                            email: pendingUserData.email,
-                            tier: selectedTier 
-                        })
+                        body: JSON.stringify({ email: pendingUserData.email, tier: selectedTier })
                     });
                     
                     const data = await response.json();
                     
                     if (data.success) {
-                        console.log('✅ Backend confirmed tier change');
-                        
-                        // Also update the user's tier in localStorage (for admin's own browser)
-                        // This is just a cache - the truth is in Supabase
                         localStorage.setItem(`user_tier_${pendingUserData.email}`, selectedTier);
-                        
-                        // Show success
                         await Swal.fire({ 
                             icon: 'success', 
                             title: '✅ Success!', 
@@ -581,69 +1406,45 @@
                             timer: 2000,
                             showConfirmButton: false
                         });
-                        
-                        // Hide modal
                         if (modalInstance) modalInstance.hide();
-                        
-                        // ✅ CRITICAL: Fully reload data from backend to reflect the change
                         await loadDashboardData();
-                        
-                        console.log('✅ Dashboard refreshed with new tier data');
-                        
                     } else {
-                        await Swal.fire({ 
-                            icon: 'error', 
-                            title: '❌ Failed', 
-                            text: data.message || 'Failed to assign tier. Please check the user email.' 
-                        });
+                        await Swal.fire({ icon: 'error', title: '❌ Failed', text: data.message });
                     }
                 } catch (error) {
                     console.error('Assign tier error:', error);
-                    await Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Error', 
-                        text: 'Failed to assign tier. Please check console for details.' 
-                    });
+                    await Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to assign tier.' });
                 }
             }
         }
         
+        // ============ SELECTION ============
         function toggleUserSelect(userId) {
-            if (selectedUserIds.has(userId)) {
-                selectedUserIds.delete(userId);
-            } else {
-                selectedUserIds.add(userId);
-            }
+            if (selectedUserIds.has(userId)) selectedUserIds.delete(userId);
+            else selectedUserIds.add(userId);
             updateSelectAllCheckbox();
         }
         
         function toggleSelectAll() {
             const selectAll = document.getElementById('selectAllCheckbox').checked;
-            const checkboxes = document.querySelectorAll('.user-checkbox');
-            
-            checkboxes.forEach(checkbox => {
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
                 checkbox.checked = selectAll;
-                const userId = checkbox.value;
-                if (selectAll) {
-                    selectedUserIds.add(userId);
-                } else {
-                    selectedUserIds.delete(userId);
-                }
+                if (selectAll) selectedUserIds.add(checkbox.value);
+                else selectedUserIds.delete(checkbox.value);
             });
         }
         
         function updateSelectAllCheckbox() {
-            const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
+            const total = document.querySelectorAll('.user-checkbox').length;
             const selectAll = document.getElementById('selectAllCheckbox');
-            if (selectAll) {
-                selectAll.checked = selectedUserIds.size === totalCheckboxes && totalCheckboxes > 0;
-            }
+            if (selectAll) selectAll.checked = selectedUserIds.size === total && total > 0;
         }
         
+        // ============ DELETE ============
         async function deleteSingleUser(userId, userName) {
             const result = await Swal.fire({
                 title: 'Delete User?',
-                text: `Are you sure you want to delete ${userName}? This action cannot be undone.`,
+                text: `Are you sure you want to delete ${userName}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
@@ -658,13 +1459,10 @@
                         headers: { 'X-Admin-Token': adminSessionToken }
                     });
                     const data = await response.json();
-                    
                     if (data.success) {
                         const user = allUsers.find(u => u.id === userId);
-                        if (user) {
-                            localStorage.removeItem(`user_tier_${user.email}`);
-                        }
-                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
+                        if (user) localStorage.removeItem(`user_tier_${user.email}`);
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, timer: 1500, showConfirmButton: false });
                         loadDashboardData();
                     } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: data.message });
@@ -683,7 +1481,7 @@
             
             const result = await Swal.fire({
                 title: 'Delete Users?',
-                text: `Are you sure you want to delete ${selectedUserIds.size} user(s)? This action cannot be undone.`,
+                text: `Delete ${selectedUserIds.size} user(s)? This cannot be undone.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
@@ -702,16 +1500,12 @@
                         body: JSON.stringify({ userIds: Array.from(selectedUserIds) })
                     });
                     const data = await response.json();
-                    
                     if (data.success) {
                         selectedUserIds.forEach(userId => {
                             const user = allUsers.find(u => u.id === userId);
-                            if (user) {
-                                localStorage.removeItem(`user_tier_${user.email}`);
-                            }
+                            if (user) localStorage.removeItem(`user_tier_${user.email}`);
                         });
-                        
-                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message });
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: data.message, timer: 1500, showConfirmButton: false });
                         selectedUserIds.clear();
                         loadDashboardData();
                     } else {
@@ -723,18 +1517,18 @@
             }
         }
         
+        // ============ FILTER ============
         function filterUsers() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
             const filtered = allUsers.filter(user => 
                 user.account_name.toLowerCase().includes(searchTerm) ||
                 user.account_number.includes(searchTerm) ||
                 user.email.toLowerCase().includes(searchTerm)
             );
-            
             renderUsersTable(filtered);
         }
         
+        // ============ SCREEN CONTROL ============
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('dashboardScreen').style.display = 'none';
@@ -754,16 +1548,31 @@
             }
             localStorage.removeItem('adminSessionToken');
             adminSessionToken = null;
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval);
             showLogin();
-            Swal.fire({ icon: 'success', title: 'Logged Out', text: 'Admin session ended' });
+            Swal.fire({ icon: 'success', title: 'Logged Out', text: 'Session ended', timer: 1500, showConfirmButton: false });
         }
         
-        // Auto-refresh every 30 seconds
+        // ============ AUTO REFRESH ============
         setInterval(() => {
             if (adminSessionToken && document.getElementById('dashboardScreen').style.display !== 'none') {
                 loadDashboardData();
             }
         }, 30000);
+        
+        // Responsive grid for chart
+        function checkResponsive() {
+            const grid = document.getElementById('chartActivityGrid');
+            if (grid) {
+                if (window.innerWidth < 992) {
+                    grid.style.gridTemplateColumns = '1fr';
+                } else {
+                    grid.style.gridTemplateColumns = '2fr 1fr';
+                }
+            }
+        }
+        window.addEventListener('resize', checkResponsive);
+        checkResponsive();
     </script>
 </body>
 </html>
