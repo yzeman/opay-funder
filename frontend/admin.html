@@ -86,7 +86,7 @@
         }
         .login-icon-wrap i { font-size: 36px; color: white; }
         .login-card h2 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
-        .ITYlogin-card p { font FE-size: 13pxED; color: = #888; margin-bottom========: 24px;=== }
+        .login-card p { font-size: 13px; color: #888; margin-bottom: 24px; }
         .login-card input {
             width: 100%;
             padding: 14px 18px;
@@ -230,37 +230,6 @@
         .chart-container { position: relative; height: 200px; }
         .chart-container-sm { position: relative; height: 180px; }
 
-        /* ============ HEATMAP ============ */
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 4px;
-            margin-top: 8px;
-        }
-        .heatmap-cell {
-            aspect-ratio: 1;
-            border-radius: 4px;
-            background: #f0f2f5;
-            transition: all 0.2s;
-            cursor: pointer;
-            position: relative;
-        }
-        .heatmap-cell:hover { transform: scale(1.3); z-index: 5; }
-        .heatmap-legend {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 6px;
-            margin-top: 12px;
-            font-size: 10px;
-            color: #888;
-        }
-        .heatmap-legend-cell {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-        }
-
         /* ============ RE-ENGAGEMENT PANEL ============ */
         .reengagement-list {
             display: flex;
@@ -298,7 +267,7 @@
             font-size: 13px;
         }
 
-        /* ============ ACTIV */
+        /* ============ ACTIVITY ============ */
         .activity-list {
             display: flex;
             flex-direction: column;
@@ -630,7 +599,6 @@
 
             <div class="admin-container">
                 
-                <!-- Analytics Cards -->
                 <div class="analytics-grid">
                     <div class="analytics-card blue">
                         <div class="analytics-icon"><i class="fas fa-users"></i></div>
@@ -682,7 +650,6 @@
                     </div>
                 </div>
 
-                <!-- Row 1: User Growth Chart (wide) + Tier Doughnut (narrow) -->
                 <div class="row-grid">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -709,7 +676,6 @@
                     </div>
                 </div>
 
-                <!-- Row 2: Peak Hours Heatmap (wide) + Re-engagement Panel (narrow) -->
                 <div class="row-grid">
                     <div class="chart-card">
                         <div class="chart-title">
@@ -737,7 +703,6 @@
                     </div>
                 </div>
 
-                <!-- Row 3: Recent Activity Feed -->
                 <div class="chart-card" style="margin-bottom:20px;">
                     <div class="chart-title">
                         <div class="chart-title-left">
@@ -751,7 +716,6 @@
                     </div>
                 </div>
 
-                <!-- Tier Distribution Bars -->
                 <div class="tier-progress-card">
                     <div class="tier-progress-title">
                         <i class="fas fa-layer-group" style="color:#00B875;"></i> User Tier Distribution
@@ -780,7 +744,6 @@
                     </div>
                 </div>
 
-                <!-- Users Table with Filter Tabs -->
                 <div class="table-card">
                     <div class="table-header">
                         <div class="table-title">
@@ -797,7 +760,6 @@
                         </div>
                     </div>
 
-                    <!-- Filter Tabs -->
                     <div class="filter-tabs" id="filterTabs">
                         <button class="filter-tab active" data-filter="all" onclick="applyFilter('all')">
                             <i class="fas fa-list"></i> All <span class="filter-tab-count" id="filterCountAll">0</span>
@@ -913,6 +875,33 @@
         let peakChart = null;
         let liveUpdateInterval = null;
         
+        // ✅ CRITICAL FIX: Parse timestamps as UTC if no timezone info
+        // This fixes the "1 hour ago" bug caused by Supabase storing as TIMESTAMP WITHOUT TIME ZONE
+        function parseTimestampUTC(ts) {
+            if (!ts) return null;
+            if (ts instanceof Date) return ts;
+            if (typeof ts !== 'string') return new Date(ts);
+            
+            let str = ts.trim();
+            
+            // If already has 'Z' or +hh:mm timezone, parse as-is
+            if (str.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(str)) {
+                return new Date(str);
+            }
+            
+            // If has 'T' but no timezone, add 'Z' to force UTC
+            if (str.includes('T')) {
+                return new Date(str + 'Z');
+            }
+            
+            // If has space (Supabase format: "2026-06-15 14:30:00"), convert to ISO + 'Z'
+            if (str.includes(' ')) {
+                return new Date(str.replace(' ', 'T') + 'Z');
+            }
+            
+            return new Date(str);
+        }
+        
         window.addEventListener('load', function() {
             const savedToken = localStorage.getItem('adminSessionToken');
             if (savedToken) {
@@ -994,12 +983,16 @@
         
         function isUserActiveWithin(user, seconds) {
             if (!user.last_seen) return false;
-            return (Date.now() - new Date(user.last_seen).getTime()) / 1000 < seconds;
+            const t = parseTimestampUTC(user.last_seen);
+            if (!t) return false;
+            return (Date.now() - t.getTime()) / 1000 < seconds;
         }
         
         function isUserCreatedWithin(user, days) {
             if (!user.created_at) return false;
-            const diffDays = (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24);
+            const t = parseTimestampUTC(user.created_at);
+            if (!t) return false;
+            const diffDays = (Date.now() - t.getTime()) / (1000 * 60 * 60 * 24);
             return diffDays < days;
         }
         
@@ -1025,13 +1018,17 @@
                 if (isUserCreatedWithin(user, 7)) newThisWeek++;
                 
                 // Churn: inactive 7+ days OR never seen + created 7+ days ago
-                const isInactive = user.last_seen 
-                    ? (Date.now() - new Date(user.last_seen).getTime()) / (1000 * 60 * 60 * 24) >= 7
-                    : (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                let isInactive = false;
+                if (user.last_seen) {
+                    const t = parseTimestampUTC(user.last_seen);
+                    isInactive = t ? (Date.now() - t.getTime()) / (1000 * 60 * 60 * 24) >= 7 : false;
+                } else {
+                    const t = parseTimestampUTC(user.created_at);
+                    isInactive = t ? (Date.now() - t.getTime()) / (1000 * 60 * 60 * 24) >= 7 : false;
+                }
                 if (isInactive) churnCount++;
             });
             
-            // Card values
             document.getElementById('totalUsers').textContent = totalUsers.toLocaleString();
             document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
             document.getElementById('activeToday').textContent = activeToday.toLocaleString();
@@ -1042,7 +1039,6 @@
             document.getElementById('churnCount').textContent = churnCount.toLocaleString();
             document.getElementById('usersCountBadge').textContent = totalUsers;
             
-            // Filter tab counts
             document.getElementById('filterCountAll').textContent = totalUsers;
             document.getElementById('filterCountOnline').textContent = onlineNow;
             document.getElementById('filterCountActive').textContent = activeToday;
@@ -1051,7 +1047,6 @@
             document.getElementById('filterCountNew').textContent = newThisWeek;
             document.getElementById('reengageBadge').textContent = churnCount;
             
-            // Tier bars
             const total = totalUsers || 1;
             document.getElementById('barTier1').style.width = (tier1Count / total * 100) + '%';
             document.getElementById('barTier2').style.width = (tier2Count / total * 100) + '%';
@@ -1062,7 +1057,6 @@
             document.getElementById('countTier3').textContent = tier3Count;
             document.getElementById('countVip').textContent = vipCount;
             
-            // Charts
             renderGrowthChart();
             renderTierChart(tier1Count, tier2Count, tier3Count, vipCount);
             renderPeakChart();
@@ -1070,12 +1064,11 @@
             renderReengagementPanel();
         }
         
-        // ============ GROWTH CHART (Line + Bar) ============
+        // ============ GROWTH CHART ============
         function renderGrowthChart() {
             const ctx = document.getElementById('growthChart');
             if (!ctx) return;
             
-            // Build last 30 days
             const labels = [];
             const cumulativeData = [];
             const dailySignups = [];
@@ -1088,10 +1081,13 @@
                 const dayLabel = dayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 labels.push(dayLabel);
                 
-                const signupsUpToDay = allUsers.filter(u => new Date(u.created_at) < dayEnd).length;
+                const signupsUpToDay = allUsers.filter(u => {
+                    const t = parseTimestampUTC(u.created_at);
+                    return t && t < dayEnd;
+                }).length;
                 const signupsOnDay = allUsers.filter(u => {
-                    const d = new Date(u.created_at);
-                    return d >= dayStart && d < dayEnd;
+                    const t = parseTimestampUTC(u.created_at);
+                    return t && t >= dayStart && t < dayEnd;
                 }).length;
                 
                 cumulativeData.push(signupsUpToDay);
@@ -1212,12 +1208,14 @@
             const ctx = document.getElementById('peakChart');
             if (!ctx) return;
             
-            // Count users by hour of their last_seen
             const hourCounts = new Array(24).fill(0);
             allUsers.forEach(user => {
                 if (user.last_seen) {
-                    const hour = new Date(user.last_seen).getHours();
-                    hourCounts[hour]++;
+                    const t = parseTimestampUTC(user.last_seen);
+                    if (t) {
+                        const hour = t.getHours();
+                        hourCounts[hour]++;
+                    }
                 }
             });
             
@@ -1228,7 +1226,6 @@
                 return (i - 12) + 'p';
             });
             
-            // Find max hour for highlight
             const maxHour = hourCounts.indexOf(Math.max(...hourCounts));
             const colors = hourCounts.map((_, i) => i === maxHour ? '#f59e0b' : 'rgba(0,184,117,0.6)');
             
@@ -1275,19 +1272,20 @@
         function renderReengagementPanel() {
             const container = document.getElementById('reengagementList');
             
-            // Find users inactive for 7+ days, sort by oldest first
             const inactive = allUsers
                 .filter(user => {
                     if (user.last_seen) {
-                        return (Date.now() - new Date(user.last_seen).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                        const t = parseTimestampUTC(user.last_seen);
+                        return t && (Date.now() - t.getTime()) / (1000 * 60 * 60 * 24) >= 7;
                     } else {
-                        return (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                        const t = parseTimestampUTC(user.created_at);
+                        return t && (Date.now() - t.getTime()) / (1000 * 60 * 60 * 24) >= 7;
                     }
                 })
                 .sort((a, b) => {
-                    const aTime = a.last_seen ? new Date(a.last_seen).getTime() : new Date(a.created_at).getTime();
-                    const bTime = b.last_seen ? new Date(b.last_seen).getTime() : new Date(b.created_at).getTime();
-                    return aTime - bTime; // Oldest first
+                    const aT = a.last_seen ? parseTimestampUTC(a.last_seen) : parseTimestampUTC(a.created_at);
+                    const bT = b.last_seen ? parseTimestampUTC(b.last_seen) : parseTimestampUTC(b.created_at);
+                    return (aT ? aT.getTime() : 0) - (bT ? bT.getTime() : 0);
                 })
                 .slice(0, 6);
             
@@ -1316,7 +1314,11 @@
             const container = document.getElementById('activityList');
             const sorted = [...allUsers]
                 .filter(u => u.last_seen)
-                .sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen))
+                .sort((a, b) => {
+                    const aT = parseTimestampUTC(a.last_seen);
+                    const bT = parseTimestampUTC(b.last_seen);
+                    return (bT ? bT.getTime() : 0) - (aT ? aT.getTime() : 0);
+                })
                 .slice(0, 6);
             
             if (sorted.length === 0) {
@@ -1349,7 +1351,9 @@
         
         function getActivityDotClass(lastSeen) {
             if (!lastSeen) return 'old';
-            const diffSeconds = (Date.now() - new Date(lastSeen).getTime()) / 1000;
+            const t = parseTimestampUTC(lastSeen);
+            if (!t) return 'old';
+            const diffSeconds = (Date.now() - t.getTime()) / 1000;
             if (diffSeconds < 300) return 'online';
             if (diffSeconds < 3600) return 'recent';
             return 'old';
@@ -1372,9 +1376,12 @@
                     let onlineNow = 0, activeToday = 0;
                     allUsers.forEach(user => {
                         if (user.last_seen) {
-                            const diffSeconds = (Date.now() - new Date(user.last_seen).getTime()) / 1000;
-                            if (diffSeconds < 300) onlineNow++;
-                            if (diffSeconds < 86400) activeToday++;
+                            const t = parseTimestampUTC(user.last_seen);
+                            if (t) {
+                                const diffSeconds = (Date.now() - t.getTime()) / 1000;
+                                if (diffSeconds < 300) onlineNow++;
+                                if (diffSeconds < 86400) activeToday++;
+                            }
                         }
                     });
                     document.getElementById('onlineNow').textContent = onlineNow.toLocaleString();
@@ -1385,15 +1392,21 @@
             }, 1000);
         }
         
-        // ============ FORMAT LAST SEEN ============
+        // ============ FORMAT LAST SEEN (FIXED UTC) ============
         function formatLastSeen(lastSeen) {
             if (!lastSeen) return '<span class="last-seen-old">Never</span>';
-            const lastSeenDate = new Date(lastSeen);
+            
+            const lastSeenDate = parseTimestampUTC(lastSeen);
+            if (!lastSeenDate) return '<span class="last-seen-old">Never</span>';
+            
             const now = new Date();
             const diffSeconds = Math.floor((now - lastSeenDate) / 1000);
             const diffMins = Math.floor(diffSeconds / 60);
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
+            
+            // Future timestamp safeguard (in case of clock skew)
+            if (diffSeconds < 0) return '<span class="last-seen-online">Online now</span>';
             
             if (diffSeconds < 5) return '<span class="last-seen-online">Online now</span>';
             if (diffSeconds < 60) return `<span class="last-seen-recent">${diffSeconds} sec ago</span>`;
@@ -1434,18 +1447,33 @@
             const now = Date.now();
             switch(currentFilter) {
                 case 'online':
-                    return allUsers.filter(u => u.last_seen && (now - new Date(u.last_seen).getTime()) / 1000 < 300);
+                    return allUsers.filter(u => {
+                        if (!u.last_seen) return false;
+                        const t = parseTimestampUTC(u.last_seen);
+                        return t && (now - t.getTime()) / 1000 < 300;
+                    });
                 case 'active':
-                    return allUsers.filter(u => u.last_seen && (now - new Date(u.last_seen).getTime()) / 1000 < 86400);
+                    return allUsers.filter(u => {
+                        if (!u.last_seen) return false;
+                        const t = parseTimestampUTC(u.last_seen);
+                        return t && (now - t.getTime()) / 1000 < 86400;
+                    });
                 case 'paid':
                     return allUsers.filter(u => isPaid(u));
                 case 'inactive':
                     return allUsers.filter(u => {
-                        if (u.last_seen) return (now - new Date(u.last_seen).getTime()) / (1000*60*60*24) >= 7;
-                        return (now - new Date(u.created_at).getTime()) / (1000*60*60*24) >= 7;
+                        if (u.last_seen) {
+                            const t = parseTimestampUTC(u.last_seen);
+                            return t && (now - t.getTime()) / (1000*60*60*24) >= 7;
+                        }
+                        const t = parseTimestampUTC(u.created_at);
+                        return t && (now - t.getTime()) / (1000*60*60*24) >= 7;
                     });
                 case 'new':
-                    return allUsers.filter(u => (now - new Date(u.created_at).getTime()) / (1000*60*60*24) < 7);
+                    return allUsers.filter(u => {
+                        const t = parseTimestampUTC(u.created_at);
+                        return t && (now - t.getTime()) / (1000*60*60*24) < 7;
+                    });
                 default:
                     return allUsers;
             }
@@ -1467,11 +1495,15 @@
             const sorted = [...users].sort((a, b) => {
                 let aVal, bVal;
                 if (currentSort.field === 'last_seen') {
-                    aVal = a.last_seen ? new Date(a.last_seen).getTime() : 0;
-                    bVal = b.last_seen ? new Date(b.last_seen).getTime() : 0;
+                    const aT = a.last_seen ? parseTimestampUTC(a.last_seen) : null;
+                    const bT = b.last_seen ? parseTimestampUTC(b.last_seen) : null;
+                    aVal = aT ? aT.getTime() : 0;
+                    bVal = bT ? bT.getTime() : 0;
                 } else if (currentSort.field === 'created_at') {
-                    aVal = new Date(a.created_at).getTime();
-                    bVal = new Date(b.created_at).getTime();
+                    const aT = parseTimestampUTC(a.created_at);
+                    const bT = parseTimestampUTC(b.created_at);
+                    aVal = aT ? aT.getTime() : 0;
+                    bVal = bT ? bT.getTime() : 0;
                 } else if (currentSort.field === 'user_tier') {
                     const order = { '1': 1, '2': 2, '3': 3, 'VIP': 4 };
                     aVal = order[a.user_tier || '1'] || 1;
@@ -1514,6 +1546,7 @@
             tbody.innerHTML = users.map(user => {
                 const userTier = getUserTier(user);
                 const lastSeenAttr = user.last_seen ? user.last_seen : 'null';
+                const createdT = parseTimestampUTC(user.created_at);
                 return `
                     <tr>
                         <td><input type="checkbox" class="user-checkbox" value="${user.id}" onchange="toggleUserSelect('${user.id}')"></td>
@@ -1523,7 +1556,7 @@
                         <td><code style="font-size: 10px; background:#f1f5f9; padding:2px 6px; border-radius:5px;">${user.password_code}</code></td>
                         <td>${getTierDisplay(userTier)}</td>
                         <td>${getStatusDisplay(userTier)}</td>
-                        <td style="font-size: 11px; color:#888; white-space: nowrap;">${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td style="font-size: 11px; color:#888; white-space: nowrap;">${createdT ? createdT.toLocaleDateString() : '—'}</td>
                         <td data-lastseen-time="${lastSeenAttr}" style="white-space: nowrap;">${formatLastSeen(user.last_seen)}</td>
                         <td style="white-space: nowrap;">
                             <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')"><i class="fas fa-crown"></i></button>
