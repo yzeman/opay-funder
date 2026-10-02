@@ -1201,6 +1201,77 @@ app.get('/api/admin/sms-token-stats', verifyAdminSession, async (req, res) => {
 // ========== END SMS TOKEN SYSTEM ============
 // ============================================
 
+// ============ ADMIN: GRANT SMS TOKENS (For testing or manual credit) ============
+app.post('/api/admin/grant-sms-tokens', verifyAdminSession, async (req, res) => {
+    const { email, tokens, reason } = req.body;
+    
+    console.log(`🎁 Admin granting ${tokens} SMS tokens to ${email}. Reason: ${reason || 'manual'}`);
+    
+    if (!email || !tokens || tokens < 1) {
+        return res.json({ success: false, message: 'Email and tokens (>=1) required' });
+    }
+    
+    const grantAmount = parseInt(tokens);
+    
+    try {
+        // Check if user has a token row
+        const { data: existing, error: findError } = await supabase
+            .from('sms_tokens')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+        
+        if (findError) throw findError;
+        
+        let newBalance;
+        
+        if (existing) {
+            newBalance = (existing.token_balance || 0) + grantAmount;
+            await supabase
+                .from('sms_tokens')
+                .update({
+                    token_balance: newBalance,
+                    total_purchased: (existing.total_purchased || 0) + grantAmount,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('email', email);
+        } else {
+            newBalance = grantAmount;
+            await supabase
+                .from('sms_tokens')
+                .insert({
+                    email: email,
+                    token_balance: grantAmount,
+                    total_purchased: grantAmount,
+                    total_used: 0
+                });
+        }
+        
+        // Log this as a transaction (marked as admin grant)
+        await supabase
+            .from('sms_token_transactions')
+            .insert({
+                email,
+                package_tokens: grantAmount,
+                amount_paid: 0,
+                reference: 'ADMIN-GRANT-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase(),
+                status: 'admin_grant'
+            });
+        
+        console.log(`✅ Granted ${grantAmount} tokens to ${email}. New balance: ${newBalance}`);
+        
+        res.json({
+            success: true,
+            message: `${grantAmount} tokens granted to ${email}`,
+            new_balance: newBalance
+        });
+        
+    } catch (error) {
+        console.error('Grant tokens error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
 // ============ PAYSTACK PAYMENT INITIALIZATION (LIVE MODE) ============
 app.post('/api/initialize-payment', async (req, res) => {
     const { email, amount, plan, tier } = req.body;
