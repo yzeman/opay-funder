@@ -12,11 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -24,497 +20,92 @@
             min-height: 100vh;
             padding-bottom: 30px;
             -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
-        /* Header */
-        .header {
-            background: white;
-            padding: 16px 16px 10px;
-            border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        .header { background: white; padding: 16px 16px 10px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+        .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #333; padding: 5px; width: 40px; }
+        .header-title { font-size: 15px; font-weight: 600; color: #1a1a1a; text-align: center; margin: 0; flex: 1; }
 
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-        }
+        .recipient-card { background: #f8f9fc; margin: 16px; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 10px; }
+        .bank-icon { width: 50px; height: 50px; background: #f0fdf4; border-radius: 25px; display: flex; align-items: center; justify-content: center; }
+        .bank-icon img { width: 35px; height: 35px; object-fit: contain; }
+        .recipient-info { flex: 1; }
+        .recipient-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+        .recipient-account { font-size: 13px; color: #888; }
 
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #333;
-            padding: 5px;
-            width: 40px;
-        }
+        .amount-section { background: white; margin: -16px 16px 1px; border-radius: 20px; padding: 20px; }
+        .amount-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .amount-label { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .no-fee-label { font-size: 12px; font-weight: 500; color: #00B875; }
+        .amount-input-wrapper { display: flex; align-items: center; margin-bottom: 10px; }
+        .currency-symbol { font-size: 25px; font-weight: 400; color: #1a1a1a; margin-right: 5px; }
+        .amount-input { font-size: 25px; font-weight: 500; color: #1a1a1a; border: none; border-bottom: 2px solid #00B875; text-align: left; width: 100%; font-family: inherit; background: transparent; padding: 0; }
+        input::placeholder { color: #aaa8; transition: color 0.2s; }
+        input:focus::placeholder { color: transparent; }
+        .amount-input:focus { outline: none; }
 
-        .header-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-            text-align: center;
-            margin: 0;
-            flex: 1;
-        }
+        .quick-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .quick-amount-btn { background: #f8f9fc; border-radius: 5px; padding: 10px; font-size: 13px; font-weight: 450; color: #888; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .quick-amount-btn:active { transform: scale(0.98); background: #e8f5e9; border-color: #00B875; }
 
-        /* Recipient Card */
-        .recipient-card {
-            background: #f8f9fc;
-            margin: 16px;
-            border-radius: 20px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .remark-section { background: white; margin: 16px; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .remark-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 12px; }
+        .remark-input { width: 100%; padding: 12px; border: none; border-bottom: 1px solid #aaa5; border-radius: 12px; font-size: 14px; background: white; }
+        .remark-input:focus { outline: none; border-color: #00B875; }
+        .tag-section { display: flex; gap: 16px; margin-top: 12px; }
+        .tag-btn { flex: 1; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 14px; font-weight: 500; color: #1a1a1a; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .tag-btn.active { background: #00B875; border-color: #00B875; color: white; }
+        .tag-btn:active { transform: scale(0.98); }
 
-        .bank-icon {
-            width: 50px;
-            height: 50px;
-            background: #f0fdf4;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .confirm-btn { background: #00B875; color: white; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 30px; margin: 20px 16px; width: calc(100% - 32px); cursor: pointer; transition: all 0.2s; }
+        .confirm-btn:active { transform: scale(0.98); background: #009a62; }
+        .confirm-btn:disabled { background: #bbf7d0; cursor: not-allowed; }
 
-        .bank-icon img {
-            width: 35px;
-            height: 35px;
-            object-fit: contain;
-        }
+        .message-indicator { margin: 8px 16px; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; }
+        .message-indicator.error { background: #ffebee; color: #dc3545; }
+        .message-indicator.success { background: #e8f5e9; color: #00B875; }
+        .message-indicator.warning { background: #fff3cd; color: #856404; }
 
-        .recipient-info {
-            flex: 1;
-        }
-
-        .recipient-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .recipient-account {
-            font-size: 13px;
-            color: #888;
-        }
-
-        /* Amount Section */
-        .amount-section {
-            background: white;
-            margin: -16px 16px 1px;
-            border-radius: 20px;
-            padding: 20px;
-        }
-
-        .amount-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .amount-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .no-fee-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #00B875;
-        }
-
-        .amount-input-wrapper {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .currency-symbol {
-            font-size: 25px;
-            font-weight: 400;
-            color: #1a1a1a;
-            margin-right: 5px;
-        }
-
-        .amount-input {
-            font-size: 25px;
-            font-weight: 500;
-            color: #1a1a1a;
-            border: none;
-            border-bottom: 2px solid #00B875;
-            text-align: left;
-            width: 100%;
-            font-family: inherit;
-            background: transparent;
-            padding: 0;
-        }
-
-        input::placeholder {
-            color: #aaa8;
-            transition: color 0.2s;
-        }
-
-        input:focus::placeholder {
-            color: transparent;
-        }
-
-        .amount-input:focus {
-            outline: none;
-        }
-
-        .amount-range {
-            font-size: 13px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        /* Quick Amount Buttons */
-        .quick-amounts {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .quick-amount-btn {
-            background: #f8f9fc;
-            border-radius: 5px;
-            padding: 10px;
-            font-size: 13px;
-            font-weight: 450;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .quick-amount-btn:active {
-            transform: scale(0.98);
-            background: #e8f5e9;
-            border-color: #00B875;
-        }
-
-        /* Remark Section */
-        .remark-section {
-            background: white;
-            margin: 16px;
-            border-radius: 20px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .remark-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 12px;
-        }
-
-        .remark-input {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-bottom: 1px solid #aaa5;
-            border-radius: 12px;
-            font-size: 14px;
-            background: white;
-        }
-
-        .remark-input:focus {
-            outline: none;
-            border-color: #00B875;
-        }
-
-        /* Purchase/Personal Tags */
-        .tag-section {
-            display: flex;
-            gap: 16px;
-            margin-top: 12px;
-        }
-
-        .tag-btn {
-            flex: 1;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #1a1a1a;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-        }
-
-        .tag-btn.active {
-            background: #00B875;
-            border-color: #00B875;
-            color: white;
-        }
-
-        .tag-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Confirm Button */
-        .confirm-btn {
-            background: #00B875;
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 30px;
-            margin: 20px 16px;
-            width: calc(100% - 32px);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .confirm-btn:active {
-            transform: scale(0.98);
-            background: #009a62;
-        }
-
-        .confirm-btn:disabled {
-            background: #bbf7d0;
-            cursor: not-allowed;
-        }
-
-        /* Message Indicator */
-        .message-indicator {
-            margin: 8px 16px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            text-align: center;
-        }
-
-        .message-indicator.error {
-            background: #ffebee;
-            color: #dc3545;
-        }
-
-        .message-indicator.success {
-            background: #e8f5e9;
-            color: #00B875;
-        }
-
-        .message-indicator.warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        /* ========== SMS ALERT ROW ========== */
-        .sms-alert-row {
-            background: white;
-            margin: 16px;
-            border-radius: 20px;
-            padding: 14px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: none;
-        }
+        /* SMS ALERT ROW */
+        .sms-alert-row { background: white; margin: 16px; border-radius: 20px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: none; }
         .sms-alert-row.show { display: block; }
-
-        .sms-alert-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .sms-alert-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-        .sms-alert-icon {
-            width: 38px;
-            height: 38px;
-            background: #ecfdf5;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #00B875;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
+        .sms-alert-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .sms-alert-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .sms-alert-icon { width: 38px; height: 38px; background: #ecfdf5; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #00B875; font-size: 16px; flex-shrink: 0; }
         .sms-alert-text { flex: 1; }
-        .sms-alert-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 2px;
-        }
-        .sms-alert-sub {
-            font-size: 11px;
-            color: #888;
-        }
+        .sms-alert-title { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+        .sms-alert-sub { font-size: 11px; color: #888; }
 
-        .sms-switch {
-            position: relative;
-            width: 46px;
-            height: 26px;
-            flex-shrink: 0;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .sms-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .sms-switch-track {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #cbd5e1;
-            border-radius: 26px;
-            transition: 0.3s;
-        }
-        .sms-switch-track:before {
-            content: "";
-            position: absolute;
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            top: 3px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .sms-switch input:checked + .sms-switch-track {
-            background: #00B875;
-        }
-        .sms-switch input:checked + .sms-switch-track:before {
-            transform: translateX(20px);
-        }
+        .sms-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; cursor: pointer; display: inline-block; }
+        .sms-switch input { opacity: 0; width: 0; height: 0; }
+        .sms-switch-track { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; border-radius: 26px; transition: 0.3s; }
+        .sms-switch-track:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .sms-switch input:checked + .sms-switch-track { background: #00B875; }
+        .sms-switch input:checked + .sms-switch-track:before { transform: translateX(20px); }
 
-        .sms-token-info {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 12px;
-            padding: 10px 12px;
-            background: #f8f9fc;
-            border-radius: 12px;
-        }
+        .sms-token-info { display: none; align-items: center; justify-content: space-between; margin-top: 12px; padding: 10px 12px; background: #f8f9fc; border-radius: 12px; }
         .sms-token-info.show { display: flex; }
-        .sms-token-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-        .sms-token-num {
-            color: #00B875;
-            font-weight: 800;
-        }
-        .sms-buy-token-btn {
-            background: #00B875;
-            color: white;
-            border: none;
-            padding: 7px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .sms-zero-warning {
-            display: none;
-            margin-top: 10px;
-            padding: 10px 12px;
-            background: #fff3cd;
-            border-left: 3px solid #f59e0b;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #856404;
-            cursor: pointer;
-        }
+        .sms-token-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #1a1a1a; }
+        .sms-token-num { color: #00B875; font-weight: 800; }
+        .sms-buy-token-btn { background: #00B875; color: white; border: none; padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .sms-zero-warning { display: none; margin-top: 10px; padding: 10px 12px; background: #fff3cd; border-left: 3px solid #f59e0b; border-radius: 8px; font-size: 12px; color: #856404; cursor: pointer; }
         .sms-zero-warning.show { display: block; }
 
-        /* ========== TOKEN PURCHASE MODAL ========== */
-        .sms-modal-bg {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 3000;
-            align-items: flex-end;
-        }
+        /* TOKEN PURCHASE MODAL */
+        .sms-modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 3000; align-items: flex-end; }
         .sms-modal-bg.show { display: flex; }
-        .sms-modal {
-            background: white;
-            width: 100%;
-            max-height: 88vh;
-            border-radius: 28px 28px 0 0;
-            overflow-y: auto;
-            animation: smsSlideUp 0.3s ease;
-        }
-        @keyframes smsSlideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        .sms-modal-head {
-            text-align: center;
-            padding: 18px 20px 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .sms-modal-handle {
-            width: 40px;
-            height: 4px;
-            background: #ddd;
-            border-radius: 2px;
-            margin: 0 auto 12px;
-        }
-        .sms-modal-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-        .sms-modal-sub {
-            font-size: 12px;
-            color: #888;
-        }
-        .sms-modal-balance {
-            text-align: center;
-            padding: 12px;
-            margin: 14px 20px 0;
-            background: #f0fdf4;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #047857;
-        }
-        .sms-packs {
-            padding: 14px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .sms-pack {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 16px;
-            border: 2px solid #e8eaed;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .sms-modal { background: white; width: 100%; max-height: 88vh; border-radius: 28px 28px 0 0; overflow-y: auto; animation: smsSlideUp 0.3s ease; }
+        @keyframes smsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .sms-modal-head { text-align: center; padding: 18px 20px 12px; border-bottom: 1px solid #f0f0f0; }
+        .sms-modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 12px; }
+        .sms-modal-title { font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+        .sms-modal-sub { font-size: 12px; color: #888; }
+        .sms-modal-balance { text-align: center; padding: 12px; margin: 14px 20px 0; background: #f0fdf4; border-radius: 12px; font-size: 13px; font-weight: 700; color: #047857; }
+        .sms-packs { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+        .sms-pack { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border: 2px solid #e8eaed; border-radius: 14px; cursor: pointer; transition: 0.2s; }
         .sms-pack:hover { border-color: #00B875; background: #f0fdf4; }
         .sms-pack.selected { border-color: #00B875; background: #ecfdf5; }
         .sms-pack-l { display: flex; align-items: center; gap: 12px; }
@@ -522,38 +113,10 @@
         .sms-pack-tok { font-size: 14px; font-weight: 700; color: #1a1a1a; }
         .sms-pack-desc { font-size: 10px; color: #888; }
         .sms-pack-price { font-size: 15px; font-weight: 800; color: #00B875; }
-        .sms-modal-foot {
-            padding: 8px 20px 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: white;
-            position: sticky;
-            bottom: 0;
-        }
-        .sms-pay-btn {
-            width: 100%;
-            padding: 14px;
-            background: #00B875;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+        .sms-modal-foot { padding: 8px 20px 30px; display: flex; flex-direction: column; gap: 8px; background: white; position: sticky; bottom: 0; }
+        .sms-pay-btn { width: 100%; padding: 14px; background: #00B875; color: white; border: none; border-radius: 30px; font-size: 14px; font-weight: 700; cursor: pointer; }
         .sms-pay-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-        .sms-cancel-btn {
-            width: 100%;
-            padding: 12px;
-            background: #f0f2f5;
-            color: #666;
-            border: none;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+        .sms-cancel-btn { width: 100%; padding: 12px; background: #f0f2f5; color: #666; border: none; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -607,7 +170,7 @@
         </div>
     </div>
 
-    <!-- ========== NEW: SMS ALERT ROW (Tier 3 / VIP only) ========== -->
+    <!-- SMS ALERT ROW (Tier 3 / VIP only) -->
     <div class="sms-alert-row" id="smsAlertRow">
         <div class="sms-alert-head">
             <div class="sms-alert-left">
@@ -637,26 +200,25 @@
             ⚠️ You have 0 tokens. Tap here to buy.
         </div>
     </div>
-    <!-- ========== END SMS ALERT ROW ========== -->
 
     <button class="confirm-btn" id="confirmBtn">Confirm</button>
 
     <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
 
-    <!-- ========== NEW: TOKEN PURCHASE MODAL ========== -->
+    <!-- TOKEN PURCHASE MODAL -->
     <div class="sms-modal-bg" id="smsModalBg">
         <div class="sms-modal">
             <div class="sms-modal-head">
                 <div class="sms-modal-handle"></div>
                 <div class="sms-modal-title">Buy SMS Alert Tokens</div>
                 <div class="sms-modal-sub">1 token = 1 SMS notification</div>
-            </div>
+            </ classdiv>
             <div class="sms-modal-balance">
                 Your balance: <span id="smsModalBalance">0</span> tokens
             </div>
-            <div class="sms-packs" id="smsPacks">
-                <div class="sms-pack" data-tokens="5" data-price="3000">
-                    <div class="sms-pack-l">
+="            <div class="sms-packs" id="smsPacks">
+                <div classsms="sms-pack" data-tokens-pack="5" data-price="3000-t">
+                    <div class="oksms-pack-l">
                         <div class="sms-pack-emoji">🎫</div>
                         <div>
                             <div class="sms-pack-tok">5 Tokens</div>
@@ -709,7 +271,7 @@
                     <div class="sms-pack-l">
                         <div class="sms-pack-emoji">🔥</div>
                         <div>
-                            <div class="sms-pack-tok">100 Tokens</div>
+                            <div">100 Tokens</div>
                             <div class="sms-pack-desc">Save ₦35,000</div>
                         </div>
                     </div>
@@ -722,7 +284,6 @@
             </div>
         </div>
     </div>
-    <!-- ========== END TOKEN PURCHASE MODAL ========== -->
 
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
@@ -963,14 +524,12 @@
             if (balanceData.success) {
                 updateTransferCount();
                 
-                // ========== SAVE TO RECENTS ==========
+                // SAVE TO RECENTS
                 let recents = JSON.parse(localStorage.getItem('opayRecents') || '[]');
                 recents = recents.filter(r => r.account !== recipient.accountNumber);
                 recents.unshift({ name: recipient.name, account: recipient.accountNumber });
                 recents = recents.slice(0, 10);
                 localStorage.setItem('opayRecents', JSON.stringify(recents));
-                console.log('✅ Saved to recents:', { name: recipient.name, account: recipient.accountNumber });
-                // ====================================
                 
                 // Save transaction
                 let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
@@ -979,7 +538,7 @@
                 
                 localStorage.setItem('transactionData', JSON.stringify(transactionData));
 
-                // ✅ SMS ALERT (only if toggle ON + tokens available)
+                // SMS ALERT (only if toggle ON + tokens available)
                 if (typeof window.sendSmsAlertIfEnabled === 'function') {
                     window.sendSmsAlertIfEnabled({
                         recipientAccount: recipient.accountNumber,
@@ -1010,17 +569,7 @@
         let currentTier = userTier || '1';
         
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: flex;
-            align-items: flex-end;
-        `;
+        overlay.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: flex-end;`;
         
         overlay.innerHTML = `
             <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
@@ -1029,16 +578,10 @@
                     <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
                     <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
                 </div>
-                
                 <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
                     <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
-                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                        ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
-                    </span>
+                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}</span>
                 </div>
-                
                 <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
@@ -1046,7 +589,6 @@
                     </div>
                     <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
                 </div>
-                
                 <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
@@ -1054,7 +596,6 @@
                     </div>
                     <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Premium ></button>
                 </div>
-                
                 <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
@@ -1062,7 +603,6 @@
                     </div>
                     <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Upgrade to VIP ></button>
                 </div>
-                
                 <div style="padding: 16px 20px 30px;">
                     <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
                 </div>
@@ -1090,8 +630,7 @@
                 const plan = btn.getAttribute('data-plan');
                 const tier = btn.getAttribute('data-tier');
                 localStorage.setItem('selected_plan', JSON.stringify({
-                    plan: plan,
-                    tier: tier,
+                    plan: plan, tier: tier,
                     price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
                 }));
                 window.location.href = 'plan.html';
@@ -1099,7 +638,7 @@
         });
     }
     
-    // Show reminder popup
+    // Confirm button click
     confirmBtn.addEventListener('click', async () => {
         if (currentAmount < 10) {
             showMessage('Minimum amount is ₦10.00', 'error');
@@ -1134,7 +673,6 @@
                 <div style="text-align: left; font-size: 14px;">
                     <p style="margin-bottom: 15px;">Double check the transfer details before you proceed.</p>
                     <p style="margin-bottom: 20px; color: #dc3545;">Please note using OPay Funder is at your own risk. Use it wisely.</p>
-                    
                     <div style="background: #f8f9fc; padding: 12px; border-radius: 12px; margin-bottom: 15px;">
                         <div><strong>Name:</strong> ${recipient.name}</div>
                         <div><strong>Account No.:</strong> ${recipient.accountNumber}</div>
@@ -1158,11 +696,10 @@
     
     // Initialize
     getCurrentUser();
-    
     console.log('✅ Amount page loaded - Recents will be saved on successful transfer');
     </script>
 
-    <!-- ========== NEW: SMS TOGGLE + TOKEN LOGIC ========== -->
+    <!-- ========== SMS TOGGLE + TOKEN LOGIC ========== -->
     <script>
     (function() {
         const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
@@ -1286,6 +823,7 @@
                     localStorage.setItem('pending_token_purchase', JSON.stringify({
                         tokens: picked.tokens, amount: picked.price, reference: d.reference, ts: Date.now()
                     }));
+                    localStorage.setItem('sms_return_url', window.location.pathname);  /* ⬅️ ADDED */
                     window.location.href = d.authorization_url;
                 } else {
                     throw new Error(d.message || 'Could not start payment');
@@ -1340,6 +878,5 @@
         init();
     })();
     </script>
-    <!-- ========== END SMS TOGGLE + TOKEN LOGIC ========== -->
 </body>
 </html>
