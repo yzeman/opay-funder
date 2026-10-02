@@ -1187,6 +1187,7 @@
                     localStorage.setItem('pending_token_purchase', JSON.stringify({
                         tokens: picked.tokens, amount: picked.price, reference: d.reference, ts: Date.now()
                     }));
+                    localStorage.setItem('sms_return_url', window.location.pathname);  /* ⬅️ ADDED */
                     window.location.href = d.authorization_url;
                 } else {
                     throw new Error(d.message || 'Could not start payment');
