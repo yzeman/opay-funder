@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="format-detection" content="telephone=no">
-<meta name="format-detection" content="date=no">
-<meta name="format-detection" content="address=no">
-<meta name="format-detection" content="email=no">
+    <meta name="format-detection" content="date=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="email=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>OPay - Enter Amount</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -24,8 +24,8 @@
             min-height: 100vh;
             padding-bottom: 30px;
             -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         /* Header */
@@ -48,7 +48,8 @@
         .back-btn {
             background: none;
             border: none;
-            font-size: 20px;
+            font {
+-size: 20px;
             cursor: pointer;
             color: #333;
             padding: 5px;
@@ -107,12 +108,182 @@
             color: #888;
         }
 
+        /* ============ SMS TOGGLE CARD ============ */
+        .sms-toggle-card {
+            background: white;
+            margin: 0 16px 16px;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: none; /* Hidden by default - JS shows for Tier 3/VIP */
+        }
+        .sms-toggle-card.visible {
+            display: block;
+        }
+        .sms-toggle-card.active {
+            border-color: #00B875;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+        .sms-toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .sms-toggle-left            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .sms-toggle-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #00B875, #009a62);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sms-toggle-icon i {
+            color: white;
+            font-size: 20px;
+        }
+        .sms-toggle-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .sms-toggle-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+        }
+        .sms-toggle-desc {
+            font-size: 11px;
+            color: #888;
+            line-height: 1.3;
+        }
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 30px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 30px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #00B875;
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        /* Token Balance Area */
+        .sms-token-area {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed #e0e4e8;
+            display: none;
+        }
+        .sms-token-area.visible {
+            display: block;
+        }
+        .token-balance-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .token-balance-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .token-balance-icon {
+            font-size: 18px;
+        }
+        .token-balance-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .token-balance-count {
+            color: #00B875;
+            font-weight: 800;
+        }
+        .buy-token-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(245,158,11,0.3);
+        }
+        .buy-token-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(245,158,11,0.4);
+        }
+        .buy-token-btn:active {
+            transform: scale(0.98);
+        }
+        .token-ready-badge {
+            background: #ecfdf5;
+            color: #00B875;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         /* Amount Section */
         .amount-section {
             background: white;
             margin: -16px 16px 1px;
             border-radius: 20px;
             padding: 20px;
+        }
+        .amount-section.after-sms {
+            margin-top: 0;
         }
 
         .amount-header {
@@ -313,6 +484,174 @@
             background: #fff3cd;
             color: #856404;
         }
+
+        /* ============ TOKEN PURCHASE MODAL ============ */
+        .token-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 3000;
+            display: none;
+            align-items: flex-end;
+            backdrop-filter: blur(4px);
+        }
+        .token-modal-overlay.visible {
+            display: flex;
+        }
+        .token-modal {
+            background: white;
+            width: 100%;
+            border-radius: 28px 28px 0 0;
+            max-height: 88vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.05);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .token-modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 12px auto 0;
+        }
+        .token-modal-header {
+            text-align: center;
+            padding: 16px 24px 8px;
+        }
+        .token-modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .token-modal-subtitle {
+            font-size: 12px;
+            color: #888;
+        }
+        .token-current-balance {
+            margin: 12px 16px;
+            background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #bbf7d0;
+        }
+        .token-current-balance .label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+        .token-current-balance .value {
+            font-size: 16px;
+            font-weight: 800;
+            color: #00B875;
+        }
+        .package-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 12px 16px 20px;
+        }
+        .package-card {
+            background: white;
+            border: 2px solid #e8eaed;
+            border-radius: 16px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .package-card:hover {
+            border-color: #00B875;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,184,117,0.15);
+        }
+        .package-card:active {
+            transform: scale(0.98);
+        }
+        .package-card.best {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+        }
+        .package-card.popular {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+        }
+        .package-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .package-badge.best {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .package-badge.popular {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .package-icon {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+        .package-tokens {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        .package-tokens-label {
+            font-size: 10px;
+            color: #888;
+            font-weight: 600;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .package-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: #00B875;
+            margin-top: 8px;
+        }
+        .package-price-per {
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .token-modal-footer {
+            padding: 0 16px 30px;
+        }
+        .token-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #666;
+            cursor: pointer;
+        }
+        .token-close-btn:active {
+            background: #e8eaed;
+        }
     </style>
 </head>
 <body>
@@ -336,7 +675,32 @@
         </div>
     </div>
 
-    <div class="amount-section">
+    <!-- ============ SMS ALERT TOGGLE (Tier 3 / VIP only) ============ -->
+    <div class="sms-toggle-card" id="smsToggleCard">
+        <div class="sms-toggle-header">
+            <div class="sms-toggle-left">
+                <div class="sms-toggle-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="sms-toggle-info">
+                    <div class="sms-toggle-title">Send SMS Alert</div>
+                    <div class="sms-toggle-desc" id="smsToggleDesc">Recipient gets SMS credit alert</div>
+                </div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="smsToggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="sms-token-area" id="smsTokenArea">
+            <div class="token-balance-row" id="tokenBalanceRow">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+    <!-- ============ END SMS TOGGLE ============ -->
+
+    <div class="amount-section" id="amountSection">
         <div class="amount-header">
             <div class="amount-label">Amount</div>
             <div class="no-fee-label">No Transaction Fees</div>
@@ -370,6 +734,27 @@
 
     <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
 
+    <!-- ============ TOKEN PURCHASE MODAL ============ -->
+    <div class="token-modal-overlay" id="tokenModalOverlay">
+        <div class="token-modal">
+            <div class="token-modal-handle"></div>
+            <div class="token-modal-header">
+                <div class="token-modal-title">Buy SMS Alert Tokens</div>
+                <div class="token-modal-subtitle">Each SMS costs 1 token</div>
+            </div>
+            <div class="token-current-balance">
+                <span class="label">Your balance:</span>
+                <span class="value" id="modalTokenBalance">0 tokens</span>
+            </div>
+            <div class="package-grid" id="packageGrid">
+                <!-- Filled by JS -->
+            </div>
+            <div class="token-modal-footer">
+                <button class="token-close-btn" id="closeTokenModal">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
     
@@ -397,6 +782,18 @@
     let currentUser = null;
     let userTier = '1';
     let userBalance = 0;
+    let smsEnabled = false;
+    let userTokens = 0;
+    
+    // Token packages
+    const TOKEN_PACKAGES = [
+        { tokens: 5, price: 3000, badge: null },
+        { tokens: 10, price: 5000, badge: 'best' },
+        { tokens: 20, price: 8000, badge: null },
+        { tokens: 30, price: 10000, badge: null },
+        { tokens: 50, price: 15000, badge: null },
+        { tokens: 100, price: 25000, badge: 'popular' }
+    ];
     
     // Daily transfer tracking
     let todaysTransferCount = 0;
@@ -421,14 +818,302 @@
         }, 3000);
     }
     
-    // Get current user
+    // ============ SMS TOKEN STATE (localStorage for now) ============
+    // When backend is ready, replace with fetch('/api/sms-tokens/get')
+    function getTokenBalance() {
+        if (!currentUser) return 0;
+        return parseInt(localStorage.getItem(`sms_tokens_${currentUser.email}`) || '0');
+    }
+    
+    function setTokenBalance(count) {
+        if (!currentUser) return;
+        localStorage.setItem(`sms_tokens_${currentUser.email}`, count.toString());
+    }
+    
+    function canUseSMS() {
+        return userTier === '3' || userTier === 3 || userTier === 'VIP';
+    }
+    
+    // ============ SMS TOGGLE INITIALIZATION ============
+    function initSMSToggle() {
+        if (!canUseSMS()) {
+            console.log('🚫 SMS toggle hidden - not Tier 3/VIP');
+            return;
+        }
+        
+        const card = document.getElementById('smsToggleCard');
+        card.classList.add('visible');
+        console.log('✅ SMS toggle visible - user is Tier 3/VIP');
+        
+        // Load token balance
+        userTokens = getTokenBalance();
+        
+        // Render token balance display
+        renderTokenBalance();
+        
+        // Toggle event
+        const toggle = document.getElementById('smsToggle');
+        toggle.addEventListener('change', function() {
+            smsEnabled = this.checked;
+            const tokenArea = document.getElementById('smsTokenArea');
+            
+            if (smsEnabled) {
+                card.classList.add('active');
+                tokenArea.classList.add('visible');
+                
+                if (userTokens === 0) {
+                    // No tokens - show buy button
+                    showMessage('⚠️ You need tokens to send SMS. Buy tokens below.', 'warning');
+                } else {
+                    showMessage(`✓ SMS will be sent to recipient (-1 token)`, 'success');
+                }
+            } else {
+                card.classList.remove('active');
+                tokenArea.classList.remove('visible');
+            }
+        });
+    }
+    
+    function renderTokenBalance() {
+        const balanceRow = document.getElementById('tokenBalanceRow');
+        if (!balanceRow) return;
+        
+        if (userTokens === 0) {
+            balanceRow.innerHTML = `
+                <div class="token-balance-left">
+                    <span class="token-balance-icon">🎫</span>
+                    <span class="token-balance-text">Tokens: <span class="token-balance-count">0</span></span>
+                </div>
+                <button class="buy-token-btn" id="buyTokenBtn">
+                    <i class="fas fa-plus-circle"></i> Buy SMS Token
+                </button>
+            `;
+            
+            document.getElementById('buyTokenBtn')?.addEventListener('click', openTokenModal);
+        } else {
+            balanceRow.innerHTML = `
+                <div class="token-balance-left">
+                    <span class="token-balance-icon">🎫</span>
+                    <span class="token-balance-text">Tokens: <span class="token-balance-count">${userTokens}</span></span>
+                </div>
+                <span class="token-ready-badge">
+                    <i class="fas fa-check-circle"></i> Ready to send
+                </span>
+            `;
+        }
+        
+        // Update modal balance if open
+        const modalBalance = document.getElementById('modalTokenBalance');
+        if (modalBalance) {
+            modalBalance.textContent = `${userTokens} token${userTokens !== 1 ? 's' : ''}`;
+        }
+    }
+    
+    // ============ TOKEN PURCHASE MODAL ============
+    function openTokenModal() {
+        renderPackages();
+        document.getElementById('tokenModalOverlay').classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeTokenModal() {
+        document.getElementById('tokenModalOverlay').classList.remove('visible');
+        document.body.style.overflow = '';
+    }
+    
+    function renderPackages() {
+        const grid = document.getElementById('packageGrid');
+        if (!grid) return;
+        
+        grid.innerHTML = TOKEN_PACKAGES.map(pkg => {
+            const perToken = Math.round(pkg.price / pkg.tokens);
+            const badgeHtml = pkg.badge 
+                ? `<div class="package-badge ${pkg.badge}">${pkg.badge === 'best' ? 'Best Value' : 'Popular'}</div>` 
+                : '';
+            const cardClass = pkg.badge === 'best' ? 'best' : (pkg.badge === 'popular' ? 'popular' : '');
+            
+            return `
+                <div class="package-card ${cardClass}" data-tokens="${pkg.tokens}" data-price="${pkg.price}">
+                    ${badgeHtml}
+                    <div class="package-icon">🎫</div>
+                    <div class="package-tokens">${pkg.tokens}</div>
+                    <div class="package-tokens-label">Tokens</div>
+                    <div class="package-price">₦${pkg.price.toLocaleString()}</div>
+                    <div class="package-price-per">₦${perToken}/SMS</div>
+                </div>
+            `;
+        }).join('');
+        
+        // Add click handlers
+        grid.querySelectorAll('.package-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const tokens = parseInt(card.getAttribute('data-tokens'));
+                const price = parseInt(card.getAttribute('data-price'));
+                purchaseTokens(tokens, price);
+            });
+        });
+    }
+    
+    async function purchaseTokens(tokens, price) {
+        if (!currentUser || !currentUser.email) {
+            showMessage('Please login first', 'error');
+            return;
+        }
+        
+        closeTokenModal();
+        
+        // Show confirmation
+        const result = await Swal.fire({
+            title: 'Confirm Purchase',
+            html: `
+                <div style="text-align: center; padding: 10px;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">🎫</div>
+                    <div style="font-size: 20px; font-weight: 800; color: #00B875; margin-bottom: 4px;">
+                        ${tokens} Tokens
+                    </div>
+                    <div style="font-size: 13px; color: #888; margin-bottom: 16px;">
+                        Each token = 1 SMS alert
+                    </div>
+                    <div style="background: #f8f9fc; border-radius: 12px; padding: 12px;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span style="color: #888;">Amount:</span>
+                            <strong style="color: #1a1a1a;">₦${price.toLocaleString()}</strong>
+                        </div>
+                    </div>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Pay ₦' + price.toLocaleString(),
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#00B875',
+            cancelButtonColor: '#888'
+        });
+        
+        if (!result.isConfirmed) return;
+        
+        // Show loading
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Redirecting to payment',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => Swal.showLoading()
+        });
+        
+        try {
+            // Save pending token purchase
+            localStorage.setItem('pending_token_purchase', JSON.stringify({
+                tokens: tokens,
+                price: price,
+                email: currentUser.email,
+                initiatedAt: new Date().toISOString()
+            }));
+            
+            // ============================================
+            // TODO: Replace this with backend call once ready
+            // ============================================
+            // For now, simulate successful purchase for testing
+            // ============================================
+            
+            // SIMULATED PAYMENT (remove this once backend is ready)
+            setTimeout(() => {
+                // Add tokens
+                userTokens += tokens;
+                setTokenBalance(userTokens);
+                renderTokenBalance();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Tokens Added!',
+                    html: `
+                        <div style="text-align: center;">
+                            <div style="font-size: 14px; margin-bottom: 12px;">
+                                You now have
+                            </div>
+                            <div style="font-size: 32px; font-weight: 800; color: #00B875; margin-bottom: 8px;">
+                                ${userTokens} tokens
+                            </div>
+                            <div style="font-size: 12px; color: #888;">
+                                Ready to send SMS alerts
+                            </div>
+                        </div>
+                    `,
+                    confirmButtonColor: '#00B875',
+                    confirmButtonText: 'Great!'
+                });
+            }, 1500);
+            
+            // ============================================
+            // REAL BACKEND CALL (uncomment when ready):
+            // ============================================
+            /*
+            const response = await fetch(`${BACKEND_URL}/api/sms-tokens/initialize-purchase`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: currentUser.email,
+                    tokens: tokens,
+                    amount: price
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.authorization_url) {
+                window.location.href = data.authorization_url;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Error',
+                    text: data.message || 'Could not initialize payment',
+                    confirmButtonColor: '#00B875'
+                });
+            }
+            */
+            
+        } catch (error) {
+            console.error('Purchase error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong. Please try again.',
+                confirmButtonColor: '#00B875'
+            });
+        }
+    }
+    
+    // ============ Get Current User ============
     async function getCurrentUser() {
         const userData = localStorage.getItem('loggedInUser');
         if (userData) {
             currentUser = JSON.parse(userData);
             userTier = localStorage.getItem(`user_tier_${currentUser.email}`) || '1';
+            
+            // Fetch real tier from backend
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get-profile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await response.json();
+                if (data.success && data.profile) {
+                    const realTier = data.profile.user_tier || '1';
+                    if (realTier !== userTier) {
+                        localStorage.setItem(`user_tier_${currentUser.email}`, realTier);
+                        userTier = realTier;
+                    }
+                }
+            } catch (e) {
+                console.error('Tier fetch failed:', e);
+            }
+            
             await fetchUserBalance();
             await checkDailyTransferLimit();
+            
+            // Init SMS toggle AFTER user data loaded
+            initSMSToggle();
         }
     }
     
@@ -609,14 +1294,12 @@
             if (balanceData.success) {
                 updateTransferCount();
                 
-                // ========== SAVE TO RECENTS ==========
+                // Save to recents
                 let recents = JSON.parse(localStorage.getItem('opayRecents') || '[]');
                 recents = recents.filter(r => r.account !== recipient.accountNumber);
                 recents.unshift({ name: recipient.name, account: recipient.accountNumber });
                 recents = recents.slice(0, 10);
                 localStorage.setItem('opayRecents', JSON.stringify(recents));
-                console.log('✅ Saved to recents:', { name: recipient.name, account: recipient.accountNumber });
-                // ====================================
                 
                 // Save transaction
                 let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
@@ -641,101 +1324,7 @@
         }
     }
     
-    // Show upgrade modal
-    function showUpgradeModal() {
-        let currentTier = userTier || '1';
-        
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            display: flex;
-            align-items: flex-end;
-        `;
-        
-        overlay.innerHTML = `
-            <div style="background: white; width: 100%; border-radius: 28px 28px 0 0; max-height: 85vh; overflow-y: auto;">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
-                    <div style="font-size: 22px; font-weight: 700;">Upgrade Your Plan</div>
-                    <div style="font-size: 13px; color: #888;">Choose a plan to unlock more features</div>
-                </div>
-                
-                <div style="margin: 0 16px 12px; background: #f0f2f5; border-radius: 12px; padding: 10px; text-align: center;">
-                    <span style="font-size: 12px; color: #666;">Your Current Tier: </span>
-                    <span style="font-size: 14px; font-weight: 700; color: #00B875;">
-                        ${currentTier === '1' || currentTier === 1 ? '⭐ Tier 1 (Free)' : 
-                          currentTier === '2' || currentTier === 2 ? '🥈 Tier 2 (Basic)' : 
-                          currentTier === '3' || currentTier === 3 ? '🥉 Tier 3 (Premium)' : '👑 VIP Tier'}
-                    </span>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier >= 3 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 3 ? '#00B875' : '#eee'};">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">🥉</span> <strong>Premium Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦50,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="premium" data-tier="3" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Premium ></button>
-                </div>
-                
-                <div style="margin: 12px 16px; background: ${currentTier === 'VIP' ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 2px solid #FFD700;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px;">👑</span> <strong style="color: #FF6B35;">VIP Plan</strong></div>
-                        <div style="font-size: 20px; font-weight: 700; color: #FF6B35;">₦100,000</div>
-                    </div>
-                    <button class="plan-btn" data-plan="vip" data-tier="VIP" style="width: 100%; margin-top: 12px; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 30px;">Upgrade to VIP ></button>
-                </div>
-                
-                <div style="padding: 16px 20px 30px;">
-                    <button id="closeUpgradeSheet" style="width: 100%; padding: 14px; background: #f0f2f5; border: none; border-radius: 30px;">Close</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(overlay);
-        document.body.style.overflow = 'hidden';
-        
-        document.getElementById('closeUpgradeSheet')?.addEventListener('click', () => {
-            overlay.remove();
-            document.body.style.overflow = '';
-        });
-        
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                document.body.style.overflow = '';
-            }
-        });
-        
-        overlay.querySelectorAll('.plan-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const plan = btn.getAttribute('data-plan');
-                const tier = btn.getAttribute('data-tier');
-                localStorage.setItem('selected_plan', JSON.stringify({
-                    plan: plan,
-                    tier: tier,
-                    price: plan === 'basic' ? 30000 : (plan === 'premium' ? 50000 : 100000)
-                }));
-                window.location.href = 'plan.html';
-            });
-        });
-    }
-    
-    // Show reminder popup
+    // Show reminder popup + save SMS preference
     confirmBtn.addEventListener('click', async () => {
         if (currentAmount < 10) {
             showMessage('Minimum amount is ₦10.00', 'error');
@@ -745,6 +1334,19 @@
         if (currentAmount > userBalance) {
             showMessage(`Insufficient balance! Your available balance is ₦${userBalance.toLocaleString()}`, 'error');
             return;
+        }
+        
+        // Check SMS token if toggle is ON
+        if (smsEnabled) {
+            if (!canUseSMS()) {
+                showMessage('SMS alerts are only for Tier 3 and VIP users', 'error');
+                return;
+            }
+            if (userTokens <= 0) {
+                showMessage('You have 0 tokens. Please buy tokens first.', 'error');
+                openTokenModal();
+                return;
+            }
         }
         
         const dailyCheck = await checkDailyTransferLimit();
@@ -760,9 +1362,20 @@
             amount: currentAmount,
             note: remarkInput.value.trim() || (selectedTag === 'Purchase' ? 'Purchase payment' : (selectedTag === 'Personal' ? 'Personal transfer' : 'Transfer')),
             tag: selectedTag,
+            // ✅ SMS FIELDS
+            smsEnabled: smsEnabled,
+            smsTokensNeeded: smsEnabled ? 1 : 0,
+            // =============
             date: new Date().toLocaleString()
         };
         localStorage.setItem('pendingTransaction', JSON.stringify(transactionDetails));
+        
+        // Build reminder HTML with SMS note
+        const smsNote = smsEnabled 
+            ? `<div style="background: #ecfdf5; border-left: 3px solid #00B875; padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 12px; color: #047857;">
+                <strong>📱 SMS Alert:</strong> Recipient will receive SMS notification (-1 token)
+               </div>`
+            : '';
         
         Swal.fire({
             title: '⚠️ Reminder',
@@ -777,6 +1390,7 @@
                         <div><strong>Bank:</strong> OPay</div>
                         <div><strong>Amount:</strong> ₦${currentAmount.toLocaleString()}</div>
                     </div>
+                    ${smsNote}
                 </div>
             `,
             icon: 'warning',
@@ -792,10 +1406,18 @@
         });
     });
     
+    // Close modal handlers
+    document.getElementById('closeTokenModal')?.addEventListener('click', closeTokenModal);
+    document.getElementById('tokenModalOverlay')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('tokenModalOverlay')) {
+            closeTokenModal();
+        }
+    });
+    
     // Initialize
     getCurrentUser();
     
-    console.log('✅ Amount page loaded - Recents will be saved on successful transfer');
+    console.log('✅ Amount page loaded - SMS feature ready');
     </script>
 </body>
 </html>
