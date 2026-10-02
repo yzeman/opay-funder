@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="format-detection" content="telephone=no">
-    <meta name="format-detection" content="date=no">
-    <meta name="format-detection" content="address=no">
-    <meta name="format-detection" content="email=no">
+<meta name="format-detection" content="date=no">
+<meta name="format-detection" content="address=no">
+<meta name="format-detection" content="email=no">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>OPay - Enter Amount</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -216,8 +216,8 @@
             <div class="sms-modal-balance">
                 Your balance: <span id="smsModalBalance">0</span> tokens
             </div>
-            <div class="sms-packs" id="smsPacks">
-                <div class="sms-pack" data-tokens="5" data-price="3000">
+="            <div class="sms-packs" id="smsPacks">
+                <div class="sms-pack" data-tokens="5" data-price="3000-t">
                     <div class="sms-pack-l">
                         <div class="sms-pack-emoji">🎫</div>
                         <div>
@@ -369,11 +369,11 @@
     // Check daily transfer limit
     async function checkDailyTransferLimit() {
         const today = new Date().toDateString();
-;">        
-        const storedDate = localStorage.getItem('lastTransferDate');
-       🥈 const storedCount</ = localStorage.getItem('spantodaysTransferCount');
         
-        if> (storedDate !== today) {
+        const storedDate = localStorage.getItem('lastTransferDate');
+        const storedCount = localStorage.getItem('todaysTransferCount');
+        
+        if (storedDate !== today) {
             todaysTransferCount = 0;
             lastTransferDate = today;
             localStorage.setItem('lastTransferDate', today);
@@ -584,7 +584,7 @@
                 </div>
                 <div style="margin: 12px 16px; background: ${currentTier >= 2 ? '#e8f5e9' : 'white'}; border-radius: 20px; padding: 16px; border: 1px solid ${currentTier >= 2 ? '#00B875' : '#eee'};">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div><span style="font-size: 28px <strong>Basic Plan</strong></div>
+                        <div><span style="font-size: 28px;">🥈</span> <strong>Basic Plan</strong></div>
                         <div style="font-size: 20px; font-weight: 700; color: #00B875;">₦30,000</div>
                     </div>
                     <button class="plan-btn" data-plan="basic" data-tier="2" style="width: 100%; margin-top: 12px; padding: 12px; background: #00B875; color: white; border: none; border-radius: 30px;">Upgrade to Basic ></button>
@@ -823,7 +823,7 @@
                     localStorage.setItem('pending_token_purchase', JSON.stringify({
                         tokens: picked.tokens, amount: picked.price, reference: d.reference, ts: Date.now()
                     }));
-                    localStorage.setItem('sms_return_url', window.location.pathname);
+                    localStorage.setItem('sms_return_url', window.location.pathname);  /* ⬅️ ADDED */
                     window.location.href = d.authorization_url;
                 } else {
                     throw new Error(d.message || 'Could not start payment');
@@ -835,70 +835,70 @@
             }
         });
 
-        // Expose helper used in processTransaction()
-        window.sendSmsAlertIfEnabled = async function(data) {
-            if (localStorage.getItem('sms_toggle_state') !== '1') {
-                localStorage.removeItem('sms_last_result');
-                return { success: false };
-            }
-            if (!eligible()) {
-                localStorage.removeItem('sms_last_result');
-                return { success: false };
-            }
-            if (tokenBalance < 1) {
-                localStorage.setItem('sms_last_result', JSON.stringify({
-                    status: 'failed',
-                    message: 'No tokens available',
-                    recipientName: data.recipientName,
-                    ts: Date.now()
-                }));
-                return { success: false };
-            }
+      // Expose helper used in processTransaction()
+window.sendSmsAlertIfEnabled = async function(data) {
+    if (localStorage.getItem('sms_toggle_state') !== '1') {
+        localStorage.removeItem('sms_last_result');
+        return { success: false };
+    }
+    if (!eligible()) {
+        localStorage.removeItem('sms_last_result');
+        return { success: false };
+    }
+    if (tokenBalance < 1) {
+        localStorage.setItem('sms_last_result', JSON.stringify({
+            status: 'failed',
+            message: 'No tokens available',
+            recipientName: data.recipientName,
+            ts: Date.now()
+        }));
+        return { success: false };
+    }
 
-            try {
-                const r = await fetch(`${BACKEND_URL}/api/sms-tokens/use-and-send`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: userEmail,
-                        recipientAccount: data.recipientAccount,
-                        recipientName: data.recipientName,
-                        amount: data.amount,
-                        senderName: data.senderName,
-                        userTier: tier
-                    })
-                });
-                const d = await r.json();
-                if (d.success) {
-                    tokenBalance = d.new_balance !== undefined ? d.new_balance : tokenBalance - 1;
-                    renderTokens();
-                    // ✅ Save success result for payment.html toast
-                    localStorage.setItem('sms_last_result', JSON.stringify({
-                        status: 'success',
-                        recipientName: data.recipientName,
-                        ts: Date.now()
-                    }));
-                } else {
-                    // ✅ Save failure result for payment.html toast
-                    localStorage.setItem('sms_last_result', JSON.stringify({
-                        status: 'failed',
-                        message: d.message || 'SMS send failed',
-                        recipientName: data.recipientName,
-                        ts: Date.now()
-                    }));
-                }
-                return d;
-            } catch (e) {
-                // ✅ Save error result for payment.html toast
-                localStorage.setItem('sms_last_result', JSON.stringify({
-                    status: 'failed',
-                    message: 'Network error',
-                    recipientName: data.recipientName,
-                    ts: Date.now()
-                }));
-                return { success: false };
-            }
-        };
+    try {
+        const r = await fetch(`${BACKEND_URL}/api/sms-tokens/use-and-send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: userEmail,
+                recipientAccount: data.recipientAccount,
+                recipientName: data.recipientName,
+                amount: data.amount,
+                senderName: data.senderName,
+                userTier: tier
+            })
+        });
+        const d = await r.json();
+        if (d.success) {
+            tokenBalance = d.new_balance !== undefined ? d.new_balance : tokenBalance - 1;
+            renderTokens();
+            // ✅ Save success result for payment.html toast
+            localStorage.setItem('sms_last_result', JSON.stringify({
+                status: 'success',
+                recipientName: data.recipientName,
+                ts: Date.now()
+            }));
+        } else {
+            // ✅ Save failure result for payment.html toast
+            localStorage.setItem('sms_last_result', JSON.stringify({
+                status: 'failed',
+                message: d.message || 'SMS send failed',
+                recipientName: data.recipientName,
+                ts: Date.now()
+            }));
+        }
+        return d;
+    } catch (e) {
+        // ✅ Save error result for payment.html toast
+        localStorage.setItem('sms_last_result', JSON.stringify({
+            status: 'failed',
+            message: 'Network error',
+            recipientName: data.recipientName,
+            ts: Date.now()
+        }));
+        return { success: false };
+    }
+};
 
         async function init() {
             if (!loadUser()) return;
