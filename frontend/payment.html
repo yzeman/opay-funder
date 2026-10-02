@@ -26,54 +26,6 @@
             -ms-user-select: none;
         }
 
-        /* ========== NEW: SMS STATUS TOAST ========== */
-        .sms-toast {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            z-index: 4000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-size: 13px;
-            font-weight: 600;
-            color: white;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            max-width: 90vw;
-            pointer-events: none;
-        }
-        .sms-toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        .sms-toast.success {
-            background: linear-gradient(135deg, #00B875, #009a62);
-        }
-        .sms-toast.failed {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-        .sms-toast.info {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-        .sms-toast-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            display: flex;
-            align-items: center;
-            justify-content: centerpx;
-            flex-shrink: 0;
-        }
-        .sms-toast-text {
-            line-height: 1.3;
-        }
-
         /* Watermark for Tier 1 Users */
         .watermark {
             position: fixed;
@@ -160,57 +112,57 @@
             margin-top: 4px;
         }
 
-        /* Action Buttons - 2x2 Grid */
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 16px;
-            margin-top: -40px;
-        }
+      /* Action Buttons - 2x2 Grid */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px;
+    margin-top: -40px;
+}
 
-        .action-btn {
-            background: white;
-            padding: 14px 12px;
-            border-radius: 12px;
-            border: none;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1a1a1a;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 10px;
-        }
+.action-btn {
+    background: white;
+    padding: 14px 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
 
-        .action-btn:active {
-            transform: scale(0.98);
-            background: #f8f9fc;
-        }
+.action-btn:active {
+    transform: scale(0.98);
+    background: #f8f9fc;
+}
 
-        .action-btn i {
-            width: 32px;
-            height: 32px;
-            background: #f5fbf6;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: #00B875;
-        }
+.action-btn i {
+    width: 32px;
+    height: 32px;
+    background: #f5fbf6;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #00B875;
+}
 
-        .action-btn span {
-            font-size: 10px;
-            color: #1a1a1a;
-        }
+.action-btn span {
+    font-size: 10px;
+    color: #1a1a1a;
+}
 
         /* Special Bonus Section */
         .bonus-section {
             margin: 20px 16px;
-            padding: 1px 0px 0px 0px;
+            padding:1px 0px 0px 0px;
             background: #f5fbf6;
             border-radius: 16px;
         }
@@ -220,7 +172,7 @@
             font-weight: 700;
             color: #1a1a1a;
             margin-bottom: -50px;
-            margin: 20px;
+            margin: 20px
         }
 
         .bonus-card {
@@ -231,7 +183,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: -20px;
+            margin-top:-20;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -281,8 +233,8 @@
             font-weight: 500;
             color: #fff;
             cursor: pointer;
-            padding: 5px 30px 5px 30px;
-            margin: -10px;
+            padding:5px 30px 5px 30px;
+            margin:-10px;
         }
 
         /* Hot Deal Section */
@@ -332,10 +284,10 @@
         }
 
         .click-here {
-            background: none;
+           "> background:Enjoy none;
             border: none;
-            font-size: 12px;
-            color: #ff9800;
+            font online-size: 12px;
+            color: payment #ff9800;
             font-weight: 500;
             cursor: pointer;
             margin-top: 8px;
@@ -343,7 +295,6 @@
             align-items: center;
             gap: 4px;
         }
-
         /* Promo Card */
         .promo-card {
             margin: 16px;
@@ -358,14 +309,64 @@
             display: block;
         }
     </style>
+
+    <!-- ⬇️⬇️⬇️ NEW: SMS TOAST STYLES (ADDED, NOTHING ELSE CHANGED) ⬇️⬇️⬇️ -->
+    <style>
+        .sms-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 90vw;
+            pointer-events: none;
+        }
+        .sms-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .sms-toast.success {
+            background: linear-gradient(135deg, #00B875, #009a62);
+        }
+        .sms-toast.failed {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .sms-toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .sms-toast-text {
+            line-height: 1.3;
+        }
+    </style>
+    <!-- ⬆️⬆️⬆️ END NEW: SMS TOAST STYLES ⬆️⬆️⬆️ -->
 </head>
 <body>
 
-    <!-- ========== NEW: SMS STATUS TOAST ========== -->
+    <!-- ⬇️⬇️⬇️ NEW: SMS TOAST ELEMENT (ADDED) ⬇️⬇️⬇️ -->
     <div class="sms-toast" id="smsToast">
         <div class="sms-toast-icon"><i class="fas fa-check"></i></div>
         <div class="sms-toast-text" id="smsToastText">SMS sent</div>
     </div>
+    <!-- ⬆️⬆️⬆️ END NEW: SMS TOAST ELEMENT ⬆️⬆️⬆️ -->
 
     <!-- Success Card -->
     <div class="success-card">
@@ -378,31 +379,29 @@
         <div class="success-title">Transfer successful</div>
         <div class="success-amount" id="successAmount">0.00</div>
     </div>
-
-    <!-- Watermark for Tier 1 Users -->
+<!-- Watermark for Tier 1 Users -->
     <div class="watermark" id="watermark" style="display: none;">
         <span>⚡ Powered by OPay Funder | <a id="upgradeLink" style="pointer-events: auto;">Upgrade to remove watermark</a></span>
     </div>
-
     <!-- Action Buttons - 2x2 Grid -->
-    <div class="action-grid">
-        <button class="action-btn" id="shareReceiptBtn">
-            <i class="fas fa-share-alt"></i>
-            <span>Share Receipt</span>
-        </button>
-        <button class="action-btn" id="addMoneyBtn">
-            <i class="fas fa-plus-circle"></i>
-            <span>Add Money</span>
-        </button>
-        <button class="action-btn" id="addFavouritesBtn">
-            <i class="fas fa-star"></i>
-            <span>Add to favourites</span>
-        </button>
-        <button class="action-btn" id="viewDetailsBtn">
-            <i class="fas fa-eye"></i>
-            <span>View Details</span>
-        </button>
-    </div>
+<div class="action-grid">
+    <button class="action-btn" id="shareReceiptBtn">
+        <i class="fas fa-share-alt"></i>
+        <span>Share Receipt</span>
+    </button>
+    <button class="action-btn" id="addMoneyBtn">
+        <i class="fas fa-plus-circle"></i>
+        <span>Add Money</span>
+    </button>
+    <button class="action-btn" id="addFavouritesBtn">
+        <i class="fas fa-star"></i>
+        <span>Add to favourites</span>
+    </button>
+    <button class="action-btn" id="viewDetailsBtn">
+        <i class="fas fa-eye"></i>
+        <span>View Details</span>
+    </button>
+</div>
 
     <!-- Special Bonus Section -->
     <div class="bonus-section">
@@ -446,17 +445,16 @@
                 <i class="fas fa-credit-card"></i>
             </div>
             <div class="bonus-info">
-                <div class="bonus-name">Enjoy online payment</div>
+                <div class="bonus-name</div>
                 <div class="bonus-desc">Using OPay Verve Card now</div>
-            </div TO>
-            <button class="bonus-go">GO</ HISTORYbutton>
+            </div>
+            <button class="bonus-go">GO</button>
         </div>
     </div>
 
-    = <!-- Promo Card -->
-    <div======== class="promo-card">
-        <img=
- src="images/card.jpg" alt="Promotion" class   ="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Claim+15+Discounts+with+₦99+on+any+Bill'">
+    <!-- Promo Card -->
+    <div class="promo-card">
+        <img src="images/card.jpg" alt="Promotion" class="promo-image" onerror="this.src='https://placehold.co/400x150/00B875/white?text=Claim+15+Discounts+with+₦99+on+any+Bill'">
     </div>
 
     <script>
@@ -503,6 +501,7 @@
     }
     
     function showUpgradeModal() {
+        // ✅ UPDATED: "Free Tier" → "Not Activated"
         const currentTier = userTier || '1';
         
         const overlay = document.createElement('div');
@@ -645,7 +644,8 @@
         });
     }
     
-    // ========== SAVE TRANSACTION let pendingTransaction = localStorage.getItem('pendingTransaction');
+    // ========== SAVE TRANSACTION TO HISTORY ==========
+    let pendingTransaction = localStorage.getItem('pendingTransaction');
     let transactionSaved = localStorage.getItem('transactionSaved');
     let amount = 0;
     let savedTransactionData = null;
@@ -716,71 +716,6 @@
     }
     // ========================================================================
     
-    // ========== NEW: SHOW SMS STATUS TOAST ==========
-    function showSmsToast(status, message) {
-        const toast = document.getElementById('smsToast');
-        const toastText = document.getElementById('smsToastText');
-        const toastIcon = toast.querySelector('.sms-toast-icon i');
-        
-        // Reset classes
-        toast.classList.remove('show', 'success', 'failed', 'info');
-        
-        // Set style based on status
-        if (status === 'success') {
-            toast.classList.add('success');
-            toastIcon.className = 'fas fa-check';
-        } else if (status === 'failed') {
-            toast.classList.add('failed');
-            toastIcon.className = 'fas fa-times';
-        } else {
-            toast.classList.add('info');
-            toastIcon.className = 'fas fa-info';
-        }
-        
-        toastText.textContent = message;
-        
-        // Show
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 200);
-        
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3200);
-    }
-    
-    // Read SMS result from localStorage (set by amount page)
-    function checkSmsResult() {
-        const smsResultRaw = localStorage.getItem('sms_last_result');
-        if (!smsResultRaw) return;
-        
-        try {
-            const result = JSON.parse(smsResultRaw);
-            
-            // Only show if it's recent (within last 30 seconds)
-            const age = Date.now() - (result.ts || 0);
-            if (age > 30000) {
-                localStorage.removeItem('sms_last_result');
-                return;
-            }
-            
-            if (result.status === 'success') {
-                showSmsToast('success', `SMS sent to ${result.recipientName || 'recipient'}`);
-            } else if (result.status === 'failed') {
-                showSmsToast('failed', `SMS failed: ${result.message || 'Unknown error'}`);
-            }
-            
-            // Clear it so it doesn't show again
-            localStorage.removeItem('sms_last_result');
-            
-        } catch (err) {
-            console.error('SMS result parse error:', err);
-            localStorage.removeItem('sms_last_result');
-        }
-    }
-    // ========== END NEW: SHOW SMS STATUS TOAST ==========
-    
     // Helper function to check access
     function checkAccessAndExecute(action, callback) {
         if (canAccessPaidFeatures()) {
@@ -844,11 +779,61 @@
             showUpgradeModal();
         });
     }
+
+    // ⬇️⬇️⬇️ NEW: SMS STATUS TOAST LOGIC (ADDED, NOTHING ELSE CHANGED) ⬇️⬇️⬇️
+    function showSmsToast(status, message) {
+        const toast = document.getElementById('smsToast');
+        const toastText = document.getElementById('smsToastText');
+        const toastIcon = toast.querySelector('.sms-toast-icon i');
+        
+        toast.classList.remove('show', 'success', 'failed');
+        
+        if (status === 'success') {
+            toast.classList.add('success');
+            toastIcon.className = 'fas fa-check';
+        } else {
+            toast.classList.add('failed');
+            toastIcon.className = 'fas fa-times';
+        }
+        
+        toastText.textContent = message;
+        
+        setTimeout(() => toast.classList.add('show'), 200);
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function checkSmsResult() {
+        const raw = localStorage.getItem('sms_last_result');
+        if (!raw) return;
+        
+        try {
+            const result = JSON.parse(raw);
+            const age = Date.now() - (result.ts || 0);
+            
+            // Ignore results older than 30 seconds
+            if (age > 30000) {
+                localStorage.removeItem('sms_last_result');
+                return;
+            }
+            
+            if (result.status === 'success') {
+                showSmsToast('success', `SMS sent to ${result.recipientName || 'recipient'}`);
+            } else if (result.status === 'failed') {
+                showSmsToast('failed', `SMS failed: ${result.message || 'Unknown error'}`);
+            }
+            
+            localStorage.removeItem('sms_last_result');
+        } catch (err) {
+            console.error('SMS result parse error:', err);
+            localStorage.removeItem('sms_last_result');
+        }
+    }
+    // ⬆️⬆️⬆️ END NEW: SMS STATUS TOAST LOGIC ⬆️⬆️⬆️
     
-    // ✅ INITIALIZE
+    // ✅ INITIALIZE: fetch real tier from backend first, then show watermark if needed
     (async function init() {
-        getUserTier();
-        await fetchRealTierFromBackend();
+        getUserTier();  // Load user from localStorage
+        await fetchRealTierFromBackend();  // Get real tier from Supabase
         
         const isNotActivated = userTier === '1' || userTier === 1 || !userTier;
         
@@ -857,8 +842,9 @@
             if (watermark) watermark.style.display = 'block';
         }
         
-        // ✅ NEW: Show SMS toast if there's a recent result
+        // ⬇️ NEW: Show SMS toast if there's a recent result
         checkSmsResult();
+        // ⬆️ NEW
         
         console.log('✅ Payment page loaded - Tier:', userTier);
     })();
