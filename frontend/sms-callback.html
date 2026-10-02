@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Token Purchase...</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #00B875 0%, #009a62 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #00B875;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h2 { color: #1a1a1a; margin-bottom: 8px; font-size: 20px; }
+        p { color: #888; font-size: 14px; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner"></div>
+        <h2>Verifying Payment</h2>
+        <p>Please wait while we confirm your token purchase...</p>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+
+        async function verifyTokenPurchase() {
+            const params = new URLSearchParams(window.location.search);
+            const reference = params.get('reference') || params.get('trxref');
+
+            console.log('Callback reference:', reference);
+
+            if (!reference) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No Reference',
+                    text: 'Payment reference is missing',
+                    confirmButtonColor: '#00B875'
+                }).then(() => window.location.href = 'dashboard.html');
+                return;
+            }
+
+            const userData = localStorage.getItem('loggedInUser');
+            if (!userData) {
+                window.location.href = 'login1.html';
+                return;
+            }
+            const user = JSON.parse(userData);
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/sms-tokens/verify-purchase`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reference, email: user.email })
+                });
+
+                const data = await response.json();
+                console.log('Verify response:', data);
+
+                // Clear pending purchase
+                localStorage.removeItem('pending_token_purchase');
+
+                if (data.success) {
+                    // Refresh token balance in localStorage so pages pick it up
+                    localStorage.setItem('sms_token_balance', String(data.new_balance || 0));
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tokens Purchased!',
+                        html: `
+                            <p style="margin-bottom: 12px;">${data.tokens_added} tokens have been added.</p>
+                            <p style="font-size: 20px; font-weight: 700; color: #00B875;">New Balance: ${data.new_balance} tokens</p>
+                        `,
+                        confirmButtonColor: '#00B875',
+                        confirmButtonText: 'Continue'
+                    }).then(() => {
+                        // Go back to previous page (amount page) so user can send with SMS
+                        const returnTo = localStorage.getItem('sms_return_url') || 'dashboard.html';
+                        window.location.href = returnTo;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Verification Failed',
+                        text: data.message || 'Could not verify payment',
+                        confirmButtonColor: '#00B875'
+                    }).then(() => window.location.href = 'dashboard.html');
+                }
+            } catch (err) {
+                console.error('Verify error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'Please try again',
+                    confirmButtonColor: '#00B875'
+                }).then(() => window.location.href = 'dashboard.html');
+            }
+        }
+
+        verifyTokenPurchase();
+    </script>
+</body>
+</html>
