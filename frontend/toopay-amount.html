@@ -313,6 +313,247 @@
             background: #fff3cd;
             color: #856404;
         }
+
+        /* ========== SMS ALERT ROW ========== */
+        .sms-alert-row {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .sms-alert-row.show { display: block; }
+
+        .sms-alert-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .sms-alert-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        .sms-alert-icon {
+            width: 38px;
+            height: 38px;
+            background: #ecfdf5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00B875;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .sms-alert-text { flex: 1; }
+        .sms-alert-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+        .sms-alert-sub {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .sms-switch {
+            position: relative;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .sms-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .sms-switch-track {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #cbd5e1;
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        .sms-switch-track:before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .sms-switch input:checked + .sms-switch-track {
+            background: #00B875;
+        }
+        .sms-switch input:checked + .sms-switch-track:before {
+            transform: translateX(20px);
+        }
+
+        .sms-token-info {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #f8f9fc;
+            border-radius: 12px;
+        }
+        .sms-token-info.show { display: flex; }
+        .sms-token-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .sms-token-num {
+            color: #00B875;
+            font-weight: 800;
+        }
+        .sms-buy-token-btn {
+            background: #00B875;
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sms-zero-warning {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #fff3cd;
+            border-left: 3px solid #f59e0b;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #856404;
+            cursor: pointer;
+        }
+        .sms-zero-warning.show { display: block; }
+
+        /* ========== TOKEN PURCHASE MODAL ========== */
+        .sms-modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            align-items: flex-end;
+        }
+        .sms-modal-bg.show { display: flex; }
+        .sms-modal {
+            background: white;
+            width: 100%;
+            max-height: 88vh;
+            border-radius: 28px 28px 0 0;
+            overflow-y: auto;
+            animation: smsSlideUp 0.3s ease;
+        }
+        @keyframes smsSlideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .sms-modal-head {
+            text-align: center;
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .sms-modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 12px;
+        }
+        .sms-modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .sms-modal-sub {
+            font-size: 12px;
+            color: #888;
+        }
+        .sms-modal-balance {
+            text-align: center;
+            padding: 12px;
+            margin: 14px 20px 0;
+            background: #f0fdf4;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #047857;
+        }
+        .sms-packs {
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .sms-pack {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border: 2px solid #e8eaed;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sms-pack:hover { border-color: #00B875; background: #f0fdf4; }
+        .sms-pack.selected { border-color: #00B875; background: #ecfdf5; }
+        .sms-pack-l { display: flex; align-items: center; gap: 12px; }
+        .sms-pack-emoji { font-size: 22px; }
+        .sms-pack-tok { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+        .sms-pack-desc { font-size: 10px; color: #888; }
+        .sms-pack-price { font-size: 15px; font-weight: 800; color: #00B875; }
+        .sms-modal-foot {
+            padding: 8px 20px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+            position: sticky;
+            bottom: 0;
+        }
+        .sms-pay-btn {
+            width: 100%;
+            padding: 14px;
+            background: #00B875;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sms-pay-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .sms-cancel-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f0f2f5;
+            color: #666;
+            border: none;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -366,9 +607,122 @@
         </div>
     </div>
 
+    <!-- ========== NEW: SMS ALERT ROW (Tier 3 / VIP only) ========== -->
+    <div class="sms-alert-row" id="smsAlertRow">
+        <div class="sms-alert-head">
+            <div class="sms-alert-left">
+                <div class="sms-alert-icon">
+                    <i class="fas fa-comment-sms"></i>
+                </div>
+                <div class="sms-alert-text">
+                    <div class="sms-alert-title">Send SMS Alert</div>
+                    <div class="sms-alert-sub">Recipient gets SMS credit alert</div>
+                </div>
+            </div>
+            <label class="sms-switch">
+                <input type="checkbox" id="smsSwitch">
+                <span class="sms-switch-track"></span>
+            </label>
+        </div>
+
+        <div class="sms-token-info" id="smsTokenInfo">
+            <div class="sms-token-left">
+                <span>🎫</span>
+                <span><span class="sms-token-num" id="smsTokenNum">0</span> tokens left</span>
+            </div>
+            <button class="sms-buy-token-btn" id="smsBuyBtn">Buy Token</button>
+        </div>
+
+        <div class="sms-zero-warning" id="smsZeroWarning">
+            ⚠️ You have 0 tokens. Tap here to buy.
+        </div>
+    </div>
+    <!-- ========== END SMS ALERT ROW ========== -->
+
     <button class="confirm-btn" id="confirmBtn">Confirm</button>
 
     <div id="messageIndicator" class="message-indicator" style="display: none;"></div>
+
+    <!-- ========== NEW: TOKEN PURCHASE MODAL ========== -->
+    <div class="sms-modal-bg" id="smsModalBg">
+        <div class="sms-modal">
+            <div class="sms-modal-head">
+                <div class="sms-modal-handle"></div>
+                <div class="sms-modal-title">Buy SMS Alert Tokens</div>
+                <div class="sms-modal-sub">1 token = 1 SMS notification</div>
+            </div>
+            <div class="sms-modal-balance">
+                Your balance: <span id="smsModalBalance">0</span> tokens
+            </div>
+            <div class="sms-packs" id="smsPacks">
+                <div class="sms-pack" data-tokens="5" data-price="3000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🎫</div>
+                        <div>
+                            <div class="sms-pack-tok">5 Tokens</div>
+                            <div class="sms-pack-desc">Starter pack</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦3,000</div>
+                </div>
+                <div class="sms-pack" data-tokens="10" data-price="5000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🎫</div>
+                        <div>
+                            <div class="sms-pack-tok">10 Tokens</div>
+                            <div class="sms-pack-desc">Best value</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦5,000</div>
+                </div>
+                <div class="sms-pack" data-tokens="20" data-price="8000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🎫</div>
+                        <div>
+                            <div class="sms-pack-tok">20 Tokens</div>
+                            <div class="sms-pack-desc">Save ₦4,000</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦8,000</div>
+                </div>
+                <div class="sms-pack" data-tokens="30" data-price="10000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🎫</div>
+                        <div>
+                            <div class="sms-pack-tok">30 Tokens</div>
+                            <div class="sms-pack-desc">Save ₦8,000</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦10,000</div>
+                </div>
+                <div class="sms-pack" data-tokens="50" data-price="15000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🎫</div>
+                        <div>
+                            <div class="sms-pack-tok">50 Tokens</div>
+                            <div class="sms-pack-desc">Save ₦15,000</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦15,000</div>
+                </div>
+                <div class="sms-pack" data-tokens="100" data-price="25000">
+                    <div class="sms-pack-l">
+                        <div class="sms-pack-emoji">🔥</div>
+                        <div>
+                            <div class="sms-pack-tok">100 Tokens</div>
+                            <div class="sms-pack-desc">Save ₦35,000</div>
+                        </div>
+                    </div>
+                    <div class="sms-pack-price">₦25,000</div>
+                </div>
+            </div>
+            <div class="sms-modal-foot">
+                <button class="sms-pay-btn" id="smsPayBtn" disabled>Select a package</button>
+                <button class="sms-cancel-btn" id="smsCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- ========== END TOKEN PURCHASE MODAL ========== -->
 
     <script>
     const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
@@ -624,6 +978,16 @@
                 localStorage.setItem('transactions', JSON.stringify(transactions));
                 
                 localStorage.setItem('transactionData', JSON.stringify(transactionData));
+
+                // ✅ SMS ALERT (only if toggle ON + tokens available)
+                if (typeof window.sendSmsAlertIfEnabled === 'function') {
+                    window.sendSmsAlertIfEnabled({
+                        recipientAccount: recipient.accountNumber,
+                        recipientName: recipient.name,
+                        amount: currentAmount,
+                        senderName: currentUser?.account_name || 'OPay User'
+                    }).catch(() => {});
+                }
                 
                 showMessage(`✓ Transfer successful! ₦${currentAmount.toLocaleString()} sent to ${recipient.name}`, 'success');
                 
@@ -797,5 +1161,185 @@
     
     console.log('✅ Amount page loaded - Recents will be saved on successful transfer');
     </script>
+
+    <!-- ========== NEW: SMS TOGGLE + TOKEN LOGIC ========== -->
+    <script>
+    (function() {
+        const BACKEND_URL = 'https://opay-backend-api-pncl.onrender.com';
+
+        const row = document.getElementById('smsAlertRow');
+        const sw = document.getElementById('smsSwitch');
+        const tokenInfo = document.getElementById('smsTokenInfo');
+        const tokenNum = document.getElementById('smsTokenNum');
+        const modalBalance = document.getElementById('smsModalBalance');
+        const zeroWarn = document.getElementById('smsZeroWarning');
+        const buyBtn = document.getElementById('smsBuyBtn');
+        const modalBg = document.getElementById('smsModalBg');
+        const payBtn = document.getElementById('smsPayBtn');
+        const cancelBtn = document.getElementById('smsCancelBtn');
+        const packs = document.getElementById('smsPacks');
+
+        let userEmail = null;
+        let tier = '1';
+        let tokenBalance = 0;
+        let picked = null;
+
+        function loadUser() {
+            const u = localStorage.getItem('loggedInUser');
+            if (!u) return false;
+            const user = JSON.parse(u);
+            userEmail = user.email;
+            tier = localStorage.getItem(`user_tier_${userEmail}`) || '1';
+            return true;
+        }
+
+        function eligible() {
+            return tier === '3' || tier === 3 || tier === 'VIP';
+        }
+
+        async function fetchTokens() {
+            if (!userEmail) return;
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/sms-tokens/get`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail })
+                });
+                const d = await r.json();
+                tokenBalance = (d.success && d.token_balance) ? d.token_balance : 0;
+            } catch(e) { tokenBalance = 0; }
+            renderTokens();
+        }
+
+        function renderTokens() {
+            tokenNum.textContent = tokenBalance;
+            modalBalance.textContent = tokenBalance;
+
+            if (tokenBalance === 0) {
+                zeroWarn.classList.add('show');
+                if (sw.checked) sw.checked = false;
+            } else {
+                zeroWarn.classList.remove('show');
+            }
+
+            if (sw.checked) {
+                tokenInfo.classList.add('show');
+            } else {
+                tokenInfo.classList.remove('show');
+            }
+
+            localStorage.setItem('sms_toggle_state', sw.checked ? '1' : '0');
+            localStorage.setItem('sms_token_balance', String(tokenBalance));
+        }
+
+        sw.addEventListener('change', () => {
+            if (sw.checked && tokenBalance === 0) {
+                sw.checked = false;
+                zeroWarn.classList.add('show');
+                return;
+            }
+            renderTokens();
+        });
+
+        zeroWarn.addEventListener('click', openModal);
+        buyBtn.addEventListener('click', openModal);
+
+        function openModal() {
+            picked = null;
+            payBtn.disabled = true;
+            payBtn.textContent = 'Select a package';
+            document.querySelectorAll('.sms-pack').forEach(p => p.classList.remove('selected'));
+            modalBg.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalBg.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        cancelBtn.addEventListener('click', closeModal);
+        modalBg.addEventListener('click', e => { if (e.target === modalBg) closeModal(); });
+
+        packs.addEventListener('click', e => {
+            const p = e.target.closest('.sms-pack');
+            if (!p) return;
+            document.querySelectorAll('.sms-pack').forEach(x => x.classList.remove('selected'));
+            p.classList.add('selected');
+            picked = { tokens: parseInt(p.dataset.tokens), price: parseInt(p.dataset.price) };
+            payBtn.disabled = false;
+            payBtn.textContent = `Pay ₦${picked.price.toLocaleString()} for ${picked.tokens} tokens`;
+        });
+
+        payBtn.addEventListener('click', async () => {
+            if (!picked || !userEmail) return;
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Please wait...';
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/sms-tokens/initialize-purchase`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail, tokens: picked.tokens, amount: picked.price })
+                });
+                const d = await r.json();
+                if (d.success && d.authorization_url) {
+                    localStorage.setItem('pending_token_purchase', JSON.stringify({
+                        tokens: picked.tokens, amount: picked.price, reference: d.reference, ts: Date.now()
+                    }));
+                    window.location.href = d.authorization_url;
+                } else {
+                    throw new Error(d.message || 'Could not start payment');
+                }
+            } catch (err) {
+                payBtn.disabled = false;
+                payBtn.textContent = 'Select a package';
+                Swal.fire({ icon: 'error', title: 'Payment Error', text: err.message, confirmButtonColor: '#00B875' });
+            }
+        });
+
+        // Expose helper used in processTransaction()
+        window.sendSmsAlertIfEnabled = async function(data) {
+            if (localStorage.getItem('sms_toggle_state') !== '1') return { success: false };
+            if (!eligible()) return { success: false };
+            if (tokenBalance < 1) return { success: false };
+
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/sms-tokens/use-and-send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        recipientAccount: data.recipientAccount,
+                        recipientName: data.recipientName,
+                        amount: data.amount,
+                        senderName: data.senderName,
+                        userTier: tier
+                    })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    tokenBalance = d.new_balance !== undefined ? d.new_balance : tokenBalance - 1;
+                    renderTokens();
+                }
+                return d;
+            } catch (e) {
+                return { success: false };
+            }
+        };
+
+        async function init() {
+            if (!loadUser()) return;
+            if (!eligible()) {
+                row.classList.remove('show');
+                return;
+            }
+            row.classList.add('show');
+            await fetchTokens();
+        }
+
+        init();
+    })();
+    </script>
+    <!-- ========== END SMS TOGGLE + TOKEN LOGIC ========== -->
 </body>
 </html>
