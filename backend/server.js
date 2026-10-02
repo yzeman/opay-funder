@@ -757,6 +757,450 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// ============================================
+// ========== SMS TOKEN SYSTEM ================
+// ============================================
+
+const TERMII_API_KEY = process.env.TERMII_API_KEY;
+const TERMII_BASE_URL = 'https://v4.api.termii.com';
+const TERMII_SENDER_ID = process.env.TERMII_SENDER_ID || 'Termii';
+
+// ============ GET TOKEN BALANCE ============
+app.post('/api/sms-tokens/get', async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) return res.json({ success: false, message: 'Email required' });
+    
+    try {
+        const { data, error } = await supabase
+            .from('sms_tokens')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+        
+        if (error) throw error;
+        
+        // Auto-create row if user doesn't exist
+        if (!data) {
+            const { data: created, error: createError } = await supabase
+                .from('sms_tokens')
+                .insert({ email, token_balance: 0, total_purchased: 0, total_used: 0 })
+                .select()
+                .single();
+            
+            if (createError) throw createError;
+            
+            return res.json({
+                success: true,
+                token_balance: created.token_balance,
+                total_purchased: created.total_purchased,
+                total_used: created.total_used
+            });
+        }
+        
+        res.json({
+            success: true,
+            token_balance: data.token_balance || 0,
+            total_purchased: data.total_purchased || 0,
+            total_used: data.total_used || 0
+        });
+        
+    } catch (error) {
+        console.error('Get tokens error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ INITIALIZE TOKEN PURCHASE (PAYSTACK) ============
+app.post('/api/sms-tokens/initialize-purchase', async (req, res) => {
+    const { email, tokens, amount } = req.body;
+    
+    console.log('💳 Token purchase init:', { email, tokens, amount });
+    
+    if (!email || !tokens || !amount) {
+        return res.json({ success: false, message: 'Missing required fields' });
+    }
+    
+    // Validate package (must match one of the 6 allowed packages)
+    const VALID_PACKAGES = {
+        5: 3000,
+        10: 5000,
+        20: 8000,
+        30: 10000,
+        50: 15000,
+        100: 25000
+    };
+    
+    if (VALID_PACKAGES[tokens] !== amount) {
+        return res.json({ success: false, message: 'Invalid package' });
+    }
+    
+    if (!PAYSTACK_SECRET_KEY) {
+        return res.json({ success: false, message: 'Payment gateway not configured' });
+    }
+    
+    try {
+        const reference = 'SMS-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        // Save pending transaction first
+        const { error: insertError } = await supabase
+            .from('sms_token_transactions')
+            .insert({
+                email,
+                package_tokens: tokens,
+                amount_paid: amount,
+                reference,
+                status: 'pending'
+            });
+        
+        if (insertError) throw insertError;
+        
+        // Initialize Paystack
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                amount: amount * 100,
+                currency: 'NGN',
+                reference,
+                metadata: {
+                    type: 'sms_token_purchase',
+                    tokens: tokens,
+                    custom_fields: [
+                        { display_name: "Package", variable_name: "tokens", value: `${tokens} SMS Tokens` }
+                    ]
+                },
+                callback_url: `https://opay-funder.onrender.com/sms-callback.html`
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status) {
+            console.log('✅ Token purchase URL:', data.data.authorization_url);
+            res.json({
+                success: true,
+                authorization_url: data.data.authorization_url,
+                reference: reference
+            });
+        } else {
+            console.error('❌ Paystack error:', data.message);
+            res.json({ success: false, message: data.message });
+        }
+        
+    } catch (error) {
+        console.error('Token purchase init error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ VERIFY TOKEN PURCHASE (called from sms-callback.html) ============
+app.post('/api/sms-tokens/verify-purchase', async (req, res) => {
+    const { reference, email } = req.body;
+    
+    console.log('🔍 Verifying token purchase:', { reference, email });
+    
+    if (!reference) {
+        return res.json({ success: false, message: 'Reference required' });
+    }
+    
+    try {
+        // Verify with Paystack
+        const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (!data.status || data.data.status !== 'success') {
+            return res.json({ success: false, message: 'Payment not successful' });
+        }
+        
+        const tokens = parseInt(data.data.metadata.tokens);
+        const amountPaid = data.data.amount / 100;
+        const paidEmail = data.data.customer.email;
+        
+        // Check if already processed
+        const { data: existingTx } = await supabase
+            .from('sms_token_transactions')
+            .select('status')
+            .eq('reference', reference)
+            .maybeSingle();
+        
+        if (existingTx && existingTx.status === 'success') {
+            console.log('⚠️ Token purchase already processed');
+            // Get current balance
+            const { data: tokenRow } = await supabase
+                .from('sms_tokens')
+                .select('token_balance')
+                .eq('email', paidEmail)
+                .single();
+            
+            return res.json({
+                success: true,
+                message: 'Already processed',
+                tokens_added: tokens,
+                new_balance: tokenRow?.token_balance || 0
+            });
+        }
+        
+        // Get current tokens
+        const { data: tokenRow } = await supabase
+            .from('sms_tokens')
+            .select('token_balance, total_purchased')
+            .eq('email', paidEmail)
+            .maybeSingle();
+        
+        let newBalance, newTotal;
+        
+        if (tokenRow) {
+            newBalance = (tokenRow.token_balance || 0) + tokens;
+            newTotal = (tokenRow.total_purchased || 0) + tokens;
+            
+            await supabase
+                .from('sms_tokens')
+                .update({
+                    token_balance: newBalance,
+                    total_purchased: newTotal,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('email', paidEmail);
+        } else {
+            newBalance = tokens;
+            newTotal = tokens;
+            
+            await supabase
+                .from('sms_tokens')
+                .insert({
+                    email: paidEmail,
+                    token_balance: newBalance,
+                    total_purchased: newTotal,
+                    total_used: 0
+                });
+        }
+        
+        // Update transaction
+        await supabase
+            .from('sms_token_transactions')
+            .update({
+                status: 'success',
+                updated_at: new Date().toISOString()
+            })
+            .eq('reference', reference);
+        
+        console.log(`✅ ${tokens} tokens credited to ${paidEmail}. New balance: ${newBalance}`);
+        
+        res.json({
+            success: true,
+            message: `${tokens} tokens added successfully`,
+            tokens_added: tokens,
+            new_balance: newBalance
+        });
+        
+    } catch (error) {
+        console.error('Verify purchase error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ USE TOKEN + SEND SMS (ATOMIC) ============
+app.post('/api/sms-tokens/use-and-send', async (req, res) => {
+    const { email, recipientAccount, recipientName, amount, senderName, userTier } = req.body;
+    
+    console.log('📱 SMS send request:', { email, recipientAccount, amount, userTier });
+    
+    // Validate tier
+    if (userTier !== '3' && userTier !== 3 && userTier !== 'VIP') {
+        return res.json({ success: false, message: 'SMS is for Tier 3 and VIP only' });
+    }
+    
+    if (!email || !recipientAccount || !amount) {
+        return res.json({ success: false, message: 'Missing required fields' });
+    }
+    
+    if (!TERMII_API_KEY) {
+        console.error('❌ TERMII_API_KEY not set');
+        return res.json({ success: false, message: 'SMS service not configured' });
+    }
+    
+    try {
+        // ========== STEP 1: Check token balance ==========
+        const { data: tokenRow, error: fetchError } = await supabase
+            .from('sms_tokens')
+            .select('token_balance, total_used')
+            .eq('email', email)
+            .maybeSingle();
+        
+        if (fetchError) throw fetchError;
+        
+        if (!tokenRow || (tokenRow.token_balance || 0) < 1) {
+            return res.json({ success: false, message: 'Insufficient tokens' });
+        }
+        
+        // ========== STEP 2: Format phone number ==========
+        let phoneNumber = String(recipientAccount).replace(/\D/g, '');
+        if (phoneNumber.startsWith('0')) {
+            phoneNumber = '234' + phoneNumber.slice(1);
+        } else if (!phoneNumber.startsWith('234')) {
+            phoneNumber = '234' + phoneNumber;
+        }
+        
+        // ========== STEP 3: Build bank-alert-style SMS ==========
+        const formattedAmount = parseFloat(amount).toLocaleString('en-NG', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        const now = new Date();
+        const dateStr = now.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        }).replace(',', '');
+        
+        // Mask recipient account
+        const cleanAcct = String(recipientAccount).replace(/\D/g, '');
+        const maskedAcct = cleanAcct.length >= 6
+            ? cleanAcct.slice(0, 3) + '****' + cleanAcct.slice(-3)
+            : cleanAcct;
+        
+        const smsMessage = `CREDIT ALERT
+Acc:${maskedAcct}
+Amt:NGN${formattedAmount}
+Bal:Updated
+Date:${dateStr}
+From:${senderName || 'OPay User'}
+Ref:OPAY${Date.now().toString().slice(-8)}
+Powered by OPay Funder`;
+        
+        // ========== STEP 4: Send SMS via Termii ==========
+        const termiiResponse = await fetch(`${TERMII_BASE_URL}/api/sms/send`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${TERMII_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                to: phoneNumber,
+                from: TERMII_SENDER_ID,
+                sms: smsMessage,
+                type: 'plain',
+                channel: 'generic'
+            })
+        });
+        
+        const termiiData = await termiiResponse.json();
+        console.log('📨 Termii response:', termiiData);
+        
+        // Check if send was successful
+        const wasSent = termiiResponse.ok && (
+            termiiData.status === 'success' ||
+            termiiData.message_id ||
+            termiiData.data ||
+            termiiData.code === 'ok'
+        );
+        
+        if (!wasSent) {
+            console.error('❌ Termii send failed:', termiiData);
+            return res.json({
+                success: false,
+                message: 'SMS send failed: ' + (termiiData.message || JSON.stringify(termiiData))
+            });
+        }
+        
+        // ========== STEP 5: Deduct token ONLY after successful send ==========
+        const newBalance = (tokenRow.token_balance || 0) - 1;
+        const newUsed = (tokenRow.total_used || 0) + 1;
+        
+        await supabase
+            .from('sms_tokens')
+            .update({
+                token_balance: newBalance,
+                total_used: newUsed,
+                updated_at: new Date().toISOString()
+            })
+            .eq('email', email);
+        
+        console.log(`✅ SMS sent to ${phoneNumber}. Token deducted. New balance: ${newBalance}`);
+        
+        res.json({
+            success: true,
+            message: 'SMS sent successfully',
+            new_balance: newBalance,
+            message_id: termiiData.message_id || null
+        });
+        
+    } catch (error) {
+        console.error('❌ SMS send error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============ ADMIN: Get SMS Token Stats ============
+app.get('/api/admin/sms-token-stats', verifyAdminSession, async (req, res) => {
+    try {
+        // Get all token rows
+        const { data: tokens, error: tokensErr } = await supabase
+            .from('sms_tokens')
+            .select('*');
+        
+        if (tokensErr) throw tokensErr;
+        
+        // Get all transactions
+        const { data: transactions, error: txErr } = await supabase
+            .from('sms_token_transactions')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (txErr) throw txErr;
+        
+        // Calculate stats
+        let totalTokensSold = 0;
+        let totalRevenue = 0;
+        let totalTokensUsed = 0;
+        
+        tokens.forEach(t => {
+            totalTokensSold += t.total_purchased || 0;
+            totalTokensUsed += t.total_used || 0;
+        });
+        
+        transactions.forEach(tx => {
+            if (tx.status === 'success') {
+                totalRevenue += parseFloat(tx.amount_paid) || 0;
+            }
+        });
+        
+        const wemaOwed = totalTokensUsed * 0; // No Wema commission now
+        
+        res.json({
+            success: true,
+            stats: {
+                totalTokensSold,
+                totalTokensUsed,
+                totalRevenue,
+                activeBuyers: tokens.filter(t => (t.token_balance || 0) > 0).length,
+                totalTransactions: transactions.length
+            },
+            transactions: transactions.slice(0, 100)
+        });
+        
+    } catch (error) {
+        console.error('Admin SMS stats error:', error);
+        res.json({ success: false, message: error.message });
+    }
+});
+
+// ============================================
+// ========== END SMS TOKEN SYSTEM ============
+// ============================================
+
 // ============ PAYSTACK PAYMENT INITIALIZATION (LIVE MODE) ============
 app.post('/api/initialize-payment', async (req, res) => {
     const { email, amount, plan, tier } = req.body;
