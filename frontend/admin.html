@@ -64,6 +64,7 @@
         }
         .header-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
         .header-btn.danger { background: rgba(220,53,69,0.9); border-color: rgba(220,53,69,1); }
+        .header-btn.sms { background: rgba(139,92,246,0.9); border-color: rgba(139,92,246,1); }
 
         .admin-container { max-width: 1400px; margin: -40px auto 40px; padding: 0 20px; position: relative; z-index: 3; }
 
@@ -354,6 +355,150 @@
         .tier-bar-fill.vip { background: linear-gradient(90deg, #FFD700, #FFA500); }
         .tier-bar-count { min-width: 40px; text-align: right; font-size: 12px; font-weight: 700; color: #1a1a1a; }
 
+        /* ============ SMS TOKEN MANAGER ============ */
+        .sms-manager-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .sms-manager-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .sms-manager-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sms-grant-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+            transition: all 0.2s;
+        }
+        .sms-grant-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139,92,246,0.4); }
+        .sms-grant-btn.secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+            box-shadow: none;
+        }
+        .sms-grant-btn.secondary:hover { background: #e5e7eb; }
+
+        .sms-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .sms-stat {
+            background: #f8f9fc;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: left;
+            border: 1px solid #eef2f6;
+        }
+        .sms-stat-label {
+            font-size: 10px;
+            color: #888;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .sms-stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        .sms-stat-value.green { color: #00B875; }
+        .sms-stat-value.purple { color: #8b5cf6; }
+        .sms-stat-value.orange { color: #f59e0b; }
+
+        .sms-my-wallet {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-radius: 16px;
+            padding: 16px 18px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .sms-my-wallet-left { display: flex; align-items: center; gap: 14px; }
+        .sms-my-wallet-icon {
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            backdrop-filter: blur(10px);
+        }
+        .sms-my-wallet-label { font-size: 11px; opacity: 0.9; margin-bottom: 4px; }
+        .sms-my-wallet-balance { font-size: 24px; font-weight: 800; line-height: 1; }
+        .sms-my-wallet-email { font-size: 11px; opacity: 0.8; margin-top: 4px; }
+
+        .sms-recent-purchases {
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #f0f2f5;
+        }
+        .sms-purchase-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 12px;
+            gap: 12px;
+        }
+        .sms-purchase-item:last-child { border-bottom: none; }
+        .sms-purchase-left { flex: 1; min-width: 0; }
+        .sms-purchase-email { font-weight: 600; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sms-purchase-date { font-size: 10px; color: #888; margin-top: 2px; }
+        .sms-purchase-tokens {
+            font-weight: 800;
+            color: #00B875;
+            white-space: nowrap;
+        }
+        .sms-purchase-amount {
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+        }
+        .sms-purchase-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+        .sms-purchase-status.success { background: #d1fae5; color: #047857; }
+        .sms-purchase-status.pending { background: #fef3c7; color: #b45309; }
+        .sms-purchase-status.grant { background: #f3e8ff; color: #7c3aed; }
+
         /* ============ FILTER TABS ============ */
         .filter-tabs {
             display: flex;
@@ -530,6 +675,8 @@
         }
         .action-btn.tier { background: #eff6ff; color: #2563eb; }
         .action-btn.tier:hover { background: #dbeafe; }
+        .action-btn.sms { background: #f3e8ff; color: #7c3aed; }
+        .action-btn.sms:hover { background: #e9d5ff; }
         .action-btn.delete { background: #fee2e2; color: #dc2626; }
         .action-btn.delete:hover { background: #fecaca; }
 
@@ -551,7 +698,7 @@
         @media (max-width: 768px) {
             .top-header { padding: 20px 16px 50px; }
             .header-title-group h1 { font-size: 20px; }
-            .header-actions { width: 100%; justify-content: flex-end; }
+            .header-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
             .analytics-grid { grid-template-columns: repeat(2, 1fr); }
             .analytics-value { font-size: 22px; }
             .admin-container { padding: 0 12px; }
@@ -744,6 +891,68 @@
                     </div>
                 </div>
 
+                <!-- ========== NEW: SMS TOKEN MANAGER ========== -->
+                <div class="sms-manager-card">
+                    <div class="sms-manager-head">
+                        <div class="sms-manager-title">
+                            <i class="fas fa-comment-sms" style="color:#8b5cf6;"></i>
+                            SMS Token Manager
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="sms-grant-btn" onclick="giveMySelfTokens()">
+                                <i class="fas fa-gift"></i> Give Myself 100 Tokens (Free)
+                            </button>
+                            <button class="sms-grant-btn secondary" onclick="openGrantTokensModal()">
+                                <i class="fas fa-user-plus"></i> Grant to User
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- My Wallet Card -->
+                    <div class="sms-my-wallet">
+                        <div class="sms-my-wallet-left">
+                            <div class="sms-my-wallet-icon">🎫</div>
+                            <div>
+                                <div class="sms-my-wallet-label">My Token Wallet</div>
+                                <div class="sms-my-wallet-balance" id="myTokenBalance">0</div>
+                                <div class="sms-my-wallet-email" id="myTokenEmail">—</div>
+                            </div>
+                        </div>
+                        <button class="sms-grant-btn" onclick="refreshMyTokens()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="sms-stats-row">
+                        <div class="sms-stat">
+                            <div class="sms-stat-label">Tokens Sold</div>
+                            <div class="sms-stat-value green" id="smsTokensSold">0</div>
+                        </div>
+                        <div class="sms-stat">
+                            <div class="sms-stat-label">Tokens Used</div>
+                            <div class="sms-stat-value purple" id="smsTokensUsed">0</div>
+                        </div>
+                        <div class="sms-stat">
+                            <div class="sms-stat-label">Token Revenue</div>
+                            <div class="sms-stat-value orange" id="smsRevenue">₦0</div>
+                        </div>
+                        <div class="sms-stat">
+                            <div class="sms-stat-label">Wema Owed (₦2k/token used)</div>
+                            <div class="sms-stat-value" id="smsWemaOwed">₦0</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Purchases -->
+                    <div style="font-size:12px; font-weight:700; color:#1a1a1a; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i class="fas fa-history" style="color:#8b5cf6;"></i> Recent Token Purchases & Grants
+                    </div>
+                    <div class="sms-recent-purchases" id="smsRecentPurchases">
+                        <div style="text-align:center; color:#888; padding:20px; font-size:12px;">Loading...</div>
+                    </div>
+                </div>
+                <!-- ========== END SMS TOKEN MANAGER ========== -->
+
                 <div class="table-card">
                     <div class="table-header">
                         <div class="table-title">
@@ -876,7 +1085,6 @@
         let liveUpdateInterval = null;
         
         // ✅ CRITICAL FIX: Parse timestamps as UTC if no timezone info
-        // This fixes the "1 hour ago" bug caused by Supabase storing as TIMESTAMP WITHOUT TIME ZONE
         function parseTimestampUTC(ts) {
             if (!ts) return null;
             if (ts instanceof Date) return ts;
@@ -884,17 +1092,14 @@
             
             let str = ts.trim();
             
-            // If already has 'Z' or +hh:mm timezone, parse as-is
             if (str.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(str)) {
                 return new Date(str);
             }
             
-            // If has 'T' but no timezone, add 'Z' to force UTC
             if (str.includes('T')) {
                 return new Date(str + 'Z');
             }
             
-            // If has space (Supabase format: "2026-06-15 14:30:00"), convert to ISO + 'Z'
             if (str.includes(' ')) {
                 return new Date(str.replace(' ', 'T') + 'Z');
             }
@@ -921,6 +1126,7 @@
                 if (data.valid) {
                     showDashboard();
                     loadDashboardData();
+                    loadSmsTokenManager();
                     startLiveUpdates();
                 } else {
                     localStorage.removeItem('adminSessionToken');
@@ -944,6 +1150,7 @@
                     localStorage.setItem('adminSessionToken', adminSessionToken);
                     showDashboard();
                     loadDashboardData();
+                    loadSmsTokenManager();
                     startLiveUpdates();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Access Denied', text: 'Invalid admin password' });
@@ -1017,7 +1224,6 @@
                 if (isUserActiveWithin(user, 86400)) activeToday++;
                 if (isUserCreatedWithin(user, 7)) newThisWeek++;
                 
-                // Churn: inactive 7+ days OR never seen + created 7+ days ago
                 let isInactive = false;
                 if (user.last_seen) {
                     const t = parseTimestampUTC(user.last_seen);
@@ -1064,7 +1270,6 @@
             renderReengagementPanel();
         }
         
-        // ============ GROWTH CHART ============
         function renderGrowthChart() {
             const ctx = document.getElementById('growthChart');
             if (!ctx) return;
@@ -1161,7 +1366,6 @@
             });
         }
         
-        // ============ TIER DOUGHNUT ============
         function renderTierChart(t1, t2, t3, tvip) {
             const ctx = document.getElementById('tierChart');
             if (!ctx) return;
@@ -1203,7 +1407,6 @@
             });
         }
         
-        // ============ PEAK HOURS CHART ============
         function renderPeakChart() {
             const ctx = document.getElementById('peakChart');
             if (!ctx) return;
@@ -1268,7 +1471,6 @@
             });
         }
         
-        // ============ RE-ENGAGEMENT PANEL ============
         function renderReengagementPanel() {
             const container = document.getElementById('reengagementList');
             
@@ -1309,7 +1511,6 @@
             }).join('');
         }
         
-        // ============ ACTIVITY FEED ============
         function renderActivityFeed() {
             const container = document.getElementById('activityList');
             const sorted = [...allUsers]
@@ -1359,7 +1560,6 @@
             return 'old';
         }
         
-        // ============ LIVE UPDATES ============
         function startLiveUpdates() {
             if (liveUpdateInterval) clearInterval(liveUpdateInterval);
             liveUpdateInterval = setInterval(() => {
@@ -1392,7 +1592,6 @@
             }, 1000);
         }
         
-        // ============ FORMAT LAST SEEN (FIXED UTC) ============
         function formatLastSeen(lastSeen) {
             if (!lastSeen) return '<span class="last-seen-old">Never</span>';
             
@@ -1405,7 +1604,6 @@
             const diffHours = Math.floor(diffMins / 60);
             const diffDays = Math.floor(diffHours / 24);
             
-            // Future timestamp safeguard (in case of clock skew)
             if (diffSeconds < 0) return '<span class="last-seen-online">Online now</span>';
             
             if (diffSeconds < 5) return '<span class="last-seen-online">Online now</span>';
@@ -1420,7 +1618,6 @@
             return `<span class="last-seen-old">${y} year${y !== 1 ? 's' : ''} ago</span>`;
         }
         
-        // ============ TIER DISPLAY ============
         function getTierDisplay(tier) {
             if (tier === '1' || tier === 1 || !tier) return '<span class="tier-badge tier-1">⚪ Not Activated</span>';
             if (tier === '2' || tier === 2) return '<span class="tier-badge tier-2">🥈 Basic</span>';
@@ -1434,7 +1631,6 @@
             return '<span class="status-badge paid">Paid User</span>';
         }
         
-        // ============ FILTER TABS ============
         function applyFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -1479,7 +1675,6 @@
             }
         }
         
-        // ============ SORT & RENDER ============
         function sortAndRenderUsers() {
             let users = getFilteredUsers();
             
@@ -1559,8 +1754,9 @@
                         <td style="font-size: 11px; color:#888; white-space: nowrap;">${createdT ? createdT.toLocaleDateString() : '—'}</td>
                         <td data-lastseen-time="${lastSeenAttr}" style="white-space: nowrap;">${formatLastSeen(user.last_seen)}</td>
                         <td style="white-space: nowrap;">
-                            <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')"><i class="fas fa-crown"></i></button>
-                            <button class="action-btn delete" onclick="deleteSingleUser(${user.id}, '${user.account_name}')"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn tier" onclick="openTierModal(${user.id}, '${user.email}', '${user.account_name}')" title="Assign Tier"><i class="fas fa-crown"></i></button>
+                            <button class="action-btn sms" onclick="quickGrantTokens('${user.email}', '${user.account_name}')" title="Give SMS Tokens"><i class="fas fa-comment-sms"></i></button>
+                            <button class="action-btn delete" onclick="deleteSingleUser(${user.id}, '${user.account_name}')" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1729,10 +1925,8 @@
             }
         }
         
-        // ============ SEARCH ============
         function filterUsers() { sortAndRenderUsers(); }
         
-        // ============ SCREEN CONTROL ============
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('dashboardScreen').style.display = 'none';
@@ -1762,6 +1956,188 @@
                 loadDashboardData();
             }
         }, 30000);
+
+        // ============ SMS TOKEN MANAGER ============
+        async function loadSmsTokenManager() {
+            const adminEmail = localStorage.getItem('adminEmail') || 'olad@gmail.com';
+            document.getElementById('myTokenEmail').textContent = adminEmail;
+
+            // Load stats
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/admin/sms-token-stats`, {
+                    headers: { 'X-Admin-Token': adminSessionToken }
+                });
+                const d = await r.json();
+                if (d.success && d.stats) {
+                    document.getElementById('smsTokensSold').textContent = d.stats.totalTokensSold || 0;
+                    document.getElementById('smsTokensUsed').textContent = d.stats.totalTokensUsed || 0;
+                    document.getElementById('smsRevenue').textContent = '₦' + (d.stats.totalRevenue || 0).toLocaleString();
+                    // Wema owed = tokens used × ₦2,000
+                    const wemaOwed = (d.stats.totalTokensUsed || 0) * 2000;
+                    document.getElementById('smsWemaOwed').textContent = '₦' + wemaOwed.toLocaleString();
+
+                    // Recent purchases
+                    renderRecentPurchases(d.transactions || []);
+                }
+            } catch(e) { console.error('SMS stats error:', e); }
+
+            // Load admin's own balance
+            await refreshMyTokens();
+        }
+
+        async function refreshMyTokens() {
+            const adminEmail = localStorage.getItem('adminEmail') || 'olad@gmail.com';
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/sms-tokens/get`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: adminEmail })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    document.getElementById('myTokenBalance').textContent = d.token_balance || 0;
+                }
+            } catch(e) {}
+        }
+
+        function renderRecentPurchases(txs) {
+            const container = document.getElementById('smsRecentPurchases');
+            if (!txs || txs.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#888; padding:20px; font-size:12px;">No purchases yet</div>';
+                return;
+            }
+            container.innerHTML = txs.slice(0, 20).map(tx => {
+                const dateT = parseTimestampUTC(tx.created_at);
+                const dateStr = dateT ? dateT.toLocaleString() : '—';
+                let statusClass = 'pending';
+                let statusLabel = 'Pending';
+                if (tx.status === 'success') { statusClass = 'success'; statusLabel = 'Paid'; }
+                else if (tx.status === 'admin_grant') { statusClass = 'grant'; statusLabel = 'Grant'; }
+
+                return `
+                    <div class="sms-purchase-item">
+                        <div class="sms-purchase-left">
+                            <div class="sms-purchase-email">${tx.email}</div>
+                            <div class="sms-purchase-date">${dateStr}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="sms-purchase-tokens">${tx.package_tokens} tokens</div>
+                            <div class="sms-purchase-amount">₦${parseFloat(tx.amount_paid || 0).toLocaleString()}</div>
+                            <span class="sms-purchase-status ${statusClass}">${statusLabel}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Give admin 100 free tokens for testing
+        async function giveMySelfTokens() {
+            const adminEmail = localStorage.getItem('adminEmail') || 'olad@gmail.com';
+            const result = await Swal.fire({
+                title: '🎁 Give Yourself 100 Tokens?',
+                html: `You'll instantly receive <strong>100 SMS tokens</strong> on <code>${adminEmail}</code> for testing. <br><br><span style="color:#888; font-size:12px;">No payment required. This is admin-only.</span>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#8b5cf6',
+                confirmButtonText: 'Yes, Give Me 100',
+                cancelButtonText: 'Cancel'
+            });
+            if (!result.isConfirmed) return;
+
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/admin/grant-sms-tokens`, {
+                    method: 'POST',
+                    headers: { 'X-Admin-Token': adminSessionToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: adminEmail, tokens: 100, reason: 'admin_self_test' })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '🎉 100 Tokens Added!',
+                        html: `You now have <strong>${d.new_balance} tokens</strong> on <code>${adminEmail}</code>.<br><br>Go test the SMS feature on the amount page!`,
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    await loadSmsTokenManager();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Failed', text: d.message });
+                }
+            } catch(err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // Quick grant to any user (from user table)
+        async function quickGrantTokens(email, name) {
+            const { value: amount } = await Swal.fire({
+                title: `Give SMS Tokens`,
+                html: `Grant free tokens to:<br><strong>${name}</strong><br><code style="font-size:12px; color:#888;">${email}</code>`,
+                input: 'number',
+                inputValue: 10,
+                inputLabel: 'Number of tokens',
+                inputAttributes: { min: 1, max: 1000 },
+                showCancelButton: true,
+                confirmButtonColor: '#8b5cf6',
+                confirmButtonText: 'Grant',
+                inputValidator: (v) => {
+                    if (!v || v < 1) return 'Enter at least 1 token';
+                }
+            });
+
+            if (!amount) return;
+
+            Swal.fire({ title: 'Granting...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/admin/grant-sms-tokens`, {
+                    method: 'POST',
+                    headers: { 'X-Admin-Token': adminSessionToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, tokens: parseInt(amount), reason: 'admin_manual' })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    Swal.fire({ icon: 'success', title: '✅ Granted', text: `${amount} tokens added to ${name}`, timer: 1800, showConfirmButton: false });
+                    loadSmsTokenManager();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Failed', text: d.message });
+                }
+            } catch(err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            }
+        }
+
+        // Open grant modal (header button)
+        async function openGrantTokensModal() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Grant SMS Tokens to User',
+                html: `
+                    <input id="grantEmail" class="swal2-input" placeholder="User email" type="email">
+                    <input id="grantAmount" class="swal2-input" placeholder="Number of tokens" type="number" min="1" value="10">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#8b5cf6',
+                confirmButtonText: 'Grant Tokens',
+                preConfirm: () => {
+                    const email = document.getElementById('grantEmail').value.trim();
+                    const amount = parseInt(document.getElementById('grantAmount').value);
+                    if (!email || !email.includes('@')) {
+                        Swal.showValidationMessage('Enter a valid email');
+                        return false;
+                    }
+                    if (!amount || amount < 1) {
+                        Swal.showValidationMessage('Enter at least 1 token');
+                        return false;
+                    }
+                    return { email, amount };
+                }
+            });
+
+            if (!formValues) return;
+            await quickGrantTokens(formValues.email, formValues.email);
+        }
     </script>
 </body>
 </html>
