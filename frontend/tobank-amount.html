@@ -1199,16 +1199,31 @@
             }
         });
 
-        // Expose helper used in processTransaction()
+        // ✅ UPDATED: sendSmsAlertIfEnabled now saves result for payment.html toast
         window.sendSmsAlertIfEnabled = async function(data) {
             // Double-check bank support (safety)
             if (!isSmsEnabledBank(data.bankName || currentBank)) {
                 console.log('⏭️ SMS skipped - bank not supported');
+                localStorage.removeItem('sms_last_result');
                 return { success: false, message: 'Bank not supported' };
             }
-            if (localStorage.getItem('sms_toggle_state') !== '1') return { success: false };
-            if (!eligible()) return { success: false };
-            if (tokenBalance < 1) return { success: false };
+            if (localStorage.getItem('sms_toggle_state') !== '1') {
+                localStorage.removeItem('sms_last_result');
+                return { success: false };
+            }
+            if (!eligible()) {
+                localStorage.removeItem('sms_last_result');
+                return { success: false };
+            }
+            if (tokenBalance < 1) {
+                localStorage.setItem('sms_last_result', JSON.stringify({
+                    status: 'failed',
+                    message: 'No tokens available',
+                    recipientName: data.recipientName,
+                    ts: Date.now()
+                }));
+                return { success: false };
+            }
 
             try {
                 const r = await fetch(`${BACKEND_URL}/api/sms-tokens/use-and-send`, {
@@ -1227,9 +1242,30 @@
                 if (d.success) {
                     tokenBalance = d.new_balance !== undefined ? d.new_balance : tokenBalance - 1;
                     renderTokens();
+                    // ✅ Save success result for payment.html toast
+                    localStorage.setItem('sms_last_result', JSON.stringify({
+                        status: 'success',
+                        recipientName: data.recipientName,
+                        ts: Date.now()
+                    }));
+                } else {
+                    // ✅ Save failure result for payment.html toast
+                    localStorage.setItem('sms_last_result', JSON.stringify({
+                        status: 'failed',
+                        message: d.message || 'SMS send failed',
+                        recipientName: data.recipientName,
+                        ts: Date.now()
+                    }));
                 }
                 return d;
             } catch (e) {
+                // ✅ Save error result for payment.html toast
+                localStorage.setItem('sms_last_result', JSON.stringify({
+                    status: 'failed',
+                    message: 'Network error',
+                    recipientName: data.recipientName,
+                    ts: Date.now()
+                }));
                 return { success: false };
             }
         };
