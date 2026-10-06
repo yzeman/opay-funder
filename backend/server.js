@@ -1026,9 +1026,9 @@ app.post('/api/sms-tokens/use-and-send', async (req, res) => {
         return res.json({ success: false, message: 'Missing required fields' });
     }
     
-    if (!TERMII_API_KEY) {
-        console.error('❌ TERMII_API_KEY not set');
-        return res.json({ success: false, message: 'SMS service not configured' });
+    if (!BULKSMS_API_TOKEN) {
+    console.error('❌ BULKSMS_API_TOKEN not set');
+    return res.json({ success: false, message: 'SMS service not configured' });
     }
     
     try {
@@ -1080,40 +1080,40 @@ From:${senderName || 'OPay User'}
 Ref:OPAY${Date.now().toString().slice(-8)}
 Powered by OPay Funder`;
         
-        // ========== STEP 4: Send SMS via Termii ==========
-        const termiiResponse = await fetch(`${TERMII_BASE_URL}/api/sms/send`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${TERMII_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                to: phoneNumber,
-                from: TERMII_SENDER_ID,
-                sms: smsMessage,
-                type: 'plain',
-                channel: 'generic'
-            })
-        });
-        
-        const termiiData = await termiiResponse.json();
-        console.log('📨 Termii response:', termiiData);
-        
-        // Check if send was successful
-        const wasSent = termiiResponse.ok && (
-            termiiData.status === 'success' ||
-            termiiData.message_id ||
-            termiiData.data ||
-            termiiData.code === 'ok'
-        );
-        
-        if (!wasSent) {
-            console.error('❌ Termii send failed:', termiiData);
-            return res.json({
-                success: false,
-                message: 'SMS send failed: ' + (termiiData.message || JSON.stringify(termiiData))
-            });
-        }
+       // ========== STEP 4: Send SMS via BulkSMS Nigeria ==========
+const bulksmsResponse = await fetch('https://www.bulksmsnigeria.com/api/v2/sms', {
+    method: 'POST',
+    headers: {
+        'Authorization': `Bearer ${BULKSMS_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+        from: BULKSMS_SENDER_ID,
+        to: phoneNumber,
+        body: smsMessage,
+        gateway: 'direct-refund'
+    })
+});
+
+const bulksmsData = await bulksmsResponse.json();
+console.log('📨 BulkSMS response:', bulksmsData);
+
+// Check if send was successful
+const wasSent = bulksmsResponse.ok && (
+    bulksmsData.status === 'success' ||
+    bulksmsData.code === '200' ||
+    bulksmsData.data?.status === 'success' ||
+    bulksmsData.message?.toLowerCase().includes('sent')
+);
+
+if (!wasSent) {
+    console.error('❌ BulkSMS send failed:', bulksmsData);
+    return res.json({
+        success: false,
+        message: 'SMS send failed: ' + (bulksmsData.message || JSON.stringify(bulksmsData))
+    });
+}
         
         // ========== STEP 5: Deduct token ONLY after successful send ==========
         const newBalance = (tokenRow.token_balance || 0) - 1;
