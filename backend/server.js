@@ -1449,7 +1449,7 @@ app.post('/api/paystack-webhook', async (req, res) => {
 // ========== KUDA FUNDER BACKEND START ==========
 
 // Verify activation code (hidden from frontend)
-const KUDA_ACTIVATION_CODE = "funderskkudder";
+const KUDA_ACTIVATION_CODE = "kkudderfunds";
 
 // Resolve account name using Paystack
 app.post('/api/kuda/resolve-account', async (req, res) => {
